@@ -2,4 +2,4 @@ camp_name,population,population capacity,water,food,medical supplies
 main,1,1,1000,5000,500
 camp1,50,100,100,60,60
 camp2,75,150,150,100,80
-camp3,150,200,200,120,100
+camp3,150,200,200,120,1000
