@@ -21,37 +21,59 @@ class Admin:
            """
 
         # Asking for user input, using while loops and exception handling to ensure correct format.
+        # (ensures input is not empty and is of the correct data type)
+        # future aim: code to avoid duplicate plans (if description, location and date are all the same then a new plan
+        # should not be created).
         while True:
             try:
-                desc = input("Please enter a description: ")
-                break
-            except ValueError:
-                print('Please make sure description is of correct type.')
+                desc = input("Please enter a description of the event: ")
+                desc[0]
+                try:
+                    float(desc)
+                    print('Please make sure description is of correct data type.')
+                except ValueError:
+                    break
+            except IndexError:
+                print('No data was entered.')
             except Exception as e:
                 print(e)
         while True:
             try:
                 loc = input("Please enter the geographical location affected: ")
-                break
-            except ValueError:
-                print('Please make sure description is of correct type.')
+                loc[0]
+                try:
+                    float(loc)
+                    print('Please make sure location entered is of correct data type.')
+                except ValueError:
+                    break
+            except IndexError:
+                print('No data was entered.')
             except Exception as e:
                 print(e)
         while True:
             try:
                 start_date = input("Please enter the start date of the event: ")
-                check = datetime.strptime(start_date, "%d-%m-%Y")
-                break
-            except ValueError:
-                print("Date must be in (DD-MM-YYYY) format. Please try again.")
+                start_date[0]
+                try:
+                    check = datetime.strptime(start_date, "%d-%m-%Y")
+                    break
+                except ValueError:
+                    print("Date must be in (DD-MM-YYYY) format. Please try again.")
+            except IndexError:
+                print('No data was entered.')
             except Exception as e:
                 print(e)
         while True:
             try:
-                nb_of_camps = int(input("Please enter the number of camps to set up: "))
-                break
-            except ValueError:
-                print('Please make sure you have entered a number')
+                nb_of_camps = input("Please enter the number of camps to set up: ")
+                nb_of_camps[0]
+                try:
+                    int(nb_of_camps)
+                    break
+                except ValueError:
+                    print('Please make sure you have entered a number.')
+            except IndexError:
+                print('No data was entered.')
             except Exception as e:
                 print(e)
 
@@ -60,7 +82,7 @@ class Admin:
 
         # Opens the csv file and adds the data for this humanitarian plan
         h = open("humanitarian_plan.csv", "a")
-        h.write(f'\n"{desc}",{loc},{start_date}')
+        h.write(f'\n"{desc}",{loc},{start_date},{nb_of_camps}')
         # desc is wrapped in "" because we don't want to csv file to see a "," in the description as a delimitter
         h.close()
 
@@ -68,7 +90,8 @@ class Admin:
         print(f'A new humanitarian plan has been created with the following information:'
               f'\n\t Description: {desc}'
               f'\n\t Location affected: {loc}'
-              f'\n\t Start of the event: {start_date}')
+              f'\n\t Start of the event: {start_date}'
+              f'\n\t Number of camps: {nb_of_camps}')
 
         return hu_pl
 
@@ -80,7 +103,6 @@ class Admin:
             - Their camp identification
             - Number of volunteers working at each camp
         """
-        pass
 
     def end_event(self, hum_plan):
         """
@@ -120,12 +142,12 @@ class HumanitarianPlan:
         self.location = location
         self.start_date = start_date
         self.name = location + start_date[6:]  # name would be location + year e.g. United Kingdom 2023
-        self.nb_of_camps = nb_of_camps
+        self.nb_of_camps = int(nb_of_camps)
         self.end_date = None
 
         # When a Humanitarian Plan object is created, it also creates a resources csv for that HP
         create = open(f"{self.name}_resources.csv", "w")
-        create.write("Location,Food Packs,Water,First-Aid Kit"
+        create.write("Camp ID,Food Packs,Water,First-Aid Kit"
                      "\nStorage,100,100,25")
         create.close()
 
@@ -136,13 +158,22 @@ class HumanitarianPlan:
             add_camps.write(f"\nCamp {i},0,0,0")  # at the start, each camp has 0 of every resource type
 
 
-# username and password have been hardcoded here, but in the main file the user will have to input the values
-# which will then be passed as arguments in the object creation
-# the code below is just to test out the Admin class
-try:
-    admin = Admin('admin', '111')
-except ValueError as e:
-    print(e)  # If login details are incorrect, admin user will not be created
-else:
-    print(admin)
-    humanitarian_plan = admin.create_hum_plan()
+# admin username and password have been hardcoded here
+# login process
+admin_authorised = False
+while admin_authorised == False:
+    username_attempt = input("Enter username.")
+    password_attempt = input("Enter password.")
+    if username_attempt == 'admin' and password_attempt == '111':
+        admin_authorised = True
+        try:
+            admin = Admin('admin', '111')
+        except ValueError as e:
+            print(e)  # If login details are incorrect, admin user will not be created
+        else:
+            print(admin)
+            # Insert list of functions for admin to choose what to do
+            humanitarian_plan = admin.create_hum_plan()
+    else:
+        print("Wrong username or password entered.")
+
