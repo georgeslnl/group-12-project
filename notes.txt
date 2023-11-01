@@ -1,0 +1,10 @@
+Some extra features we can add potentially
+
+1. condition of refugees (normal, hospitalised, etc.)
+2.0. auto calculation for resources distribution
+2.1. resources based on the condition of refugees
+2.2. warning message if admin may cause imbalance of resources
+
+3. restock counter (how many days until restocks come)
+
+4. *** Logging ***
