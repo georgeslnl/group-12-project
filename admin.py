@@ -14,7 +14,8 @@ class Admin:
 
     def create_hum_plan(self):
         """This method lets the admin create a new humanitarian plan.
-           The admin needs to input a description, the location affected, and the start date of the event.
+           The admin needs to input a description, the location affected, the start date of the event, and the number
+           of camps.
            The method then creates a new HumanitarianPlan object and returns it.
            It also adds the Humanitarian Plan to the csv file 'humanitarian_plan.csv'
            """
@@ -43,9 +44,19 @@ class Admin:
                 break
             except ValueError:
                 print("Date must be in (DD-MM-YYYY) format. Please try again.")
+            except Exception as e:
+                print(e)
+        while True:
+            try:
+                nb_of_camps = int(input("Please enter the number of camps to set up: "))
+                break
+            except ValueError:
+                print('Please make sure you have entered a number')
+            except Exception as e:
+                print(e)
 
         # Creating humanitarian plan object
-        hu_pl = HumanitarianPlan(desc, loc, start_date)
+        hu_pl = HumanitarianPlan(desc, loc, start_date, nb_of_camps)
 
         # Opens the csv file and adds the data for this humanitarian plan
         h = open("humanitarian_plan.csv", "a")
@@ -93,20 +104,41 @@ class Admin:
 
 class HumanitarianPlan:
     """
-    Class for the Humanitarian Plan. It requires a description, location, and start_date, which are passed as arguments
-    from create_hum_plan method of Admin class.
+    Class for the Humanitarian Plan. It requires a description, location, start_date and nb_of_camps which are passed
+    as arguments from create_hum_plan method of Admin class.
 
-    When initialised, end_date is set to 'None' and can later be edited with edit_end_date method of Admin class
+    nb_of_camps is the number of camps created when the Humanitarian Plan is created. The admin should specify how
+    many camps should be set up.
+
+    When initialised, end_date is set to 'None' and can later be edited with edit_end_date method of Admin class.
+
+    When initialised, a resources csv file is created with a row for the number of camps specified
     """
-    def __init__(self, description, location, start_date):
+
+    def __init__(self, description, location, start_date, nb_of_camps):
         self.description = description
         self.location = location
         self.start_date = start_date
+        self.name = location + start_date[6:]  # name would be location + year e.g. United Kingdom 2023
+        self.nb_of_camps = nb_of_camps
         self.end_date = None
+
+        # When a Humanitarian Plan object is created, it also creates a resources csv for that HP
+        create = open(f"{self.name}_resources.csv", "w")
+        create.write("Location,Food Packs,Water,First-Aid Kit"
+                     "\nStorage,100,100,25")
+        create.close()
+
+        # Adds the rows for each camp into the resources.csv file, based on how many camps exist
+        # e.g. if nb_of_camps is 3, there will be a row added to the csv for Camp 1, Camp 2, and Camp 3
+        add_camps = open(f"{self.name}_resources.csv", "a")
+        for i in range(1, self.nb_of_camps + 1):  # starts at 1 since default is 0 and doesn't make sense to have Camp 0
+            add_camps.write(f"\nCamp {i},0,0,0")  # at the start, each camp has 0 of every resource type
 
 
 # username and password have been hardcoded here, but in the main file the user will have to input the values
 # which will then be passed as arguments in the object creation
+# the code below is just to test out the Admin class
 try:
     admin = Admin('admin', '111')
 except ValueError as e:
