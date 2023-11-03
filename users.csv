@@ -1,4 +1,4 @@
-username,password,active,first_name,last_name,email,phone_number,address_line1,address_line2,city,postal_code,gender,date_of_birth,camp_name
-volunteer1,111,1,First,Volunteer,volunteer1@example.com,88888888,Address 1-1,,London,A1A B1B,M,2000-01-01,camp1
-volunteer2,111,1,Second,Volunteer,volunteer2@example.com,88889999,Address 2-1, Street 2-2,A1A B1B,F,1995-12-25,camp3
-volunteer3,111,1,Third,Volunteer,volunteer3@example.com,99998888,Address 3-1,,A1A B1B,N,1997-02-14,camp3
+username,password,active,first_name,last_name,email,phone_number,gender,date_of_birth,camp_name
+volunteer1,111,1,First,Volunteer,volunteer1@example.com,+44 08888888888,1,2000-01-01,camp1
+volunteer2,111,1,Second,Volunteer,volunteer2@example.com,+44 08888999999,2,1995-12-25,camp3
+volunteer3,111,1,Third,Volunteer,volunteer3@example.com,+44 09999888888,3,1997-02-14,camp3
