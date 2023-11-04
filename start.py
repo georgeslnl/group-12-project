@@ -1,8 +1,5 @@
 '''Run this file in the command line to open the application'''
-import exceptions
-import pandas as pd
-import re
-import datetime
+import exceptions, pandas as pd, re, datetime
 
 def main_menu():
     while True:
@@ -106,10 +103,13 @@ def volunteer_login():
             print("Username not found. Please try again.\n")
             continue
 
-        select_user_password = select_user[select_user['password'] == password]
-        if len(select_user_password.index) == 0: # password incorrect
+        if select_user.iloc[0]['password'] != password: # password incorrect
             print("Incorrect password. Please try again.\n")
             continue
+
+        if select_user.iloc[0]['active'] == 0: # user has been deactivated
+            print("Your account has been deactivated. Please contact system administrator.\n")
+            main_menu()
 
         # Login successful, go to volunteer menu
         print("Login successful!")
@@ -117,7 +117,6 @@ def volunteer_login():
         break
 
 def volunteer_registration():
-    # Add to users file: email, phone_number, gender, DOB, camp
     print("\nVolunteer Registration")
     print("You will be prompted to enter details for registration.")
 
@@ -135,8 +134,8 @@ def volunteer_registration():
             if not s:
                 print("Username can only contain letters, digits (0-9) and underscore (_), and must start with a letter. Please choose another username.")
                 continue
-            user_details = pd.read_csv('users.csv', dtype={'password': str})
-            select_username = user_details[user_details['username'] == username]
+            users = pd.read_csv('users.csv', dtype={'password': str})
+            select_username = users[users['username'] == username]
             if len(select_username.index) > 0:  # username already exists
                 print("Username is taken. Please choose another username.")
                 continue
@@ -372,7 +371,21 @@ def volunteer_registration():
     if progress < 9:
         volunteer_main_menu()
 
-    # TODO: Update csv tables
+    # Update csv tables
+    users = pd.read_csv('users.csv', dtype={'password': str})
+    new_row = {'username': [username], 'password': [password], 'active': [1], 'first_name': [first_name],
+               'last_name': [last_name], 'email': [email], 'phone_number': [phone_number], 'gender': [gender],
+               'date_of_birth': [date_of_birth], 'camp_name': [camp_name]}
+    new = pd.DataFrame(new_row)
+    users = pd.concat([users, new], ignore_index=True)
+    users.to_csv('users.csv', index=False)
+
+    if camp_name:
+        camps = pd.read_csv('camps.csv')
+        chosen = (camps['camp_name'] == camp_name)
+        camps.loc[chosen, 'volunteers'] = camps.loc[chosen, 'volunteers'] + 1
+        camps.to_csv('camps.csv', index=False)
+
     print("\nThank you for registering as a volunteer,", first_name, last_name, "!")
     print("Your details are as follows:")
     print("Username:", username)

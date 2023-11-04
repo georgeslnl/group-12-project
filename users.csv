@@ -1,4 +1,6 @@
 username,password,active,first_name,last_name,email,phone_number,gender,date_of_birth,camp_name
 volunteer1,111,1,First,Volunteer,volunteer1@example.com,+44 08888888888,1,2000-01-01,camp1
 volunteer2,111,1,Second,Volunteer,volunteer2@example.com,+44 08888999999,2,1995-12-25,camp3
-volunteer3,111,1,Third,Volunteer,volunteer3@example.com,+44 09999888888,3,1997-02-14,camp3
+volunteer3,111,0,Third,Volunteer,volunteer3@example.com,+44 09999888888,3,1997-02-14,camp3
+volunteer4,111,1,Fourth,Volunteer,v4@example.com,+44 11111111111,1,2001-02-01,camp1
+volunteer5,111,1,Fifth,Volunteer,v5@example.com,+44 22222222222,2,1987-12-19,
