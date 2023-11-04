@@ -104,6 +104,12 @@ class Admin:
             - Their camp identification
             - Number of volunteers working at each camp
         """
+        #what is the hum_plan input?
+        #humanitarian_plan = pd.read_csv('humanitarian_plan.csv')
+        camps = pd.read_csv('camps.csv')
+        print('Total number of refugees: ', sum(camps['refugees']))
+        print('Camp ID of camps involved: \n', camps['camp_name'])
+        print('Number of volunteers working at each camp: \n', camps[['camp_name', 'volunteers']])
 
     def end_event(self, hum_plan):
         """
@@ -139,8 +145,26 @@ while admin_authorised == False:
             print(e)  # If login details are incorrect, admin user will not be created
         else:
             print(admin)
-            # Insert list of functions for admin to choose what to do
-            humanitarian_plan = admin.create_hum_plan()
+            # list of functions for admin to choose what to do, exception handling to ensure correct format
+            choice_format = False
+            while choice_format == False:
+                action = input('Enter what you would like to do.'
+                               '\n 1 for creating a humanitarian plan'
+                               '\n 2 for ending a humanitarian plan'
+                               '\n 3 for displaying the humanitarian plan'
+                               '\n 4 for editing a volunteer account'
+                               '\n 5 for creating a volunteer account'
+                               '\n 6 for allocating resources')
+                try:
+                    action = int(action)
+                    if action == 1 or action == 2 or action == 3 or action == 4 or action == 5 or action == 6:
+                        choice_format = True
+                except ValueError:
+                    print('Please enter an integer from 1-6.')
+            if action == 1:
+                humanitarian_plan = admin.create_hum_plan()
+            if action == 3:
+                admin.display_hum_plan('hum_plan')
     else:
         print("Wrong username or password entered.")
 
