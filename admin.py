@@ -125,7 +125,7 @@ class Admin:
                 check = datetime.strptime(end, "%d-%m-%Y")
                 break
             except ValueError:
-                print("Date must be in (DD-MM-YYYY) format. Please try again.")
+                print("Date must be in DD-MM-YYYY format. Please try again.")
 
         hum_plan.end_date = end
         return hum_plan
