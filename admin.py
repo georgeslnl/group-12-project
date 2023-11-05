@@ -129,6 +129,8 @@ class Admin:
         new.write(f'\n"{username}",{pw},{first_name},{last_name},{phone},{address},{DOB},{camp_name},{status}')
         new.close()
 
+        print("New user added successfully.")
+
     def end_event(self, hum_plan):
         """
         This method requires a HumanitarianPlan object as argument.
@@ -187,5 +189,7 @@ while admin_authorised == False:
                 humanitarian_plan = admin.create_hum_plan()
             if action == 3:
                 admin.display_hum_plan('hum_plan')
+            if action == 5:
+                admin.creat_volunteer()
     else:
         print("Wrong username or password entered.")
