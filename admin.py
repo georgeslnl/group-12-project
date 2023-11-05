@@ -30,8 +30,8 @@ class Admin:
                 desc = str(input("Please enter a description of the event: ")).strip(" ")  # str(input()) to make sure
                 # the input is a string. strip(" ") in case the input is a space to trick the system as a useful string.
                 if not desc:  # if desc is empty
-                    raise ValueError("No data was entered.")  # raise an error is more direct in this case
-                if float(desc):
+                    raise ValueError('No data was entered.')  # raise an error is more direct in this case
+                if float(desc):  # if desc is a number
                     raise ValueError('Please make sure description is of correct data type.')
             except ValueError as e:
                 print(e)
@@ -40,43 +40,44 @@ class Admin:
 
         while True:
             try:
-                loc = input("Please enter the geographical location affected: ")
-                loc[0]
-                try:
-                    float(loc)
-                    print('Please make sure location entered is of correct data type.')
-                except ValueError:
-                    break
-            except IndexError:
-                print('No data was entered.')
-            except Exception as e:
+                loc = str(input("Please enter the geographical location affected: ")).strip(" ")
+                if not loc:  # if desc is empty
+                    raise ValueError('No data was entered.')
+                if float(desc):  # if loc is a number
+                    raise ValueError('Please make sure description is of correct data type.')
+            except ValueError as e:
                 print(e)
+            else:
+                break
+
         while True:
             try:
-                start_date = input("Please enter the start date of the event: DD-MM-YYYY")
-                start_date[0]
+                start_date = str(input("Please enter the start date of the event: DD-MM-YYYY"))
+                # remind of the format DD-MM-YYYY
+                if not start_date:
+                    raise ValueError("No data was entered.")
                 try:
-                    check = datetime.strptime(start_date, "%d-%m-%Y")
+                    datetime.strptime(start_date, "%d-%m-%Y")  # no need for check variable
                     break
                 except ValueError:
                     print("Date must be in (DD-MM-YYYY) format. Please try again.")
-            except IndexError:
-                print('No data was entered.')
+                    continue  # added continue because print doesn't continue the loop
             except Exception as e:
                 print(e)
+            else:
+                break
+
         while True:
             try:
-                nb_of_camps = input("Please enter the number of camps to set up: ")
-                nb_of_camps[0]
-                try:
-                    int(nb_of_camps)
-                    break
-                except ValueError:
-                    print('Please make sure you have entered a number.')
-            except IndexError:
-                print('No data was entered.')
+                nb_of_camps = input("Please enter the number of camps to set up: ").strip(" ")
+                if not nb_of_camps:
+                    raise ValueError("Please enter a data.")
+                if not nb_of_camps.isdigit():
+                    raise ValueError('Please make sure you have entered an integer.')
             except Exception as e:
                 print(e)
+            else:
+                break
 
         # Creating humanitarian plan object
         hu_pl = HumanitarianPlan(desc, loc, start_date, nb_of_camps)
