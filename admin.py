@@ -27,32 +27,32 @@ class Admin:
         # should not be created).
         while True:
             try:
-                desc = str(input("Please enter a description of the event: ")).strip(" ")  # str(input()) to make sure
-                # the input is a string. strip(" ") in case the input is a space to trick the system as a useful string.
+                desc = input("Please enter a description of the event: ").strip()
+                # strip() in case the input is a space to trick the system as a useful string.
                 if not desc:  # if desc is empty
                     raise ValueError('No data was entered.')  # raise an error is more direct in this case
                 if float(desc):  # if desc is a number
                     raise ValueError('Please make sure description is of correct data type.')
             except ValueError as e:
                 print(e)
-            else:
-                break
+                continue
+            break
 
         while True:
             try:
-                loc = str(input("Please enter the geographical location affected: ")).strip(" ")
+                loc = input("Please enter the geographical location affected: ").strip()
                 if not loc:  # if desc is empty
                     raise ValueError('No data was entered.')
-                if float(desc):  # if loc is a number
+                if float(loc):  # if loc is a number
                     raise ValueError('Please make sure description is of correct data type.')
             except ValueError as e:
                 print(e)
-            else:
-                break
+                continue
+            break
 
         while True:
             try:
-                start_date = str(input("Please enter the start date of the event: DD-MM-YYYY"))
+                start_date = input("Please enter the start date of the event (DD-MM-YYYY): ").strip()
                 # remind of the format DD-MM-YYYY
                 if not start_date:
                     raise ValueError("No data was entered.")
@@ -64,20 +64,20 @@ class Admin:
                     continue  # added continue because print doesn't continue the loop
             except Exception as e:
                 print(e)
-            else:
-                break
+                continue
+            break
 
         while True:
             try:
-                nb_of_camps = input("Please enter the number of camps to set up: ").strip(" ")
+                nb_of_camps = input("Please enter the number of camps to set up: ").strip()
                 if not nb_of_camps:
                     raise ValueError("Please enter a data.")
-                if not nb_of_camps.isdigit():
-                    raise ValueError('Please make sure you have entered an integer.')
+                if not nb_of_camps.isdigit():  # check if it is an integer
+                    raise ValueError('Please enter an integer.')
             except Exception as e:
                 print(e)
-            else:
-                break
+                continue
+            break
 
         # Creating humanitarian plan object
         hu_pl = HumanitarianPlan(desc, loc, start_date, nb_of_camps)
@@ -111,6 +111,23 @@ class Admin:
         print('Total number of refugees: ', sum(camps['refugees']))
         print('Camp ID of camps involved: \n', camps['camp_name'])
         print('Number of volunteers working at each camp: \n', camps[['camp_name', 'volunteers']])
+
+    def creat_volunteer(self):  # TODO exception handling
+        new = open("users.csv", "a")
+
+        username = input("Please enter an user name: ").strip()
+        pw = input("Please enter the password: ").strip()
+        first_name = input("Please enter the first name: ").strip()
+        last_name = input("Please enter the last name: ").strip()
+        phone = input("Please enter the phone number: ").strip()
+        address = input("Please enter the address: ").split(",").strip()
+        # TODO: sort out how the coma in address will work in the csv file
+        DOB = input("Please enter the date of birth (DD-MM-YYYY): ").strip()
+        camp_name = input("Please enter an user name: ").strip()
+        status = "A"  # status is active by default
+
+        new.write(f'\n"{username}",{pw},{first_name},{last_name},{phone},{address},{DOB},{camp_name},{status}')
+        new.close()
 
     def end_event(self, hum_plan):
         """
@@ -155,10 +172,14 @@ while admin_authorised == False:
                                '\n 3 for displaying the humanitarian plan'
                                '\n 4 for editing a volunteer account'
                                '\n 5 for creating a volunteer account'
-                               '\n 6 for allocating resources')
+                               '\n 6 for deleting a volunteer account'  # adding a deleting feature
+                               '\n 7 for deactivating and reactivating a volunteer account'
+                               # just trying to list all branches here to avoid creating too many branches in 
+                               # option 4, what do you think?
+                               '\n 8 for allocating resources')
                 try:
                     action = int(action)
-                    if action == 1 or action == 2 or action == 3 or action == 4 or action == 5 or action == 6:
+                    if action in range(1, 8):
                         choice_format = True
                 except ValueError:
                     print('Please enter an integer from 1-6.')
