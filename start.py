@@ -234,11 +234,8 @@ def volunteer_registration():
             try:
                 opt = int(input("Select an option: "))
                 if opt not in (0, 1):
-                    raise exceptions.SelectOptionException
+                    raise ValueError
             except ValueError:
-                print("Please enter a number from the options provided.\n")
-                continue
-            except exceptions.SelectOptionException:
                 print("Please enter a number from the options provided.\n")
                 continue
             if opt == 0: return
@@ -368,7 +365,10 @@ def volunteer_registration():
 
     # Update csv tables
     users = open("users.csv", "a")
-    users.write(f'\n{username},{password},1,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{camp_name}')
+    if camp_name:
+        users.write(f'\n{username},{password},1,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{camp_name}')
+    else:
+        users.write(f'\n{username},{password},1,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},')
     users.close()
 
     # users = pd.read_csv('users.csv', dtype={'password': str})
