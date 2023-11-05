@@ -27,17 +27,17 @@ class Admin:
         # should not be created).
         while True:
             try:
-                desc = input("Please enter a description of the event: ")
-                desc[0]
-                try:
-                    float(desc)
-                    print('Please make sure description is of correct data type.')
-                except ValueError:
-                    break
-            except IndexError:
-                print('No data was entered.')
-            except Exception as e:
+                desc = str(input("Please enter a description of the event: ")).strip(" ")  # str(input()) to make sure
+                # the input is a string. strip(" ") in case the input is a space to trick the system as a useful string.
+                if not desc:  # if desc is empty
+                    raise ValueError("No data was entered.")  # raise an error is more direct in this case
+                if float(desc):
+                    raise ValueError('Please make sure description is of correct data type.')
+            except ValueError as e:
                 print(e)
+            else:
+                break
+
         while True:
             try:
                 loc = input("Please enter the geographical location affected: ")
@@ -53,7 +53,7 @@ class Admin:
                 print(e)
         while True:
             try:
-                start_date = input("Please enter the start date of the event: ")
+                start_date = input("Please enter the start date of the event: DD-MM-YYYY")
                 start_date[0]
                 try:
                     check = datetime.strptime(start_date, "%d-%m-%Y")
@@ -104,8 +104,8 @@ class Admin:
             - Their camp identification
             - Number of volunteers working at each camp
         """
-        #what is the hum_plan input?
-        #humanitarian_plan = pd.read_csv('humanitarian_plan.csv')
+        # what is the hum_plan input?
+        # humanitarian_plan = pd.read_csv('humanitarian_plan.csv')
         camps = pd.read_csv('camps.csv')
         print('Total number of refugees: ', sum(camps['refugees']))
         print('Camp ID of camps involved: \n', camps['camp_name'])
@@ -167,4 +167,3 @@ while admin_authorised == False:
                 admin.display_hum_plan('hum_plan')
     else:
         print("Wrong username or password entered.")
-
