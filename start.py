@@ -1,5 +1,5 @@
-'''Run this file in the command line to open the application'''
-import exceptions, pandas as pd, re, datetime
+'''Run this file in the command line to open the application.'''
+import pandas as pd, re, datetime
 
 def main_menu():
     while True:
@@ -10,11 +10,8 @@ def main_menu():
         try:
             login_option = int(input("Select an option: "))
             if login_option not in (0, 1, 2):
-                raise exceptions.SelectOptionException
+                raise ValueError
         except ValueError:
-            print("Please enter a number from the options provided.\n")
-            continue
-        except exceptions.SelectOptionException:
             print("Please enter a number from the options provided.\n")
             continue
 
@@ -25,7 +22,7 @@ def main_menu():
         elif login_option == 1:
             admin_login()
         else:  # login_option == 2
-            volunteer_main_menu()
+            main_menu_vol()
         break
 
 def admin_login():
@@ -55,7 +52,7 @@ def admin_login():
             continue
         break
 
-def volunteer_main_menu():
+def main_menu_vol():
     print("\n-----------------")
     while True:
         print("Enter [1] to register as a new volunteer")
@@ -64,11 +61,8 @@ def volunteer_main_menu():
         try:
             login_option_vol = int(input("Select an option: "))
             if login_option_vol not in (0, 1, 2):
-                raise exceptions.SelectOptionException
+                raise ValueError
         except ValueError:
-            print("Please enter a number from the options provided.\n")
-            continue
-        except exceptions.SelectOptionException:
             print("Please enter a number from the options provided.\n")
             continue
 
@@ -86,7 +80,7 @@ def volunteer_login():
     while True:
         username = input("Username (enter 0 to go back): ")
         if username == "0":
-            volunteer_main_menu()
+            main_menu_vol()
         elif username.strip() == "":
             print("Please enter a username.")
             continue
@@ -154,6 +148,10 @@ def volunteer_registration():
             if len(password) < 3:
                 print("Password should be at least 3 characters.")
                 continue
+            s = re.search("[, ]", password)
+            if s:
+                print("Password cannot contain commas or spaces. Please choose another password.")
+                continue
             return password
 
     def add_first_name():
@@ -198,11 +196,8 @@ def volunteer_registration():
             try:
                 gender = int(input("Select an option: "))
                 if gender not in (0, 1, 2, 3, 9):
-                    raise exceptions.SelectOptionException
+                    raise ValueError
             except ValueError:
-                print("Please enter a number from the options provided.\n")
-                continue
-            except exceptions.SelectOptionException:
                 print("Please enter a number from the options provided.\n")
                 continue
             return gender
@@ -369,16 +364,20 @@ def volunteer_registration():
 
     # if exited loop before entering all details, it was to return to previous menu
     if progress < 9:
-        volunteer_main_menu()
+        main_menu_vol()
 
     # Update csv tables
-    users = pd.read_csv('users.csv', dtype={'password': str})
-    new_row = {'username': [username], 'password': [password], 'active': [1], 'first_name': [first_name],
-               'last_name': [last_name], 'email': [email], 'phone_number': [phone_number], 'gender': [gender],
-               'date_of_birth': [date_of_birth], 'camp_name': [camp_name]}
-    new = pd.DataFrame(new_row)
-    users = pd.concat([users, new], ignore_index=True)
-    users.to_csv('users.csv', index=False)
+    users = open("users.csv", "a")
+    users.write(f'\n{username},{password},1,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{camp_name}')
+    users.close()
+
+    # users = pd.read_csv('users.csv', dtype={'password': str})
+    # new_row = {'username': [username], 'password': [password], 'active': [1], 'first_name': [first_name],
+    #            'last_name': [last_name], 'email': [email], 'phone_number': [phone_number], 'gender': [gender],
+    #            'date_of_birth': [date_of_birth], 'camp_name': [camp_name]}
+    # new = pd.DataFrame(new_row)
+    # users = pd.concat([users, new], ignore_index=True)
+    # users.to_csv('users.csv', index=False)
 
     if camp_name:
         camps = pd.read_csv('camps.csv')
@@ -386,15 +385,24 @@ def volunteer_registration():
         camps.loc[chosen, 'volunteers'] = camps.loc[chosen, 'volunteers'] + 1
         camps.to_csv('camps.csv', index=False)
 
-    print("\nThank you for registering as a volunteer,", first_name, last_name, "!")
+    # Print details provided in registration
+    if gender == 1:
+        gender_str = "Male"
+    elif gender == 2:
+        gender_str = "Female"
+    else:
+        gender_str = "Non-binary"
+
+    print("\nThank you for registering as a volunteer,", first_name, last_name+"!")
     print("Your details are as follows:")
     print("Username:", username)
     print("Email:", email)
     print("Phone number:", phone_number)
+    print("Gender:", gender_str)
     print("Date of birth:", date_of_birth)
     print("Camp:", camp_name)
     print("You may now login to your account.")
-    volunteer_main_menu()
+    main_menu_vol()
 
 
 # Run the program
