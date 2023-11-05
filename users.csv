@@ -1,5 +1,5 @@
-username,password
-admin,111
-volunteer1,111
-volunteer2,111
-volunteer3,111
+username,password,active,first_name,last_name,phone_number,address_line1,address_line2,date_of_birth,camp_name
+admin,111,1,System,Admin,99999999,,,,
+volunteer1,111,1,First,Volunteer,88888888,,,2000-01-01,camp1
+volunteer2,111,1,Second,Volunteer,88889999,,,1995-12-25,camp3
+volunteer3,111,1,Third,Volunteer,99998888,,,1997-02-14,camp3
