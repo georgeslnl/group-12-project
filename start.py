@@ -1,5 +1,6 @@
 '''Run this file in the command line to open the application.'''
 import pandas as pd, re, datetime
+from volunteer import Volunteer
 
 def main_menu():
     while True:
@@ -23,7 +24,6 @@ def main_menu():
             admin_login()
         else:  # login_option == 2
             main_menu_vol()
-        break
 
 def admin_login():
     print("\n-----------------")
@@ -105,9 +105,15 @@ def volunteer_login():
             print("Your account has been deactivated. Please contact system administrator.\n")
             main_menu()
 
-        # Login successful, go to volunteer menu
+        # Login successful, initialise volunteer object and go to volunteer menu
         print("Login successful!")
-        # volunteer_menu()
+        v = Volunteer(select_user.iloc[0]['username'], select_user.iloc[0]['password'],
+                      select_user.iloc[0]['first_name'], select_user.iloc[0]['last_name'], select_user.iloc[0]['email'],
+                      select_user.iloc[0]['phone_number'], select_user.iloc[0]['gender'],
+                      select_user.iloc[0]['date_of_birth'], select_user.iloc[0]['camp_name'])
+        v.volunteer_menu()
+        # proceed only when user has logged out
+        main_menu()
         break
 
 def volunteer_registration():
@@ -115,10 +121,10 @@ def volunteer_registration():
     print("You will be prompted to enter details for registration.")
 
     def add_username():
-        print("Enter [0] to return to the previous menu or [9] to go back to the previous step.")
         while True:
+            print("\nEnter [0] to return to the previous menu.")
             username = input("Enter username: ")
-            if username in ("0", "9"):
+            if username == "0":
                 return username
             # validation
             if username.strip() == "":
@@ -136,8 +142,8 @@ def volunteer_registration():
             return username
 
     def add_password():
-        print("Enter [0] to return to the previous menu or [9] to go back to the previous step.")
         while True:
+            print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
             password = input("Enter password: ") # use 111 for demonstration
             if password in ("0", "9"):
                 return password
@@ -155,8 +161,8 @@ def volunteer_registration():
             return password
 
     def add_first_name():
-        print("Enter [0] to return to the previous menu or [9] to go back to the previous step.")
         while True:
+            print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
             first_name = input("Enter first name: ")
             if first_name in ("0", "9"):
                 return first_name
@@ -171,8 +177,8 @@ def volunteer_registration():
             return first_name
 
     def add_last_name():
-        print("Enter [0] to return to the previous menu or [9] to go back to the previous step.")
         while True:
+            print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
             last_name = input("Enter last name: ")
             if last_name in ("0", "9"):
                 return last_name
@@ -187,8 +193,8 @@ def volunteer_registration():
             return last_name
 
     def add_gender():
-        print("Enter [0] to return to the previous menu or [9] to go back to the previous step.")
         while True:
+            print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
             print("Gender:")
             print("Enter [1] for male")
             print("Enter [2] for female")
@@ -203,8 +209,8 @@ def volunteer_registration():
             return gender
 
     def add_dob():
-        print("Enter [0] to return to the previous menu or [9] to go back to the previous step.")
         while True:
+            print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
             date_of_birth = input("Enter your date of birth in the format YYYY-MM-DD: ")
             if date_of_birth in ("0", "9"):
                 return date_of_birth
@@ -245,8 +251,8 @@ def volunteer_registration():
                 exit()
 
     def add_email():
-        print("Enter [0] to return to the previous menu or [9] to go back to the previous step.")
         while True:
+            print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
             email = input("Enter email address: ")
             if email in ("0", "9"):
                 return email
@@ -261,11 +267,14 @@ def volunteer_registration():
             return email
 
     def add_phone_num():
-        print("Enter [0] to return to the previous menu or [9] to go back to the previous step.")
         while True:
+            print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
             phone_num = input("Enter your phone number, including country code followed by a space (e.g. +44 07020123456): ")
             if phone_num in ("0", "9"):
                 return phone_num
+            if phone_num.strip() == "":
+                print("Please enter a phone number.")
+                continue
             s = re.search("^\+?\d{1,3} \d{8,11}$", phone_num) # allow starting + to be omitted
             if not s:
                 print("Incorrect phone number format. Please try again.")
@@ -279,16 +288,16 @@ def volunteer_registration():
         plans = plans[plans['end_date'].isna()]  # only show plans that haven't been closed
 
         if len(plans.index) == 0:
-            print("No ongoing plans. Account will be created without camp identification.")
+            print("\nThere are no ongoing plans. Account will be created without camp identification.")
             return None
 
         camps = pd.read_csv('camps.csv')
         plans_camps = pd.merge(plans, camps, how="inner", on="plan_name")
         plans_camps = plans_camps[
             ['camp_name', 'plan_name', 'description', 'location', 'volunteers', 'refugees', 'capacity']]
-        print("Enter [0] to return to the previous menu, [9] to go back to the previous step or [X] to proceed without camp identification.")
 
         while True:
+            print("\nEnter [0] to return to the previous menu, [9] to go back to the previous step or [X] to proceed without camp identification.")
             print("Choose a camp.")
             print(plans_camps)
             camp_name = input("Enter the name of the camp you would like to join: ")
@@ -298,7 +307,7 @@ def volunteer_registration():
                 return None
 
             if camp_name not in plans_camps['camp_name'].values:
-                print("Please enter the name of a camp from the list displayed.\n")
+                print("Please enter the name of a camp from the list displayed.")
                 continue
             return camp_name
 
@@ -308,7 +317,7 @@ def volunteer_registration():
     while progress < 9:
         if progress == 0:
             username = add_username()
-            if username in ("0", "9"): break
+            if username == "0": break
             else: progress += 1
 
         elif progress == 1:
