@@ -1,7 +1,8 @@
 import pandas as pd
 from datetime import datetime
 from humanitarianplan import HumanitarianPlan
-
+import verify as v
+import csv
 
 class Admin:
     """Class for the Admin user. Since there can only be 1 admin, this class can only be initialised once"""
@@ -131,6 +132,27 @@ class Admin:
 
         print("New user added successfully.")
 
+    def delete_volunteer(self):
+        csv_file_path = 'users.csv'
+        print(pd.read_csv(csv_file_path).iloc[1:, 0])
+
+        delete_user = v.integer('Please enter the number of the user you would like to delete.')
+        delete_user = f"volunteer{delete_user}"
+
+        # Read all rows from the CSV file
+        with open(csv_file_path, mode='r', newline='') as file:
+            csv_reader = csv.reader(file)
+            # read all rows except the 'delete_user'
+            rows = [row for row in csv_reader if row and row[0] != delete_user]
+
+        # overwrite it with the new, modified rows
+        with open(csv_file_path, mode='w', newline='') as file:
+            csv_writer = csv.writer(file)
+            csv_writer.writerows(rows)
+
+        print('Deletion complete. This is the updated user list.')
+        print(pd.read_csv('users.csv').iloc[1:, 0])
+
     def end_event(self, hum_plan):
         """
         This method requires a HumanitarianPlan object as argument.
@@ -168,28 +190,27 @@ while admin_authorised == False:
             # list of functions for admin to choose what to do, exception handling to ensure correct format
             choice_format = False
             while choice_format == False:
-                action = input('Enter what you would like to do.'
-                               '\n 1 for creating a humanitarian plan'
-                               '\n 2 for ending a humanitarian plan'
-                               '\n 3 for displaying the humanitarian plan'
-                               '\n 4 for editing a volunteer account'
-                               '\n 5 for creating a volunteer account'
-                               '\n 6 for deleting a volunteer account'  # adding a deleting feature
-                               '\n 7 for deactivating and reactivating a volunteer account'
-                               # just trying to list all branches here to avoid creating too many branches in 
-                               # option 4, what do you think?
-                               '\n 8 for allocating resources')
                 try:
-                    action = int(action)
+                    action = int(input('Enter what you would like to do.'
+                                       '\n 1 for creating a humanitarian plan'
+                                       '\n 2 for ending a humanitarian plan'
+                                       '\n 3 for displaying the humanitarian plan'
+                                       '\n 4 for editing a volunteer account'
+                                       '\n 5 for creating a volunteer account'
+                                       '\n 6 for deleting a volunteer account'  # adding a deleting feature
+                                       '\n 7 for deactivating and reactivating a volunteer account'
+                                       # just trying to list all branches here to avoid creating
+                                       # too many branches from option 4, what do you think?
+                                       '\n 8 for allocating resources'))
                     if action in range(1, 8):
                         choice_format = True
                 except ValueError:
                     print('Please enter an integer from 1-6.')
-            if action == 1:
-                humanitarian_plan = admin.create_hum_plan()
-            if action == 3:
-                admin.display_hum_plan('hum_plan')
-            if action == 5:
-                admin.creat_volunteer()
+                if action == 1:
+                    humanitarian_plan = admin.create_hum_plan()
+                if action == 3:
+                    admin.display_hum_plan('hum_plan')
+                if action == 5:
+                    admin.creat_volunteer()
     else:
         print("Wrong username or password entered.")
