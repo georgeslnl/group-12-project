@@ -113,18 +113,18 @@ class Admin:
         print('Camp ID of camps involved: \n', camps['camp_name'])
         print('Number of volunteers working at each camp: \n', camps[['camp_name', 'volunteers']])
 
-    def creat_volunteer(self):  # TODO exception handling
+    def creat_volunteer(self):
         new = open("users.csv", "a")
 
-        username = input("Please enter an user name: ").strip()
-        pw = input("Please enter the password: ").strip()
-        first_name = input("Please enter the first name: ").strip()
-        last_name = input("Please enter the last name: ").strip()
-        phone = input("Please enter the phone number: ").strip()
-        address = input("Please enter the address: ").split(",").strip()
+        username = v.string("Please enter an user name: ").strip()
+        pw = v.string("Please enter the password: ").strip()
+        first_name = v.string("Please enter the first name: ").strip()
+        last_name = v.string("Please enter the last name: ").strip()
+        phone = v.integer("Please enter the phone number: ").strip()
+        address = v.string("Please enter the address: ").split(",").strip()
         # TODO: sort out how the coma in address will work in the csv file
-        DOB = input("Please enter the date of birth (DD-MM-YYYY): ").strip()
-        camp_name = input("Please enter an user name: ").strip()
+        DOB = v.date("Please enter the date of birth (DD-MM-YYYY): ").strip()
+        camp_name = v.string("Please enter the camp name: ").strip()
         status = "A"  # status is active by default
 
         new.write(f'\n"{username}",{pw},{first_name},{last_name},{phone},{address},{DOB},{camp_name},{status}')
@@ -134,8 +134,8 @@ class Admin:
 
     def delete_volunteer(self):
         csv_file_path = 'users.csv'
+        # uses pandas to print a table first for selection. So admin doesn't have to type it themselves
         print(pd.read_csv(csv_file_path).iloc[1:, 0])
-
         delete_user = v.integer('Please enter the number of the user you would like to delete.')
         delete_user = f"volunteer{delete_user}"
 
@@ -212,5 +212,7 @@ while admin_authorised == False:
                     admin.display_hum_plan('hum_plan')
                 if action == 5:
                     admin.creat_volunteer()
+                if action == 6:
+                    admin.delete_volunteer()
     else:
         print("Wrong username or password entered.")
