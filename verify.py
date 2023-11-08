@@ -21,7 +21,7 @@ def string(line):
             _str = input(line).strip()
             if not _str:  # if the input is empty
                 raise ValueError('No data was entered.')
-            if float(_str):  # if loc is a number
+            if _str.isdigit():  # if input is a number
                 raise ValueError('Please make sure description is of correct data type.')
             return _str
         except ValueError as e:

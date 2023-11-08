@@ -1,5 +1,6 @@
 username,password,active,first_name,last_name,phone_number,address_line1,address_line2,date_of_birth,camp_name,status
-admin,111,1,System,Admin,99999999,,,,,
-volunteer1,111,1,First,Volunteer,88888888,,,01-01-2000,camp1,A
-volunteer2,111,1,Second,Volunteer,88889999,,,25-12-1995,camp3,A
-volunteer3,111,1,Third,Volunteer,99998888,,,14-03-1996,camp3,A
+admin,111.0,1.0,System,Admin,99999999.0,,,,,
+volunteer1,111.0,1.0,First,Volunteer,88888888.0,,,01-01-2000,camp1,A
+volunteer2,111.0,1.0,Second,Volunteer,88889999.0,,,25-12-1995,camp3,A
+volunteer3,111.0,1.0,Third,Volunteer,99998888.0,,,14-03-1996,camp3,A
+volunteer4,111,,,,,,,,,

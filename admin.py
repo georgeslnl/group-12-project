@@ -2,7 +2,6 @@ import pandas as pd
 from datetime import datetime
 from humanitarianplan import HumanitarianPlan
 import verify as v
-import csv
 
 class Admin:
     """Class for the Admin user. Since there can only be 1 admin, this class can only be initialised once"""
@@ -113,18 +112,52 @@ class Admin:
         print('Camp ID of camps involved: \n', camps['camp_name'])
         print('Number of volunteers working at each camp: \n', camps[['camp_name', 'volunteers']])
 
+    def edit_volunteer(self):
+        df = pd.read_csv('users.csv')
+        # uses pandas to print a table first for selection. So admin doesn't have to type it themselves
+        print(df.iloc[1:, 0])
+        user = v.integer('Please enter the number of the user you would like to modify. ')
+        user = f"volunteer{user}"
+        while True:
+            # a list here for them to choose them
+            print("Please choose one of the following detail you would like to modify"
+                  "\n 0 for username"
+                  "\n 1 for password"
+                  "\n 2 for active"
+                  "\n 3 for first name"
+                  "\n 4 for last name"
+                  "\n 5 for phone number"
+                  "\n 6 for address line 1"  # TODO need to figure out how address works here
+                  "\n 7 for address line 2"
+                  "\n 8 for date of birth"
+                  "\n 9 for camp name")
+            index = int(v.integer(""))
+            if index not in range(0, 10):
+                print('Please enter an integer from 0-9.')
+                continue
+            else:
+                break
+        temp_list = ["username", "password", "active", "first_name", "last_name",
+                     "phone_number", "address_line1", "address_line2", "date_of_birth", "camp_name", "status"]
+        new = input("Please enter a new value: ")  # will be used to input into csv as status
+        # and then enter a new value
+        # create a dataform without that specific row where username is...
+        df.loc[df['username'] == user, temp_list[index]] = new  # modify the dataform
+        df.to_csv('users.csv', index=False)  # write it into the .csv file
+        print(df)
+
     def creat_volunteer(self):
         new = open("users.csv", "a")
 
-        username = v.string("Please enter an user name: ").strip()
-        pw = v.string("Please enter the password: ").strip()
-        first_name = v.string("Please enter the first name: ").strip()
-        last_name = v.string("Please enter the last name: ").strip()
-        phone = v.integer("Please enter the phone number: ").strip()
-        address = v.string("Please enter the address: ").split(",").strip()
+        username = v.string("Please enter an user name: ")
+        pw = v.string("Please enter the password: ")
+        first_name = v.string("Please enter the first name: ")
+        last_name = v.string("Please enter the last name: ")
+        phone = v.integer("Please enter the phone number: ")
+        address = v.string("Please enter the address: ").split(",")
         # TODO: sort out how the coma in address will work in the csv file
-        DOB = v.date("Please enter the date of birth (DD-MM-YYYY): ").strip()
-        camp_name = v.string("Please enter the camp name: ").strip()
+        DOB = v.date("Please enter the date of birth (DD-MM-YYYY): ")
+        camp_name = v.string("Please enter the camp name: ")
         status = "A"  # status is active by default
 
         new.write(f'\n"{username}",{pw},{first_name},{last_name},{phone},{address},{DOB},{camp_name},{status}')
@@ -133,25 +166,47 @@ class Admin:
         print("New user added successfully.")
 
     def delete_volunteer(self):
-        csv_file_path = 'users.csv'
+        df = pd.read_csv('users.csv')
         # uses pandas to print a table first for selection. So admin doesn't have to type it themselves
-        print(pd.read_csv(csv_file_path).iloc[1:, 0])
-        delete_user = v.integer('Please enter the number of the user you would like to delete.')
+        print(df.iloc[1:, 0])
+        delete_user = v.integer('Please enter the number of the user you would like to delete. ')
         delete_user = f"volunteer{delete_user}"
+        # create a dataform without that specific row where username is...
+        df = df[df.username != delete_user]
+        df.to_csv('users.csv', index=False)
+        print(f"{delete_user} is now deleted.")
+        print(df)
 
-        # Read all rows from the CSV file
-        with open(csv_file_path, mode='r', newline='') as file:
-            csv_reader = csv.reader(file)
-            # read all rows except the 'delete_user'
-            rows = [row for row in csv_reader if row and row[0] != delete_user]
+    def active_volunteer(self):
+        while True:
+            print("Would you like to deactivate or reactivate an user? (D/R)"
+                  "\n D for deactivate"
+                  "\n R for reactivate")
+            status = v.string("")  # will be used to input into csv as status
+            _str = ""  # just a placeholder
+            if status != "R" and status != "D":
+                print("Please enter only D or R.")
+            elif status == "R":
+                status = "A"
+                _str = "reactivate"
+                break
+            elif status == "D":
+                _str = "deactivate"
+                break
+            else:
+                break
 
-        # overwrite it with the new, modified rows
-        with open(csv_file_path, mode='w', newline='') as file:
-            csv_writer = csv.writer(file)
-            csv_writer.writerows(rows)
+        df = pd.read_csv('users.csv')
+        # uses pandas to print a table first for selection. So admin doesn't have to type it themselves
+        print(df.iloc[1:, 0])
+        user = v.integer(f'Please enter the number of the user you would like to {_str}. ')
+        user = f"volunteer{user}"
+        df.loc[df['username'] == user, 'status'] = status  # modify the dataform
+        df.to_csv('users.csv', index=False)  # write it into the .csv file
 
-        print('Deletion complete. This is the updated user list.')
-        print(pd.read_csv('users.csv').iloc[1:, 0])
+        print(f'Complete. {user} is now modified.'
+              "All status below:")
+        print(df)
 
     def end_event(self, hum_plan):
         """
@@ -210,9 +265,13 @@ while admin_authorised == False:
                     humanitarian_plan = admin.create_hum_plan()
                 if action == 3:
                     admin.display_hum_plan('hum_plan')
+                if action == 4:
+                    admin.edit_volunteer()
                 if action == 5:
                     admin.creat_volunteer()
                 if action == 6:
                     admin.delete_volunteer()
+                if action == 7:
+                    admin.active_volunteer()
     else:
         print("Wrong username or password entered.")
