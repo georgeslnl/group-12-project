@@ -7,8 +7,8 @@ Add methods for the following:
 3. Add/edit/remove camp identification - added
 
 4. Create refugee profile - added
-5. View refugee profile
-6. Edit refugee profile
+5. View refugee profile - added
+6. Edit refugee profile - added
 
 7. Display camp information (population, capacity, resources)
 8. Update camp information

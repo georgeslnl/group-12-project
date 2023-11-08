@@ -1,8 +1,8 @@
-import pandas as pd, re, datetime
+import pandas as pd, numpy as np, re, datetime
+from coded_vars import convert_gender, convert_medical_condition
 
 class Volunteer:
     """Class for Volunteer users. Initialised when a user successfully logs in as a volunteer."""
-
     def __init__(self, username, password, first_name, last_name, email, phone_number, gender, date_of_birth, camp_name):
         """Initialise attributes with the user's details."""
         self.username = username
@@ -28,7 +28,7 @@ class Volunteer:
                 print("Enter [3] to update your camp identification")
                 print("Enter [4] to create a refugee profile")
                 print("Enter [5] to view a refugee profile")
-                print("Enter [6] to edit a refugee profile")
+                print("Enter [6] to edit or remove a refugee profile")
                 print("Enter [7] to display your camp's information")
                 print("Enter [8] to update your camp's information")
                 # print("Enter [9] to add or manage a booking slot for volunteering")
@@ -51,6 +51,10 @@ class Volunteer:
                 self.update_camp()
             if option == 4:
                 self.create_refugee_profile()
+            if option == 5:
+                self.view_refugee_profile()
+            if option == 6:
+                self.edit_refugee_profile()
 
     def logout(self):
         self.logged_in = False
@@ -61,12 +65,7 @@ class Volunteer:
         Displays the user's details when called, except camp identification and password.
         Additional option to allow user to view password.
         """
-        if self.gender == 1:
-            gender_str = "Male"
-        elif self.gender == 2:
-            gender_str = "Female"
-        else:
-            gender_str = "Non-binary"
+        gender_str = convert_gender(self.gender)
 
         print("\nView personal information")
         print("Your details are as follows:")
@@ -100,13 +99,13 @@ class Volunteer:
             print("\nYour current username is:", self.username)
             while True:
                 print("Enter [0] to return to previous step.")
-                new_username = input("Enter new username: ")
+                new_username = input("Enter new username: ").strip()
                 if new_username == "0":
                     return
                 if new_username == self.username:
                     print("New username is the same as current username. Please enter a different username.")
                     continue
-                if new_username.strip() == "":
+                if new_username == "":
                     print("Please enter a username.")
                     continue
                 s = re.search("^[a-zA-Z]+[a-zA-Z0-9_]*$", new_username)
@@ -158,13 +157,13 @@ class Volunteer:
             print("\nYour current first name is:", self.first_name)
             while True:
                 print("Enter [0] to return to the previous step.")
-                new_fname = input("Enter new first name: ")
+                new_fname = input("Enter new first name: ").strip()
                 if new_fname == "0":
                     return
                 if new_fname == self.first_name:
                     print("New first name is the same as current first name. Please enter a different first name.")
                     continue
-                if new_fname.strip() == "":
+                if new_fname == "":
                     print("Please enter a first name.")
                     continue
                 s = re.search("^[A-Z][a-zA-Z-' ]*$", new_fname)
@@ -185,13 +184,13 @@ class Volunteer:
             print("\nYour current last name is:", self.last_name)
             while True:
                 print("Enter [0] to return to the previous step.")
-                new_lname = input("Enter new last name: ")
+                new_lname = input("Enter new last name: ").strip()
                 if new_lname == "0":
                     return
                 if new_lname == self.last_name:
                     print("New last name is the same as current last name. Please enter a different last name.")
                     continue
-                if new_lname.strip() == "":
+                if new_lname == "":
                     print("Please enter a last name.")
                     continue
                 s = re.search("^[a-zA-Z-' ]+$", new_lname)
@@ -209,12 +208,7 @@ class Volunteer:
             return
 
         def edit_gender():
-            if self.gender == 1:
-                gender_str = "Male"
-            elif self.gender == 2:
-                gender_str = "Female"
-            else:
-                gender_str = "Non-binary"
+            gender_str = convert_gender(self.gender)
 
             print("\nYour current gender is:", gender_str)
             while True:
@@ -230,6 +224,8 @@ class Volunteer:
                 except ValueError:
                     print("Please enter a number from the options provided.\n")
                     continue
+                if new_gender == 0:
+                    return
                 if new_gender == self.gender:
                     print("New gender is the same as current gender. Please try again or return to the previous step.")
                     continue
@@ -240,12 +236,7 @@ class Volunteer:
             users.loc[cur_user, 'gender'] = new_gender
             users.to_csv('users.csv', index=False)
 
-            if new_gender == 1:
-                new_gender_str = "Male"
-            elif new_gender == 2:
-                new_gender_str = "Female"
-            else:
-                new_gender_str = "Non-binary"
+            new_gender_str = convert_gender(new_gender)
             print("You have changed your gender to:", new_gender_str)
             self.gender = new_gender
             return
@@ -254,13 +245,13 @@ class Volunteer:
             print("\nYour current email address is:", self.email)
             while True:
                 print("Enter [0] to return to the previous step.")
-                new_email = input("Enter new last name: ")
+                new_email = input("Enter new email address: ").strip()
                 if new_email == "0":
                     return
                 if new_email == self.email:
                     print("New email is the same as current email. Please enter a different email address.")
                     continue
-                if new_email.strip() == "":
+                if new_email == "":
                     print("Please enter an email address.")
                     continue
                 s = re.search("^[A-Za-z0-9_]+@[A-Za-z0-9]+\.[A-Za-z.]+$", new_email)
@@ -281,13 +272,13 @@ class Volunteer:
             print("\nYour current phone number is:", self.phone_number)
             while True:
                 print("Enter [0] to return to the previous step.")
-                new_phone_num = input("Enter new phone number: ")
+                new_phone_num = input("Enter new phone number: ").strip()
                 if new_phone_num == "0":
                     return
                 if new_phone_num == self.phone_number:
                     print("New phone number is the same as current phone number. Please enter a different phone number.")
                     continue
-                if new_phone_num.strip() == "":
+                if new_phone_nu == "":
                     print("Please enter a phone number.")
                     continue
                 s = re.search("^\+?\d{1,3} \d{8,11}$", new_phone_num)  # allow starting + to be omitted
@@ -574,7 +565,7 @@ class Volunteer:
             while True:
                 print("\nEnter [0] to return to the volunteer menu or [9] to go back to the previous step.")
                 try:
-                    remarks = input("Enter additional remarks (optional): ").strip()
+                    remarks = input("Enter additional remarks (optional, max 200 characters): ").strip()
                     if remarks in ("0", "9"):
                         return remarks
                     s = re.search("[a-zA-Z]", remarks)
@@ -582,6 +573,9 @@ class Volunteer:
                         raise ValueError
                 except ValueError:
                     print("Please ensure remarks contain text.")
+                    continue
+                if len(remarks) > 200:
+                    print("Remarks cannot exceed 200 characters.")
                     continue
                 return remarks
 
@@ -591,6 +585,7 @@ class Volunteer:
             print("\nVolunteers can only add refugee profiles to their current camp. Please add your camp identification.")
             return
 
+        print("\nAdd refugee profile")
         camps = pd.read_csv('camps.csv')
         cur_camp = camps[camps['camp_name'] == self.camp_name]
         remaining_cap = cur_camp.iloc[0]['capacity'] - cur_camp.iloc[0]['refugees']
@@ -658,8 +653,11 @@ class Volunteer:
 
         # Update csv tables
         refugees = pd.read_csv('refugees.csv')
-        max_id = refugees['refugee_id'].iloc[-1]
-        new_row = {'refugee_id': [max_id+1], 'refugee_name': [refugee_name], 'gender': [gender],
+        if len(refugees.index) == 0:
+            refugee_id = 1
+        else:
+            refugee_id = refugees['refugee_id'].iloc[-1] + 1
+        new_row = {'refugee_id': [refugee_id], 'refugee_name': [refugee_name], 'gender': [gender],
                    'date_of_birth': [date_of_birth], 'camp_name': [self.camp_name], 'medical_condition': [medical_cond],
                    'family_members': [family], 'remarks': [remarks]}
         new = pd.DataFrame(new_row)
@@ -672,27 +670,8 @@ class Volunteer:
         camps.to_csv('camps.csv', index=False)
 
         # Print details provided
-        if gender == 1:
-            gender_str = "Male"
-        elif gender == 2:
-            gender_str = "Female"
-        else:
-            gender_str = "Non-binary"
-
-        if medical_cond == 1:
-            medical_str = "Healthy"
-        elif medical_cond == 2:
-            medical_str = "Minor illness with no injuries"
-        elif medical_cond == 3:
-            medical_str = "Major illness with no injuries"
-        elif medical_cond == 4:
-            medical_str = "Minor injury with no illness"
-        elif medical_cond == 5:
-            medical_str = "Major injury with no illness"
-        elif medical_cond == 6:
-            medical_str = "Illness and injury (non-critical)"
-        else:
-            medical_str = "Critical condition (illness and/or injury)"
+        gender_str = convert_gender(gender)
+        medical_str = convert_medical_condition(medical_cond)
 
         print("\nRefugee profile created! The refugee and their family members have been added to " + self.camp_name + ".")
         print("You have entered the following details:")
@@ -703,3 +682,376 @@ class Volunteer:
         print("No. of family members:", family)
         print("Additional remarks:", remarks)
         return
+
+    def view_refugee_profile(self):
+        """
+        Prompts the user for the refugee ID, then prints the refugee's details.
+        """
+        if not self.camp_name:
+            print("\nVolunteers can only view refugee profiles for their current camp. Please add your camp identification.")
+            return
+
+        print("\nView refugee profile")
+        refugees = pd.read_csv('refugees.csv')
+        refugees = refugees[refugees['camp_name'] == self.camp_name]
+        if len(refugees.index) == 0:
+            print("There are no refugees at your current camp.")
+            return
+
+        refugees = refugees.replace({np.nan: None})
+        print("You will be prompted for the refugee ID of the refugee whose profile you would like to view.")
+        while True:
+            print("Enter [1] to proceed")
+            print("Enter [2] to list all refugees at your current camp")
+            print("Enter [0] to return to the volunteer menu")
+            try:
+                option = int(input("Select an option: "))
+                if option not in (0, 1, 2):
+                    raise ValueError
+            except ValueError:
+                print("Please enter a number from the options provided.")
+                continue
+            break
+        if option == 0:
+            return
+        if option == 2: # list refugees at volunteer's camp
+            print("\nRefugee ID - Refugee Name - Date of Birth - # Family Members")
+            for row in range(len(refugees.index)):
+                print(refugees['refugee_id'].iloc[row], refugees['refugee_name'].iloc[row],
+                      refugees['date_of_birth'].iloc[row], refugees['family_members'].iloc[row], sep=" - ")
+
+        # Obtain refugee ID
+        while True:
+            print("\nEnter [0] to return to the volunteer menu.")
+            try:
+                refugee_id = int(input("Enter refugee ID: "))
+                if refugee_id == 0:
+                    return
+                if refugee_id not in refugees['refugee_id'].values:
+                    raise ValueError
+            except ValueError:
+                print("Please enter a refugee ID corresponding to a refugee in your camp.")
+                continue
+            break
+
+        selected = refugees[refugees['refugee_id'] == refugee_id]
+        selected = selected.replace({np.nan: None})
+        refugee_name = selected.iloc[0]['refugee_name']
+        gender = selected.iloc[0]['gender']
+        date_of_birth = selected.iloc[0]['date_of_birth']
+        medical_cond = selected.iloc[0]['medical_condition']
+        family = selected.iloc[0]['family_members']
+        remarks = selected.iloc[0]['remarks']
+
+        gender_str = convert_gender(gender)
+        medical_str = convert_medical_condition(medical_cond)
+
+        print("Details of refugee ID:", refugee_id)
+        print("Camp name:", self.camp_name)
+        print("Refugee name:", refugee_name)
+        print("Gender:", gender_str)
+        print("Date of birth:", date_of_birth)
+        print("Medical condition:", medical_str)
+        print("No. of family members:", family)
+        print("Additional remarks:", remarks)
+        return
+
+    def edit_refugee_profile(self):
+        def edit_refugee_name(refugee_id, refugee_name):
+            print("\nRefugee's current name is:", refugee_name)
+            while True:
+                print("Enter [0] to return to the previous step.")
+                new_name = input("Enter refugee's new name: ").strip()
+                if new_name == "0":
+                    return
+                if new_name == refugee_name:
+                    print("New name is the same as current name. Please enter a different name.")
+                    continue
+                if new_name == "":
+                    print("Please enter a name.")
+                    continue
+                s = re.search("^[A-Z][a-zA-Z-' ]*$", refugee_name)
+                if not s:
+                    print("Name can only contain letters, hyphen (-) and apostrophe ('), and must start with a capital letter.")
+                    continue
+                break
+            # update csv file
+            refugees = pd.read_csv('refugees.csv')
+            cur = (refugees['refugee_id'] == refugee_id)
+            refugees.loc[cur, 'refugee_name'] = new_name
+            refugees.to_csv('refugees.csv', index=False)
+            print("Refugee's name has been changed to:", new_name)
+            return
+
+        def edit_gender(refugee_id, gender):
+            gender_str = convert_gender(gender)
+
+            print("\nRefugee's current gender is:", gender_str)
+            while True:
+                print("Enter [0] to return to the previous step.")
+                print("New gender:")
+                print("Enter [1] for male")
+                print("Enter [2] for female")
+                print("Enter [3] for non-binary")
+                try:
+                    new_gender = int(input("Select an option: "))
+                    if new_gender not in range(4):
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a number from the options provided.\n")
+                    continue
+                if new_gender == 0:
+                    return
+                if new_gender == gender:
+                    print("New gender is the same as current gender. Please try again or return to the previous step.")
+                    continue
+                break
+            # update csv file
+            refugees = pd.read_csv('refugees.csv')
+            cur = (refugees['refugee_id'] == refugee_id)
+            refugees.loc[cur, 'gender'] = new_gender
+            refugees.to_csv('refugees.csv', index=False)
+            new_gender_str = convert_gender(new_gender)
+            print("Refugee's gender has been changed to:", new_gender_str)
+            return
+
+        def edit_medical_cond(refugee_id, medical_cond):
+            medical_str = convert_medical_condition(medical_cond)
+
+            print("\nRefugee's current medical condition is:", medical_str)
+            while True:
+                print("Enter [0] to return to the previous step.")
+                print("New medical condition:")
+                print("Enter [1] for Healthy")
+                print("Enter [2] for Minor illness with no injuries")
+                print("Enter [3] for Major illness with no injuries")
+                print("Enter [4] for Minor injury with no illness")
+                print("Enter [5] for Major injury with no illness")
+                print("Enter [6] for Illness and injury (non-critical)")
+                print("Enter [7] for Critical condition (illness and/or injury)")
+                try:
+                    new_medical_cond = int(input("Select an option: "))
+                    if new_medical_cond not in range(8):
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a number from the options provided.\n")
+                    continue
+                if new_medical_cond == 0:
+                    return
+                if new_medical_cond == medical_cond:
+                    print("Medical condition is unchanged. Please try again or return to the previous step.")
+                    continue
+                break
+            # update csv file
+            refugees = pd.read_csv('refugees.csv')
+            cur = (refugees['refugee_id'] == refugee_id)
+            refugees.loc[cur, 'medical_condition'] = new_medical_cond
+            refugees.to_csv('refugees.csv', index=False)
+            new_medical_str = convert_medical_condition(new_medical_cond)
+            print("Refugee's medical condition has been changed to:", new_medical_str)
+            return
+
+        def edit_family(refugee_id, family):
+            print("\nCurrent no. of members in refugee's family:", family)
+            camps = pd.read_csv('camps.csv')
+            cur_camp = camps[camps['camp_name'] == self.camp_name]
+            remaining_cap = cur_camp.iloc[0]['capacity'] - cur_camp.iloc[0]['refugees']
+            print("Your camp's remaining capacity is " + str(remaining_cap) + ".")
+            print("Please return to the previous step if the update would cause the camp's capacity to be exceeded.")
+
+            while True:
+                print("\nEnter [X] to return to the previous step.")
+                new_family = input("New number of family members: ")
+                if new_family == "X":
+                    return
+                try:
+                    new_family = int(new_family)
+                    if new_family < 1:
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a positive integer.")
+                    continue
+                if new_family-family > remaining_cap:
+                    print("Addition of family members causes camp's capacity to be exceeded. Please re-enter or return to the previous step.")
+                    continue
+                if new_family == family:
+                    print("Number of family members is unchanged. Please try again or return to the previous step.")
+                    continue
+                if new_family > 12:
+                    while True:
+                        print("\nWarning: Refugee's family has more than 12 members based on input.")
+                        print("Do you wish to proceed?")
+                        print("Enter [1] to proceed")
+                        print("Enter [9] to re-enter number of family members")
+                        try:
+                            largefam_option = int(input("Select an option: "))
+                            if largefam_option not in (1, 9):
+                                raise ValueError
+                        except ValueError:
+                            print("Please enter a number from the options provided.")
+                            continue
+                        break
+                    if largefam_option == "9":
+                        continue
+                break
+            # update csv files
+            refugees = pd.read_csv('refugees.csv')
+            cur = (refugees['refugee_id'] == refugee_id)
+            refugees.loc[cur, 'family_members'] = new_family
+            refugees.to_csv('refugees.csv', index=False)
+            print("New no. of members in refugee's family:", new_family)
+
+            chosen = (camps['camp_name'] == self.camp_name)
+            camps.loc[chosen, 'refugees'] = camps.loc[chosen, 'refugees'] - family + new_family
+            camps.to_csv('camps.csv', index=False)
+            return
+
+        def edit_remarks(refugee_id, remarks):
+            print("\nCurrent remarks on refugee:", remarks)
+            while True:
+                print("Enter [0] to return to the previous step.")
+                try:
+                    new_remarks = input("Enter updated remarks (optional, max 200 characters): ").strip()
+                    if new_remarks == "0":
+                        return
+                    s = re.search("[a-zA-Z]", new_remarks)
+                    if new_remarks != "" and not s:
+                        raise ValueError
+                except ValueError:
+                    print("Please ensure remarks contain text.")
+                    continue
+                if len(new_remarks) > 200:
+                    print("Remarks cannot exceed 200 characters.")
+                    continue
+                if new_remarks == remarks or (not new_remarks and not remarks):
+                    print("Remarks are unchanged. Please try again or return to the previous step.")
+                    continue
+                break
+            # update csv file
+            refugees = pd.read_csv('refugees.csv')
+            cur = (refugees['refugee_id'] == refugee_id)
+            refugees.loc[cur, 'remarks'] = new_remarks
+            refugees.to_csv('refugees.csv', index=False)
+            print("Remarks on refugee have been changed to:", new_remarks)
+            return
+
+        def remove_refugee(refugee_id, refugee_name, family):
+            print("\nAre you sure you would like to remove the profile of " + refugee_name + "?")
+            print("Enter [1] to proceed")
+            print("Enter [0] to return to the volunteer menu")
+            while True:
+                try:
+                    remove_option = int(input("Select an option: "))
+                    if remove_option not in (0, 1):
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a number from the options provided.\n")
+                    continue
+                break
+            if remove_option == 0:
+                return
+
+            # update csv files
+            refugees = pd.read_csv('refugees.csv')
+            refugees = refugees.drop(refugees[refugees['refugee_id'] == refugee_id].index)
+            refugees.to_csv('refugees.csv', index=False)
+
+            camps = pd.read_csv('camps.csv')
+            chosen = (camps['camp_name'] == self.camp_name)
+            camps.loc[chosen, 'refugees'] = camps.loc[chosen, 'refugees'] - family
+            camps.to_csv('camps.csv', index=False)
+
+            print("Refugee's profile has been removed.")
+            return
+
+        if not self.camp_name:
+            print("\nVolunteers can only edit refugee profiles for their current camp. Please add your camp identification.")
+            return
+
+        print("\nEdit or remove refugee profile")
+        refugees = pd.read_csv('refugees.csv')
+        refugees = refugees[refugees['camp_name'] == self.camp_name]
+        if len(refugees.index) == 0:
+            print("There are no refugees at your current camp.")
+            return
+
+        refugees = refugees.replace({np.nan: None})
+        print("You will be prompted for the refugee ID of the refugee whose profile you would like to edit.")
+        while True:
+            print("Enter [1] to proceed")
+            print("Enter [2] to list all refugees at your current camp")
+            print("Enter [0] to return to the volunteer menu")
+            try:
+                option = int(input("Select an option: "))
+                if option not in (0, 1, 2):
+                    raise ValueError
+            except ValueError:
+                print("Please enter a number from the options provided.")
+                continue
+            break
+        if option == 0:
+            return
+        if option == 2: # list refugees at volunteer's camp
+            print("\nRefugee ID - Refugee Name - Date of Birth - # Family Members")
+            for row in range(len(refugees.index)):
+                print(refugees['refugee_id'].iloc[row], refugees['refugee_name'].iloc[row],
+                      refugees['date_of_birth'].iloc[row], refugees['family_members'].iloc[row], sep=" - ")
+
+        # Obtain refugee ID
+        while True:
+            print("\nEnter [0] to return to the volunteer menu.")
+            try:
+                refugee_id = int(input("Enter refugee ID: "))
+                if refugee_id == 0:
+                    return
+                if refugee_id not in refugees['refugee_id'].values:
+                    raise ValueError
+            except ValueError:
+                print("Please enter a refugee ID corresponding to a refugee in your camp.")
+                continue
+            break
+
+        # outer loop to edit multiple attributes, exit if 0 is entered
+        while True:
+            refugees = pd.read_csv('refugees.csv')
+            selected = refugees[refugees['refugee_id'] == refugee_id]
+            selected = selected.replace({np.nan: None})
+            refugee_name = selected.iloc[0]['refugee_name']
+            gender = selected.iloc[0]['gender']
+            medical_cond = selected.iloc[0]['medical_condition']
+            family = selected.iloc[0]['family_members']
+            remarks = selected.iloc[0]['remarks']
+            # inner loop to catch invalid input
+            while True:
+                print("\nWhich details would you like to update?")
+                print("Enter [1] for refugee name")
+                print("Enter [2] for gender")
+                print("Enter [3] for medical condition")
+                print("Enter [4] for no. of family members")
+                print("Enter [5] for remarks")
+                print("Enter [9] to remove the refugee's profile")
+                print("Enter [0] to return to the volunteer menu")
+                try:
+                    option = int(input("Select an option: "))
+                    if option not in (0,1,2,3,4,5,9):
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a number from the options provided.")
+                    continue
+                break
+
+            if option == 0:
+                return
+            if option == 1:
+                edit_refugee_name(refugee_id, refugee_name)
+            if option == 2:
+                edit_gender(refugee_id, gender)
+            if option == 3:
+                edit_medical_cond(refugee_id, medical_cond)
+            if option == 4:
+                edit_family(refugee_id, family)
+            if option == 5:
+                edit_remarks(refugee_id, remarks)
+            if option == 9:
+                remove_refugee(refugee_id, refugee_name, family)
+                return

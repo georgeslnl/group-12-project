@@ -1,6 +1,7 @@
 '''Run this file in the command line to open the application.'''
 import pandas as pd, re, datetime
 from volunteer import Volunteer
+from coded_vars import convert_gender
 
 def main_menu():
     while True:
@@ -123,11 +124,11 @@ def volunteer_registration():
     def add_username():
         while True:
             print("\nEnter [0] to return to the previous menu.")
-            username = input("Enter username: ")
+            username = input("Enter username: ").strip()
             if username == "0":
                 return username
             # validation
-            if username.strip() == "":
+            if username == "":
                 print("Please enter a username.")
                 continue
             s = re.search("^[a-zA-Z]+[a-zA-Z0-9_]*$", username)
@@ -148,9 +149,6 @@ def volunteer_registration():
             if password in ("0", "9"):
                 return password
             # validation
-            if password.strip() == "":
-                print("Please enter a password.")
-                continue
             if len(password) < 3:
                 print("Password should be at least 3 characters.")
                 continue
@@ -163,11 +161,11 @@ def volunteer_registration():
     def add_first_name():
         while True:
             print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-            first_name = input("Enter first name: ")
+            first_name = input("Enter first name: ").strip()
             if first_name in ("0", "9"):
                 return first_name
             # validation
-            if first_name.strip() == "":
+            if first_name == "":
                 print("Please enter a first name.")
                 continue
             s = re.search("^[A-Z][a-zA-Z-' ]*$", first_name)
@@ -179,11 +177,11 @@ def volunteer_registration():
     def add_last_name():
         while True:
             print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-            last_name = input("Enter last name: ")
+            last_name = input("Enter last name: ").strip()
             if last_name in ("0", "9"):
                 return last_name
             # validation
-            if last_name.strip() == "":
+            if last_name == "":
                 print("Please enter a last name.")
                 continue
             s = re.search("^[a-zA-Z-' ]+$", last_name)
@@ -253,11 +251,11 @@ def volunteer_registration():
     def add_email():
         while True:
             print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-            email = input("Enter email address: ")
+            email = input("Enter email address: ").strip()
             if email in ("0", "9"):
                 return email
             # validation: email should be of the form "xxx@yyy.zzz"
-            if email.strip() == "":
+            if email == "":
                 print("Please enter an email address.")
                 continue
             s = re.search("^[A-Za-z0-9_]+@[A-Za-z0-9]+\.[A-Za-z.]+$", email)
@@ -269,10 +267,10 @@ def volunteer_registration():
     def add_phone_num():
         while True:
             print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-            phone_num = input("Enter your phone number, including country code followed by a space (e.g. +44 07020123456): ")
+            phone_num = input("Enter your phone number, including country code followed by a space (e.g. +44 07020123456): ").strip()
             if phone_num in ("0", "9"):
                 return phone_num
-            if phone_num.strip() == "":
+            if phone_num == "":
                 print("Please enter a phone number.")
                 continue
             s = re.search("^\+?\d{1,3} \d{8,11}$", phone_num) # allow starting + to be omitted
@@ -395,12 +393,7 @@ def volunteer_registration():
         camps.to_csv('camps.csv', index=False)
 
     # Print details provided in registration
-    if gender == 1:
-        gender_str = "Male"
-    elif gender == 2:
-        gender_str = "Female"
-    else:
-        gender_str = "Non-binary"
+    gender_str = convert_gender(gender)
 
     print("\nThank you for registering as a volunteer,", first_name, last_name+"!")
     print("Your details are as follows:")
