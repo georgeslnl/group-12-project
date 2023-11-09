@@ -127,18 +127,17 @@ class Admin:
                   "\n 3 for first name"
                   "\n 4 for last name"
                   "\n 5 for phone number"
-                  "\n 6 for address line 1"  # TODO need to figure out how address works here
-                  "\n 7 for address line 2"
-                  "\n 8 for date of birth"
-                  "\n 9 for camp name")
+                  "\n 6 for address"
+                  "\n 7 for date of birth"
+                  "\n 8 for camp name")
             index = int(v.integer(""))
             if index not in range(0, 10):
-                print('Please enter an integer from 0-9.')
+                print('Please enter an integer from 0-8.')
                 continue
             else:
                 break
         temp_list = ["username", "password", "active", "first_name", "last_name",
-                     "phone_number", "address_line1", "address_line2", "date_of_birth", "camp_name", "status"]
+                     "phone_number", "address_line", "date_of_birth", "camp_name", "status"]
         new = input("Please enter a new value: ")  # will be used to input into csv as status
         # and then enter a new value
         # create a dataform without that specific row where username is...
@@ -154,8 +153,7 @@ class Admin:
         first_name = v.string("Please enter the first name: ")
         last_name = v.string("Please enter the last name: ")
         phone = v.integer("Please enter the phone number: ")
-        address = v.string("Please enter the address: ").split(",")
-        # TODO: sort out how the coma in address will work in the csv file
+        address = str(f"{v.string('Please enter the address: ')}")
         DOB = v.date("Please enter the date of birth (DD-MM-YYYY): ")
         camp_name = v.string("Please enter the camp name: ")
         status = "A"  # status is active by default

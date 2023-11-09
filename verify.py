@@ -1,7 +1,7 @@
 import datetime
 
-"""Hi, This is a function set that verify all the inputs
-You can simply use the to replace the input() functions."""
+"""Hi, This is a function set that verify all the inputs.
+You can simply use them to replace the input() functions."""
 
 def integer(line):
     while True:
