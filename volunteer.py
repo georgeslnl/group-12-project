@@ -55,6 +55,10 @@ class Volunteer:
                 self.view_refugee_profile()
             if option == 6:
                 self.edit_refugee_profile()
+            if option == 7:
+                self.display_camp_info()
+            if option == 8:
+                self.update_camp_info()
 
     def logout(self):
         self.logged_in = False
@@ -278,7 +282,7 @@ class Volunteer:
                 if new_phone_num == self.phone_number:
                     print("New phone number is the same as current phone number. Please enter a different phone number.")
                     continue
-                if new_phone_nu == "":
+                if new_phone_num == "":
                     print("Please enter a phone number.")
                     continue
                 s = re.search("^\+?\d{1,3} \d{8,11}$", new_phone_num)  # allow starting + to be omitted
@@ -355,7 +359,14 @@ class Volunteer:
             while True:
                 print("Enter [0] to return to the volunteer menu.")
                 print("Choose a camp.")
-                print(plans_camps)
+                # print(plans_camps)
+                print("\nCamp Name - Plan Name - Location - Description - # Volunteers - # Refugees - Capacity")
+                for row in range(len(plans_camps.index)):
+                    print(plans_camps['camp_name'].iloc[row], plans_camps['plan_name'].iloc[row],
+                          plans_camps['location'].iloc[row], plans_camps['description'].iloc[row],
+                          str(plans_camps['volunteers'].iloc[row]) + " volunteers",
+                          str(plans_camps['refugees'].iloc[row]) + " refugees",
+                          str(plans_camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 new_camp = input("Enter the name of the camp you would like to join: ")
                 if new_camp == "0":
                     return None
@@ -379,7 +390,14 @@ class Volunteer:
             while True:
                 print("Enter [0] to return to the volunteer menu.")
                 print("Choose a camp.")
-                print(plans_camps)
+                # print(plans_camps)
+                print("\nCamp Name - Plan Name - Location - Description - # Volunteers - # Refugees - Capacity")
+                for row in range(len(plans_camps.index)):
+                    print(plans_camps['camp_name'].iloc[row], plans_camps['plan_name'].iloc[row],
+                          plans_camps['location'].iloc[row], plans_camps['description'].iloc[row],
+                          str(plans_camps['volunteers'].iloc[row]) + " volunteers",
+                          str(plans_camps['refugees'].iloc[row]) + " refugees",
+                          str(plans_camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 new_camp = input("Enter the name of the camp you would like to join: ")
                 if new_camp == "0":
                     return self.camp_name
@@ -718,7 +736,8 @@ class Volunteer:
             print("\nRefugee ID - Refugee Name - Date of Birth - # Family Members")
             for row in range(len(refugees.index)):
                 print(refugees['refugee_id'].iloc[row], refugees['refugee_name'].iloc[row],
-                      refugees['date_of_birth'].iloc[row], refugees['family_members'].iloc[row], sep=" - ")
+                      refugees['date_of_birth'].iloc[row],
+                      str(refugees['family_members'].iloc[row]) + " family members", sep=" - ")
 
         # Obtain refugee ID
         while True:
@@ -995,7 +1014,8 @@ class Volunteer:
             print("\nRefugee ID - Refugee Name - Date of Birth - # Family Members")
             for row in range(len(refugees.index)):
                 print(refugees['refugee_id'].iloc[row], refugees['refugee_name'].iloc[row],
-                      refugees['date_of_birth'].iloc[row], refugees['family_members'].iloc[row], sep=" - ")
+                      refugees['date_of_birth'].iloc[row],
+                      str(refugees['family_members'].iloc[row]) + " family members", sep=" - ")
 
         # Obtain refugee ID
         while True:
@@ -1055,3 +1075,173 @@ class Volunteer:
             if option == 9:
                 remove_refugee(refugee_id, refugee_name, family)
                 return
+
+    def display_camp_info(self):
+        print("\nDisplay camp information")
+        if not self.camp_name:
+            print("You currently do not belong to a camp. Please add your camp identification.")
+            return
+
+        camps = pd.read_csv("camps.csv")
+        my_camp = camps[camps['camp_name'] == self.camp_name]
+        print("Your camp is " + self.camp_name + ", supporting " + my_camp.iloc[0]['plan_name'] + ".")
+        print("Number of volunteers: ", my_camp.iloc[0]['volunteers'])
+        print("Number of refugees: ", my_camp.iloc[0]['refugees'])
+        print("Refugee capacity: ", my_camp.iloc[0]['capacity'])
+        print("\nResources available")
+        print("Food packets:", my_camp.iloc[0]['food'])
+        print("Water portions:", my_camp.iloc[0]['water'])
+        print("Medical kits:", my_camp.iloc[0]['medical_supplies'])
+        return
+
+    def update_camp_info(self):
+        def edit_capacity():
+            camps = pd.read_csv("camps.csv")
+            my_camp = camps[camps['camp_name'] == self.camp_name]
+            print("\nCurrent capacity of " + self.camp_name + ": " + str(my_camp.iloc[0]['capacity']))
+            print("The camp currently has " + str(my_camp.iloc[0]['refugees']) + " refugees.")
+
+            while True:
+                print("\nEnter [X] to return to the previous step.")
+                new_capacity = input("New capacity: ")
+                if new_capacity == "X":
+                    return
+                try:
+                    new_capacity = int(new_capacity)
+                    if new_capacity < 1:
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a positive integer.")
+                    continue
+                if new_capacity < my_camp.iloc[0]['refugees']:
+                    print("Invalid input: New capacity is less than refugee population. Please re-enter or return to the previous step.")
+                    continue
+                if new_capacity == my_camp.iloc[0]['capacity']:
+                    print("Capacity is unchanged. Please try again or return to the previous step.")
+                    continue
+                break
+            # update csv file
+            chosen = (camps['camp_name'] == self.camp_name)
+            camps.loc[chosen, 'capacity'] = new_capacity
+            camps.to_csv('camps.csv', index=False)
+            print("New refugee capacity:", new_capacity)
+            return
+
+        def edit_food():
+            camps = pd.read_csv("camps.csv")
+            my_camp = camps[camps['camp_name'] == self.camp_name]
+            print("\nCurrent supply of food packets at " + self.camp_name + ": " + str(my_camp.iloc[0]['food']))
+
+            while True:
+                print("\nEnter [X] to return to the previous step.")
+                new_food = input("Updated supply of food packets: ")
+                if new_food == "X":
+                    return
+                try:
+                    new_food = int(new_food)
+                    if new_food < 0:
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a non-negative integer.")
+                    continue
+                if new_food == my_camp.iloc[0]['food']:
+                    print("Food supply is unchanged. Please try again or return to the previous step.")
+                    continue
+                break
+            # update csv file
+            chosen = (camps['camp_name'] == self.camp_name)
+            camps.loc[chosen, 'food'] = new_food
+            camps.to_csv('camps.csv', index=False)
+            print("Updated supply of food packets:", new_food)
+            return
+
+        def edit_water():
+            camps = pd.read_csv("camps.csv")
+            my_camp = camps[camps['camp_name'] == self.camp_name]
+            print("\nCurrent supply of water portions at " + self.camp_name + ": " + str(my_camp.iloc[0]['water']))
+
+            while True:
+                print("\nEnter [X] to return to the previous step.")
+                new_water = input("Updated supply of water portions: ")
+                if new_water == "X":
+                    return
+                try:
+                    new_water = int(new_water)
+                    if new_water < 0:
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a non-negative integer.")
+                    continue
+                if new_water == my_camp.iloc[0]['water']:
+                    print("Water supply is unchanged. Please try again or return to the previous step.")
+                    continue
+                break
+            # update csv file
+            chosen = (camps['camp_name'] == self.camp_name)
+            camps.loc[chosen, 'water'] = new_water
+            camps.to_csv('camps.csv', index=False)
+            print("Updated supply of water portions:", new_water)
+            return
+
+        def edit_medical_supplies():
+            camps = pd.read_csv("camps.csv")
+            my_camp = camps[camps['camp_name'] == self.camp_name]
+            print("\nCurrent supply of medical kits at " + self.camp_name + ": " + str(my_camp.iloc[0]['medical_supplies']))
+
+            while True:
+                print("\nEnter [X] to return to the previous step.")
+                new_medical = input("Updated supply of medical kits: ")
+                if new_medical == "X":
+                    return
+                try:
+                    new_medical = int(new_medical)
+                    if new_medical < 0:
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a non-negative integer.")
+                    continue
+                if new_medical == my_camp.iloc[0]['medical_supplies']:
+                    print("Medical supplies are unchanged. Please try again or return to the previous step.")
+                    continue
+                break
+            # update csv file
+            chosen = (camps['camp_name'] == self.camp_name)
+            camps.loc[chosen, 'medical_supplies'] = new_medical
+            camps.to_csv('camps.csv', index=False)
+            print("Updated supply of medical kits:", new_medical)
+            return
+
+        print("\nUpdate camp information")
+        if not self.camp_name:
+            print("You currently do not belong to a camp. Please add your camp identification.")
+            return
+
+        # outer loop to edit multiple attributes, exit if 0 is entered
+        while True:
+            # inner loop to catch invalid input
+            while True:
+                print("\nWhich details would you like to update?")
+                print("Enter [1] for refugee capacity")
+                print("Enter [2] for food packets")
+                print("Enter [3] for water portions")
+                print("Enter [4] for medical kits")
+                print("Enter [0] to return to the volunteer menu")
+                try:
+                    option = int(input("Select an option: "))
+                    if option not in range(5):
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a number from the options provided.")
+                    continue
+                break
+
+            if option == 0:
+                return
+            if option == 1:
+                edit_capacity()
+            if option == 2:
+                edit_food()
+            if option == 3:
+                edit_water()
+            if option == 4:
+                edit_medical_supplies()

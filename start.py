@@ -297,7 +297,14 @@ def volunteer_registration():
         while True:
             print("\nEnter [0] to return to the previous menu, [9] to go back to the previous step or [X] to proceed without camp identification.")
             print("Choose a camp.")
-            print(plans_camps)
+            # print(plans_camps)
+            print("\nCamp Name - Plan Name - Location - Description - # Volunteers - # Refugees - Capacity")
+            for row in range(len(plans_camps.index)):
+                print(plans_camps['camp_name'].iloc[row], plans_camps['plan_name'].iloc[row],
+                      plans_camps['location'].iloc[row], plans_camps['description'].iloc[row],
+                      str(plans_camps['volunteers'].iloc[row]) + " volunteers",
+                      str(plans_camps['refugees'].iloc[row]) + " refugees",
+                      str(plans_camps['capacity'].iloc[row]) + " capacity", sep=" - ")
             camp_name = input("Enter the name of the camp you would like to join: ")
             if camp_name in ("0", "9"):
                 return camp_name
