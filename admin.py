@@ -41,7 +41,7 @@ class Admin:
 
         while True:
             try:
-                loc = input("Please enter a description of the event: ")
+                loc = input("Please enter the location of the event: ")
                 loc[0]
                 try:
                     float(loc)
@@ -68,7 +68,6 @@ class Admin:
             except Exception as e:
                 print(e)
                 continue
-            break
 
         while True:
             try:
