@@ -20,7 +20,7 @@ def integer(line):
 def string(line):
     while True:
         try:
-            _str = input(line).strip()
+            _str = input(line)
             _str[0]
             try:
                 float(_str)
