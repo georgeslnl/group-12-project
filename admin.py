@@ -31,24 +31,25 @@ class Admin:
                 # strip() in case the input is a space to trick the system as a useful string.
                 if not desc:  # if desc is empty
                     raise ValueError('No data was entered.')  # raise an error is more direct in this case
-                if float(desc):  # if desc is a number
+                if desc.isdigit():  # if desc is a number
                     raise ValueError('Please make sure description is of correct data type.')
+                return desc
             except ValueError as e:
                 print(e)
                 continue
-            break
+
 
         while True:
             try:
                 loc = input("Please enter the geographical location affected: ").strip()
                 if not loc:  # if desc is empty
                     raise ValueError('No data was entered.')
-                if float(loc):  # if loc is a number
+                if loc.isdigit():  # if loc is a number
                     raise ValueError('Please make sure description is of correct data type.')
+                return loc
             except ValueError as e:
                 print(e)
                 continue
-            break
 
         while True:
             try:
@@ -131,7 +132,7 @@ class Admin:
                   "\n 7 for date of birth"
                   "\n 8 for camp name")
             index = int(v.integer(""))
-            if index not in range(0, 10):
+            if index not in range(0, 9):
                 print('Please enter an integer from 0-8.')
                 continue
             else:

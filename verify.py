@@ -3,6 +3,7 @@ import datetime
 """Hi, This is a function set that verify all the inputs.
 You can simply use them to replace the input() functions."""
 
+
 def integer(line):
     while True:
         try:
@@ -14,6 +15,7 @@ def integer(line):
             return _int
         except ValueError as e:
             print(e)
+
 
 def string(line):
     while True:
@@ -27,6 +29,7 @@ def string(line):
         except ValueError as e:
             print(e)
 
+
 def date(line):
     while True:
         _date = input(line).strip()
@@ -39,8 +42,10 @@ def date(line):
         except ValueError:
             print("Date must be in (DD-MM-YYYY) format. Please try again.")
 
+
 def main():
     ...
+
 
 if __name__ == "__main__":
     main()
