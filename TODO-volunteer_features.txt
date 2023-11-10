@@ -1,0 +1,19 @@
+Create a volunteer class and initialise attributes with the details in the users.csv file
+Add methods for the following:
+
+1. View personal information - added
+2. Edit personal information - added
+
+3. Add/edit/remove camp identification - added
+
+4. Create refugee profile - added
+5. View refugee profile - added
+6. Edit refugee profile - added
+
+7. Display camp information (population, capacity, resources)
+8. Update camp information
+
+Possible extras
+9. Book volunteering slots
+10. View booked volunteering slots
+11. Edit/cancel volunteering slots
