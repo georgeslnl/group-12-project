@@ -40,7 +40,7 @@ def date(line):
             print("No data was entered. Please enter a date.")
             continue
         try:
-            _date = datetime.strptime(_date, "%d-%m-%Y")
+            _date = datetime.datetime.strptime(_date, "%d-%m-%Y")
             return _date
         except ValueError:
             print("Date must be in (DD-MM-YYYY) format. Please try again.")

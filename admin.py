@@ -122,7 +122,7 @@ class Admin:
         user = f"volunteer{user}"
         while True:
             # a list here for them to choose them
-            print("Please choose one of the following detail you would like to modify"
+            print("Please choose one of the following details you would like to modify."
                   "\n 0 for username"
                   "\n 1 for password"
                   "\n 2 for active"
@@ -151,7 +151,7 @@ class Admin:
         new = open("users.csv", "a")
 
         username = v.string("Please enter an user name: ")
-        pw = v.string("Please enter the password: ")
+        pw = input("Please enter the password: ") #password should be just '111'
         first_name = v.string("Please enter the first name: ")
         last_name = v.string("Please enter the last name: ")
         phone = v.integer("Please enter the phone number: ")
@@ -179,9 +179,9 @@ class Admin:
 
     def active_volunteer(self):
         while True:
-            print("Would you like to deactivate or reactivate an user? (D/R)"
-                  "\n D for deactivate"
-                  "\n R for reactivate")
+            status = input("Would you like to deactivate or reactivate an user? (D/R)"
+                              "\n D for deactivate"
+                              "\n R for reactivate")
             status = v.string("")  # will be used to input into csv as status
             _str = ""  # just a placeholder
             if status != "R" and status != "D":
@@ -243,35 +243,71 @@ while admin_authorised == False:
         else:
             print(admin)
             # list of functions for admin to choose what to do, exception handling to ensure correct format
-            choice_format = False
-            while choice_format == False:
-                try:
-                    action = int(input('Enter what you would like to do.'
-                                       '\n 1 for creating a humanitarian plan'
-                                       '\n 2 for ending a humanitarian plan'
-                                       '\n 3 for displaying the humanitarian plan'
-                                       '\n 4 for editing a volunteer account'
-                                       '\n 5 for creating a volunteer account'
-                                       '\n 6 for deleting a volunteer account'  # adding a deleting feature
-                                       '\n 7 for deactivating and reactivating a volunteer account'
-                                       # just trying to list all branches here to avoid creating
-                                       # too many branches from option 4, what do you think?
-                                       '\n 8 for allocating resources'))
-                    if action in range(1, 8):
-                        choice_format = True
-                except ValueError:
-                    print('Please enter an integer from 1-6.')
-                if action == 1:
-                    humanitarian_plan = admin.create_hum_plan()
-                if action == 3:
-                    admin.display_hum_plan('hum_plan')
-                if action == 4:
-                    admin.edit_volunteer()
-                if action == 5:
-                    admin.creat_volunteer()
-                if action == 6:
-                    admin.delete_volunteer()
-                if action == 7:
-                    admin.active_volunteer()
+            continue_admin = True
+            while continue_admin == True:
+                choice_format = False
+                while choice_format == False:
+                    try:
+                        action = int(input('Enter what you would like to do.'
+                                           '\n 1 for creating, editing, displaying or ending a humanitarian plan'
+                                           '\n 2 for creating, editing, deactivating, reactivating or deleting a volunteer account'
+                                           '\n 3 for allocating resources'
+                                           '\n 0 to log out and quit the application'))
+                        if action in range(0, 4):
+                            choice_format = True
+                            if action == 0:
+                                continue_admin = False
+                                exit("You have logged out and quit the application.")
+                        else:
+                            print('Please enter an integer from 0-3.')
+                    except ValueError:
+                        print('Please enter an integer from 0-3.')
+                func_format = False
+                while func_format == False:
+                    if action == 1:
+                        try:
+                            func = int(input('Enter what you would like to do.'
+                                             '\n 1 for creating a humanitarian plan'
+                                             '\n 2 for editing a humanitarian plan'
+                                             '\n 3 for displaying a humanitarian plan'
+                                             '\n 4 for ending a humanitarian plan'))
+                            if func in range(1,5):
+                                func_format = True
+                                if func == 1:
+                                    humanitarian_plan = admin.create_hum_plan()
+                                elif func == 2:
+                                    pass #write function for editing
+                                elif func == 3:
+                                    admin.display_hum_plan('hum_plan')
+                                elif func == 4:
+                                    pass  # write function for ending
+                            else:
+                                print('Please enter an integer from 1-4.')
+                        except ValueError:
+                            print('Please enter an integer from 1-4.')
+                    if action == 2:
+                        try:
+                            func = int(input('Enter what you would like to do.'
+                                             '\n 1 for creating a volunteer account'
+                                             '\n 2 for editing a volunteer account'
+                                             '\n 3 for deactivating/reactivating a volunteer account'
+                                             '\n 4 for deleting a volunteer account'))
+                            if func in range(1,5):
+                                func_format = True
+                                if func == 1:
+                                    admin.creat_volunteer()
+                                elif func == 2:
+                                    admin.edit_volunteer()
+                                elif func == 3:
+                                    admin.active_volunteer()
+                                elif func == 4:
+                                    admin.delete_volunteer()
+                            else:
+                                print('Please enter an integer from 1-4.')
+                        except ValueError:
+                            print('Please enter an integer from 1-4.')
+                    if action == 3:
+                        func_format = True
+                        pass
     else:
         print("Wrong username or password entered.")
