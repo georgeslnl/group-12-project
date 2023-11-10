@@ -25,6 +25,8 @@ def string(line):
                 raise ValueError('No data was entered.')
             if _str.isdigit():  # if input is a number
                 raise ValueError('Please make sure description is of correct data type.')
+            if float(_str):
+                raise ValueError('Please make sure description is of correct data type.')
             return _str
         except ValueError as e:
             print(e)

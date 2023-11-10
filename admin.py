@@ -33,6 +33,8 @@ class Admin:
                     raise ValueError('No data was entered.')  # raise an error is more direct in this case
                 if desc.isdigit():  # if desc is a number
                     raise ValueError('Please make sure description is of correct data type.')
+                if float(desc):
+                    raise ValueError('Please make sure description is of correct data type.')
                 break
             except ValueError as e:
                 print(e)
@@ -45,6 +47,8 @@ class Admin:
                 if not loc:  # if desc is empty
                     raise ValueError('No data was entered.')
                 if loc.isdigit():  # if loc is a number
+                    raise ValueError('Please make sure description is of correct data type.')
+                if float(loc):
                     raise ValueError('Please make sure description is of correct data type.')
                 break
             except ValueError as e:
