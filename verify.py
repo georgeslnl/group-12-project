@@ -21,14 +21,15 @@ def string(line):
     while True:
         try:
             _str = input(line).strip()
-            if not _str:  # if the input is empty
-                raise ValueError('No data was entered.')
-            if _str.isdigit():  # if input is a number
-                raise ValueError('Please make sure description is of correct data type.')
-            if float(_str):
-                raise ValueError('Please make sure description is of correct data type.')
-            return _str
-        except ValueError as e:
+            _str[0]
+            try:
+                float(_str)
+                print('Please make sure description is of correct data type.')
+            except ValueError:
+                break
+        except IndexError:
+            print('No data was entered.')
+        except Exception as e:
             print(e)
 
 

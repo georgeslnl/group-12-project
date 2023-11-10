@@ -27,33 +27,31 @@ class Admin:
         # should not be created).
         while True:
             try:
-                desc = input("Please enter a description of the event: ").strip()
-                # strip() in case the input is a space to trick the system as a useful string.
-                if not desc:  # if desc is empty
-                    raise ValueError('No data was entered.')  # raise an error is more direct in this case
-                if desc.isdigit():  # if desc is a number
-                    raise ValueError('Please make sure description is of correct data type.')
-                if float(desc):
-                    raise ValueError('Please make sure description is of correct data type.')
-                break
-            except ValueError as e:
+                desc = input("Please enter a description of the event: ")
+                desc[0]
+                try:
+                    float(desc)
+                    print('Please make sure description is of correct data type.')
+                except ValueError:
+                    break
+            except IndexError:
+                print('No data was entered.')
+            except Exception as e:
                 print(e)
-                continue
-
 
         while True:
             try:
-                loc = input("Please enter the geographical location affected: ").strip()
-                if not loc:  # if desc is empty
-                    raise ValueError('No data was entered.')
-                if loc.isdigit():  # if loc is a number
-                    raise ValueError('Please make sure description is of correct data type.')
-                if float(loc):
-                    raise ValueError('Please make sure description is of correct data type.')
-                break
-            except ValueError as e:
+                loc = input("Please enter a description of the event: ")
+                loc[0]
+                try:
+                    float(loc)
+                    print('Please make sure description is of correct data type.')
+                except ValueError:
+                    break
+            except IndexError:
+                print('No data was entered.')
+            except Exception as e:
                 print(e)
-                continue
 
         while True:
             try:
