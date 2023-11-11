@@ -55,15 +55,18 @@ class Admin:
 
         while True:
             try:
-                start_date = input("Please enter the start date of the event (DD-MM-YYYY): ").strip()
+                # start_date = input("Please enter the start date of the event (DD-MM-YYYY): ").strip()
+                start_date = input("Please enter the start date of the event (YYYY-MM-DD): ").strip()
                 # remind of the format DD-MM-YYYY
                 if not start_date:
                     raise ValueError("No data was entered.")
                 try:
-                    datetime.strptime(start_date, "%d-%m-%Y")  # no need for check variable
+                    # datetime.strptime(start_date, "%d-%m-%Y")  # no need for check variable
+                    datetime.strptime(start_date, "%Y-%m-%d")
                     break
                 except ValueError:
-                    print("Date must be in (DD-MM-YYYY) format. Please try again.")
+                    # print("Date must be in (DD-MM-YYYY) format. Please try again.")
+                    print("Date must be in (YYYY-MM-DD) format. Please try again.")
                     continue  # added continue because print doesn't continue the loop
             except Exception as e:
                 print(e)

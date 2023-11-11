@@ -3,7 +3,7 @@ from coded_vars import convert_gender, convert_medical_condition
 
 class Volunteer:
     """Class for Volunteer users. Initialised when a user successfully logs in as a volunteer."""
-    def __init__(self, username, password, first_name, last_name, email, phone_number, gender, date_of_birth, camp_name):
+    def __init__(self, username, password, first_name, last_name, email, phone_number, gender, date_of_birth, plan_id, camp_name):
         """Initialise attributes with the user's details."""
         self.username = username
         self.password = password
@@ -13,6 +13,7 @@ class Volunteer:
         self.phone_number = phone_number
         self.gender = gender
         self.date_of_birth = date_of_birth
+        self.plan_id = plan_id
         self.camp_name = camp_name
         self.logged_in = True
 
@@ -62,7 +63,7 @@ class Volunteer:
 
     def logout(self):
         self.logged_in = False
-        print("You are now logged out. See you again!\n")
+        print("You are now logged out. See you again!")
 
     def view_personal_info(self):
         """
@@ -343,65 +344,42 @@ class Volunteer:
 
 
     def update_camp(self):
-        def add_camp():
-            plans = pd.read_csv('plans.csv')
-            plans = plans[plans['end_date'].isna()]  # only show plans that haven't been closed
-
-            if len(plans.index) == 0:
-                print("No ongoing plans. It is not possible to add camp identification at the moment.")
-                return None
-
-            camps = pd.read_csv('camps.csv')
-            plans_camps = pd.merge(plans, camps, how="inner", on="plan_name")
-            plans_camps = plans_camps[
-                ['camp_name', 'plan_name', 'description', 'location', 'volunteers', 'refugees', 'capacity']]
-
+        def add_camp(plan_id):
+            camps = pd.read_csv(plan_id + '.csv')
             while True:
                 print("Enter [0] to return to the volunteer menu.")
                 print("Choose a camp.")
-                # print(plans_camps)
-                print("\nCamp Name - Plan Name - Location - Description - # Volunteers - # Refugees - Capacity")
-                for row in range(len(plans_camps.index)):
-                    print(plans_camps['camp_name'].iloc[row], plans_camps['plan_name'].iloc[row],
-                          plans_camps['location'].iloc[row], plans_camps['description'].iloc[row],
-                          str(plans_camps['volunteers'].iloc[row]) + " volunteers",
-                          str(plans_camps['refugees'].iloc[row]) + " refugees",
-                          str(plans_camps['capacity'].iloc[row]) + " capacity", sep=" - ")
+                print("\nCamp Name - # Volunteers - # Refugees - Capacity")
+                for row in range(1, len(camps.index)):
+                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
+                          str(camps['refugees'].iloc[row]) + " refugees",
+                          str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 new_camp = input("Enter the name of the camp you would like to join: ")
                 if new_camp == "0":
                     return None
-                if new_camp not in plans_camps['camp_name'].values:
+                if new_camp not in camps['camp_name'].values:
                     print("Please enter the name of a camp from the list displayed.\n")
                     continue
                 return new_camp
 
-        def edit_camp():
-            plans = pd.read_csv('plans.csv')
-            plans = plans[plans['end_date'].isna()]  # only show plans that haven't been closed
-            camps = pd.read_csv('camps.csv')
-            if len(camps.index) == 0:
+        def edit_camp(plan_id):
+            camps = pd.read_csv(plan_id + '.csv')
+            if len(camps.index) == 2: # storage and current camp
                 print("There is currently only one camp. It is not possible to change camp identification.")
                 return self.camp_name
 
-            plans_camps = pd.merge(plans, camps, how="inner", on="plan_name")
-            plans_camps = plans_camps[
-                ['camp_name', 'plan_name', 'description', 'location', 'volunteers', 'refugees', 'capacity']]
-
             while True:
                 print("Enter [0] to return to the volunteer menu.")
-                print("Choose a camp.")
-                # print(plans_camps)
-                print("\nCamp Name - Plan Name - Location - Description - # Volunteers - # Refugees - Capacity")
-                for row in range(len(plans_camps.index)):
-                    print(plans_camps['camp_name'].iloc[row], plans_camps['plan_name'].iloc[row],
-                          plans_camps['location'].iloc[row], plans_camps['description'].iloc[row],
-                          str(plans_camps['volunteers'].iloc[row]) + " volunteers",
-                          str(plans_camps['refugees'].iloc[row]) + " refugees",
-                          str(plans_camps['capacity'].iloc[row]) + " capacity", sep=" - ")
+                print("Choose a new camp.")
+                print("\nCamp Name - # Volunteers - # Refugees - Capacity")
+                for row in range(1, len(camps.index)):
+                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
+                          str(camps['refugees'].iloc[row]) + " refugees",
+                          str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 new_camp = input("Enter the name of the camp you would like to join: ")
                 if new_camp == "0":
                     return self.camp_name
-                if new_camp not in plans_camps['camp_name'].values:
+                if new_camp not in camps['camp_name'].values:
                     print("Please enter the name of a camp from the list displayed.\n")
                     continue
                 if new_camp == self.camp_name:
@@ -409,9 +387,10 @@ class Volunteer:
                     continue
                 return new_camp
 
-        print("\nYour current camp is:", self.camp_name)
+        print("\nYou are volunteering at plan ID:", self.plan_id)
+        print("Your current camp is:", self.camp_name)
         if not self.camp_name:
-            new_camp = add_camp()
+            new_camp = add_camp(self.plan_id)
         else:
             while True:
                 print("Enter [1] to update camp identification")
@@ -428,7 +407,7 @@ class Volunteer:
             if option == 0:
                 return
             if option == 1:
-                new_camp = edit_camp()
+                new_camp = edit_camp(self.plan_id)
             if option == 2:
                 new_camp = None
 
@@ -439,14 +418,14 @@ class Volunteer:
             users.loc[cur_user, 'camp_name'] = new_camp
             users.to_csv('users.csv', index=False)
 
-            camps = pd.read_csv('camps.csv')
+            camps = pd.read_csv(self.plan_id + '.csv')
             if new_camp:
                 chosen = (camps['camp_name'] == new_camp)
                 camps.loc[chosen, 'volunteers'] = camps.loc[chosen, 'volunteers'] + 1
             if self.camp_name:
                 old = (camps['camp_name'] == self.camp_name)
                 camps.loc[old, 'volunteers'] = camps.loc[old, 'volunteers'] - 1
-            camps.to_csv('camps.csv', index=False)
+            camps.to_csv(self.plan_id + '.csv', index=False)
 
             print("Your new camp is:", new_camp)
             self.camp_name = new_camp
@@ -575,7 +554,7 @@ class Volunteer:
                             print("Please enter a number from the options provided.")
                             continue
                         break
-                    if largefam_option == "9":
+                    if largefam_option == 9:
                         continue
                 return family
 
@@ -676,16 +655,16 @@ class Volunteer:
         else:
             refugee_id = refugees['refugee_id'].iloc[-1] + 1
         new_row = {'refugee_id': [refugee_id], 'refugee_name': [refugee_name], 'gender': [gender],
-                   'date_of_birth': [date_of_birth], 'camp_name': [self.camp_name], 'medical_condition': [medical_cond],
-                   'family_members': [family], 'remarks': [remarks]}
+                   'date_of_birth': [date_of_birth], 'plan_id': [self.plan_id], 'camp_name': [self.camp_name],
+                   'medical_condition': [medical_cond], 'family_members': [family], 'remarks': [remarks]}
         new = pd.DataFrame(new_row)
         refugees = pd.concat([refugees, new], ignore_index=True)
         refugees.to_csv('refugees.csv', index=False)
 
-        camps = pd.read_csv('camps.csv')
+        camps = pd.read_csv(self.plan_id + '.csv')
         chosen = (camps['camp_name'] == self.camp_name)
         camps.loc[chosen, 'refugees'] = camps.loc[chosen, 'refugees'] + family
-        camps.to_csv('camps.csv', index=False)
+        camps.to_csv(self.plan_id + '.csv', index=False)
 
         # Print details provided
         gender_str = convert_gender(gender)
@@ -711,7 +690,7 @@ class Volunteer:
 
         print("\nView refugee profile")
         refugees = pd.read_csv('refugees.csv')
-        refugees = refugees[refugees['camp_name'] == self.camp_name]
+        refugees = refugees[(refugees['plan_id'] == self.plan_id) & (refugees['camp_name'] == self.camp_name)]
         if len(refugees.index) == 0:
             print("There are no refugees at your current camp.")
             return
@@ -872,7 +851,7 @@ class Volunteer:
 
         def edit_family(refugee_id, family):
             print("\nCurrent no. of members in refugee's family:", family)
-            camps = pd.read_csv('camps.csv')
+            camps = pd.read_csv(self.plan_id + '.csv')
             cur_camp = camps[camps['camp_name'] == self.camp_name]
             remaining_cap = cur_camp.iloc[0]['capacity'] - cur_camp.iloc[0]['refugees']
             print("Your camp's remaining capacity is " + str(remaining_cap) + ".")
@@ -910,7 +889,7 @@ class Volunteer:
                             print("Please enter a number from the options provided.")
                             continue
                         break
-                    if largefam_option == "9":
+                    if largefam_option == 9:
                         continue
                 break
             # update csv files
@@ -922,7 +901,7 @@ class Volunteer:
 
             chosen = (camps['camp_name'] == self.camp_name)
             camps.loc[chosen, 'refugees'] = camps.loc[chosen, 'refugees'] - family + new_family
-            camps.to_csv('camps.csv', index=False)
+            camps.to_csv(self.plan_id + '.csv', index=False)
             return
 
         def edit_remarks(refugee_id, remarks):
@@ -975,10 +954,10 @@ class Volunteer:
             refugees = refugees.drop(refugees[refugees['refugee_id'] == refugee_id].index)
             refugees.to_csv('refugees.csv', index=False)
 
-            camps = pd.read_csv('camps.csv')
+            camps = pd.read_csv(self.plan_id + '.csv')
             chosen = (camps['camp_name'] == self.camp_name)
             camps.loc[chosen, 'refugees'] = camps.loc[chosen, 'refugees'] - family
-            camps.to_csv('camps.csv', index=False)
+            camps.to_csv(self.plan_id + '.csv', index=False)
 
             print("Refugee's profile has been removed.")
             return
@@ -989,7 +968,7 @@ class Volunteer:
 
         print("\nEdit or remove refugee profile")
         refugees = pd.read_csv('refugees.csv')
-        refugees = refugees[refugees['camp_name'] == self.camp_name]
+        refugees = refugees[(refugees['plan_id'] == self.plan_id) & (refugees['camp_name'] == self.camp_name)]
         if len(refugees.index) == 0:
             print("There are no refugees at your current camp.")
             return
@@ -1082,9 +1061,9 @@ class Volunteer:
             print("You currently do not belong to a camp. Please add your camp identification.")
             return
 
-        camps = pd.read_csv("camps.csv")
+        camps = pd.read_csv(self.plan_id + '.csv')
         my_camp = camps[camps['camp_name'] == self.camp_name]
-        print("Your camp is " + self.camp_name + ", supporting " + my_camp.iloc[0]['plan_name'] + ".")
+        print("Your camp is " + self.camp_name + " for plan ID " + self.plan_id + ".")
         print("Number of volunteers: ", my_camp.iloc[0]['volunteers'])
         print("Number of refugees: ", my_camp.iloc[0]['refugees'])
         print("Refugee capacity: ", my_camp.iloc[0]['capacity'])
@@ -1096,7 +1075,7 @@ class Volunteer:
 
     def update_camp_info(self):
         def edit_capacity():
-            camps = pd.read_csv("camps.csv")
+            camps = pd.read_csv(self.plan_id + '.csv')
             my_camp = camps[camps['camp_name'] == self.camp_name]
             print("\nCurrent capacity of " + self.camp_name + ": " + str(my_camp.iloc[0]['capacity']))
             print("The camp currently has " + str(my_camp.iloc[0]['refugees']) + " refugees.")
@@ -1123,12 +1102,12 @@ class Volunteer:
             # update csv file
             chosen = (camps['camp_name'] == self.camp_name)
             camps.loc[chosen, 'capacity'] = new_capacity
-            camps.to_csv('camps.csv', index=False)
+            camps.to_csv(self.plan_id + '.csv', index=False)
             print("New refugee capacity:", new_capacity)
             return
 
         def edit_food():
-            camps = pd.read_csv("camps.csv")
+            camps = pd.read_csv(self.plan_id + '.csv')
             my_camp = camps[camps['camp_name'] == self.camp_name]
             print("\nCurrent supply of food packets at " + self.camp_name + ": " + str(my_camp.iloc[0]['food']))
 
@@ -1151,12 +1130,12 @@ class Volunteer:
             # update csv file
             chosen = (camps['camp_name'] == self.camp_name)
             camps.loc[chosen, 'food'] = new_food
-            camps.to_csv('camps.csv', index=False)
+            camps.to_csv(self.plan_id + '.csv', index=False)
             print("Updated supply of food packets:", new_food)
             return
 
         def edit_water():
-            camps = pd.read_csv("camps.csv")
+            camps = pd.read_csv(self.plan_id + '.csv')
             my_camp = camps[camps['camp_name'] == self.camp_name]
             print("\nCurrent supply of water portions at " + self.camp_name + ": " + str(my_camp.iloc[0]['water']))
 
@@ -1179,12 +1158,12 @@ class Volunteer:
             # update csv file
             chosen = (camps['camp_name'] == self.camp_name)
             camps.loc[chosen, 'water'] = new_water
-            camps.to_csv('camps.csv', index=False)
+            camps.to_csv(self.plan_id + '.csv', index=False)
             print("Updated supply of water portions:", new_water)
             return
 
         def edit_medical_supplies():
-            camps = pd.read_csv("camps.csv")
+            camps = pd.read_csv(self.plan_id + '.csv')
             my_camp = camps[camps['camp_name'] == self.camp_name]
             print("\nCurrent supply of medical kits at " + self.camp_name + ": " + str(my_camp.iloc[0]['medical_supplies']))
 
@@ -1207,7 +1186,7 @@ class Volunteer:
             # update csv file
             chosen = (camps['camp_name'] == self.camp_name)
             camps.loc[chosen, 'medical_supplies'] = new_medical
-            camps.to_csv('camps.csv', index=False)
+            camps.to_csv(self.plan_id + '.csv', index=False)
             print("Updated supply of medical kits:", new_medical)
             return
 

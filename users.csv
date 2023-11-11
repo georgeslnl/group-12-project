@@ -1,6 +1,7 @@
-username,password,active,first_name,last_name,phone_number,address,date_of_birth,camp_name
-admin,111,1,System,Admin,99999999,,,
-volunteer1,111,1,First,Volunteer,88888888,,01-01-2000,camp1
-volunteer2,111,1,Second,Volunteer,88889999,,25-12-1995,camp3
-volunteer3,111,1,Third,Volunteer,99998888,,14-03-1996,camp3
-volunteer4,111,
+username,password,account_type,active,deactivation_requested,first_name,last_name,email,phone_number,gender,date_of_birth,plan_id,camp_name
+admin,111,admin,1,0,System,Admin,admin@example.com,+44 0000000000,3,1990-02-03,,
+volunteer1,111,volunteer,1,0,First,Volunteer,volunteer1@example.com,+44 1111111111,1,2000-01-01,Australia_2023,camp1
+volunteer2,111,volunteer,1,0,Second,Volunteer,volunteer2@example.com,+44 2222222222,2,1995-12-25,Australia_2023,camp3
+volunteer3,111,volunteer,1,0,Third,Volunteer,volunteer3@example.com,+44 3333333333,1,1996-03-14,Australia_2023,camp3
+volunteer4,111,volunteer,1,0,Fourth,Volunteer,v4@example.com,+44 4444444444,2,2002-02-02,Australia_2023,camp1
+volunteer5,111,volunteer,1,0,Fifth,Volunteer,v5@example.com,+44 5555555555,1,1990-03-16,Australia_2023,camp3

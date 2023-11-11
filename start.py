@@ -1,5 +1,5 @@
 '''Run this file in the command line to open the application.'''
-import pandas as pd, re, datetime
+import pandas as pd, numpy as np, re, datetime
 from volunteer import Volunteer
 from coded_vars import convert_gender
 
@@ -33,7 +33,7 @@ def admin_login():
         username = input("Username (enter 0 to go back): ")
         if username == "0":
             print("")
-            main_menu()
+            return
         elif username == "":
             print("Please enter a username.")
             continue
@@ -41,22 +41,25 @@ def admin_login():
         if password == "0":
             continue
 
-        # check login details
-        if username == "admin" and password == "111":
-            # admin_menu()
-            pass
-        elif username != "admin":
+        # check login details against users table
+        users = pd.read_csv('users.csv', dtype={'password': str})
+
+        select_user = users[(users['username'] == username) & (users['account_type'] == "admin")]
+        if len(select_user.index) == 0:  # username not registered
             print("Username not found. Please try again.\n")
             continue
-        else: # password != "111"
+
+        if select_user.iloc[0]['password'] != password:  # password incorrect
             print("Incorrect password. Please try again.\n")
             continue
+
+        print("Login successful!")
+        # create admin object
         break
 
 def main_menu_vol():
-    print("\n-----------------")
     while True:
-        print("Enter [1] to register as a new volunteer")
+        print("\nEnter [1] to register as a new volunteer")
         print("Enter [2] to login as Volunteer")
         print("Enter [0] to return to main menu")
         try:
@@ -69,19 +72,18 @@ def main_menu_vol():
 
         if login_option_vol == 0:
             print("")
-            main_menu()
+            return
         elif login_option_vol == 1:
             volunteer_registration()
         else:  # login_option == 2
             volunteer_login()
-        break
 
 def volunteer_login():
     print("\nVolunteer Login")
     while True:
         username = input("Username (enter 0 to go back): ")
         if username == "0":
-            main_menu_vol()
+            return
         elif username.strip() == "":
             print("Please enter a username.")
             continue
@@ -90,10 +92,9 @@ def volunteer_login():
             continue
 
         # check login details against users table
-        user_details = pd.read_csv('users.csv', dtype={'password': str})
-        # print(user_details)
+        users = pd.read_csv('users.csv', dtype={'password': str})
 
-        select_user = user_details[user_details['username'] == username]
+        select_user = users[(users['username'] == username) & (users['account_type'] == "volunteer")]
         if len(select_user.index) == 0: # username not registered
             print("Username not found. Please try again.\n")
             continue
@@ -104,28 +105,85 @@ def volunteer_login():
 
         if select_user.iloc[0]['active'] == 0: # user has been deactivated
             print("Your account has been deactivated. Please contact system administrator.\n")
-            main_menu()
+            return
 
         # Login successful, initialise volunteer object and go to volunteer menu
         print("Login successful!")
+        select_user = select_user.replace({np.nan: None})
         v = Volunteer(select_user.iloc[0]['username'], select_user.iloc[0]['password'],
                       select_user.iloc[0]['first_name'], select_user.iloc[0]['last_name'], select_user.iloc[0]['email'],
                       select_user.iloc[0]['phone_number'], select_user.iloc[0]['gender'],
-                      select_user.iloc[0]['date_of_birth'], select_user.iloc[0]['camp_name'])
+                      select_user.iloc[0]['date_of_birth'], select_user.iloc[0]['plan_id'],
+                      select_user.iloc[0]['camp_name'])
         v.volunteer_menu()
         # proceed only when user has logged out
-        main_menu()
-        break
+        return
 
 def volunteer_registration():
     print("\nVolunteer Registration")
     print("You will be prompted to enter details for registration.")
 
+    def add_plan():
+        plans = pd.read_csv('humanitarian_plan.csv')
+        plans = plans[plans['end_date'].isna()]  # only show plans that haven't been closed
+
+        if len(plans.index) == 0:
+            print("\nThere are no ongoing humanitarian plans. Please check back later.")
+            return "B"
+
+        while True:
+            print("\nEnter [B] to return to the previous menu.")
+            print("Choose a plan.")
+            print("\nNumber - Location - Event Description - Start Date - # Camps")
+            for row in range(len(plans.index)):
+                print(row + 1, plans['location'].iloc[row], plans['description'].iloc[row],
+                      plans['start_date'].iloc[row], str(plans['number_of_camps'].iloc[row]) + " camps", sep=" - ")
+            plan_num = input("Enter the number of the plan you would like to join: ")
+            if plan_num == "B":
+                return plan_num
+            try:
+                plan_num = int(plan_num)
+                if plan_num not in range(1, len(plans.index) + 1):
+                    raise ValueError
+            except ValueError:
+                print("Please enter a number from the options provided.\n")
+                continue
+            break
+
+        plan_id = plans['location'].iloc[plan_num - 1] + "_" + plans['start_date'].iloc[plan_num - 1][:4]
+        print("Your plan ID is:", plan_id)
+        return plan_id # e.g. Australia_2023
+
+    def add_camp(plan_id):
+        camps = pd.read_csv(plan_id + '.csv')
+
+        while True:
+            print(
+                "\nEnter [0] to return to the previous menu, [9] to go back to the previous step or [X] to proceed without camp identification.")
+            print("Choose a camp.")
+            print("\nCamp Name - # Volunteers - # Refugees - Capacity")
+            for row in range(1, len(camps.index)):
+                print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
+                      str(camps['refugees'].iloc[row]) + " refugees",
+                      str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
+            camp_name = input("Enter the name of the camp you would like to join: ")
+            if camp_name in ("0", "9"):
+                return camp_name
+            elif camp_name == "X":
+                return None
+
+            if camp_name not in camps['camp_name'].values:
+                print("Please enter the name of a camp from the list displayed.")
+                continue
+
+            print("You have chosen", camp_name + ".")
+            return camp_name
+
     def add_username():
         while True:
-            print("\nEnter [0] to return to the previous menu.")
+            print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
             username = input("Enter username: ").strip()
-            if username == "0":
+            if username in ("0", "9"):
                 return username
             # validation
             if username == "":
@@ -281,108 +339,79 @@ def volunteer_registration():
                 phone_num = "+" + phone_num
             return phone_num
 
-    def add_camp():
-        plans = pd.read_csv('plans.csv')
-        plans = plans[plans['end_date'].isna()]  # only show plans that haven't been closed
-
-        if len(plans.index) == 0:
-            print("\nThere are no ongoing plans. Account will be created without camp identification.")
-            return None
-
-        camps = pd.read_csv('camps.csv')
-        plans_camps = pd.merge(plans, camps, how="inner", on="plan_name")
-        plans_camps = plans_camps[
-            ['camp_name', 'plan_name', 'description', 'location', 'volunteers', 'refugees', 'capacity']]
-
-        while True:
-            print("\nEnter [0] to return to the previous menu, [9] to go back to the previous step or [X] to proceed without camp identification.")
-            print("Choose a camp.")
-            # print(plans_camps)
-            print("\nCamp Name - Plan Name - Location - Description - # Volunteers - # Refugees - Capacity")
-            for row in range(len(plans_camps.index)):
-                print(plans_camps['camp_name'].iloc[row], plans_camps['plan_name'].iloc[row],
-                      plans_camps['location'].iloc[row], plans_camps['description'].iloc[row],
-                      str(plans_camps['volunteers'].iloc[row]) + " volunteers",
-                      str(plans_camps['refugees'].iloc[row]) + " refugees",
-                      str(plans_camps['capacity'].iloc[row]) + " capacity", sep=" - ")
-            camp_name = input("Enter the name of the camp you would like to join: ")
-            if camp_name in ("0", "9"):
-                return camp_name
-            elif camp_name == "X":
-                return None
-
-            if camp_name not in plans_camps['camp_name'].values:
-                print("Please enter the name of a camp from the list displayed.")
-                continue
-            return camp_name
-
 
     progress = 0
     # loop allowing user to go back
-    while progress < 9:
+    while progress < 10:
         if progress == 0:
-            username = add_username()
-            if username == "0": break
+            plan_id = add_plan()
+            if plan_id == "B": break
             else: progress += 1
 
         elif progress == 1:
+            camp_name = add_camp(plan_id)
+            if camp_name == "0": break
+            elif camp_name == "9": progress -= 1
+            else: progress += 1
+
+        elif progress == 2:
+            username = add_username()
+            if username == "0": break
+            elif username == "9": progress -= 1
+            else: progress += 1
+
+        elif progress == 3:
             password = add_password()
             if password == "0": break
             elif password == "9": progress -= 1
             else: progress += 1
 
-        elif progress == 2:
+        elif progress == 4:
             first_name = add_first_name()
             if first_name == "0": break
             elif first_name == "9": progress -= 1
             else: progress += 1
 
-        elif progress == 3:
+        elif progress == 5:
             last_name = add_last_name()
             if last_name == "0": break
             elif last_name == "9": progress -= 1
             else: progress += 1
 
-        elif progress == 4:
+        elif progress == 6:
             gender = add_gender()
             if gender == 0: break
             elif gender == 9: progress -= 1
             else: progress += 1
 
-        elif progress == 5:
+        elif progress == 7:
             date_of_birth = add_dob()
             if date_of_birth == "0": break
             elif date_of_birth == "9": progress -= 1
             else: progress += 1
 
-        elif progress == 6:
+        elif progress == 8:
             email = add_email()
             if email == "0": break
             elif email == "9": progress -= 1
             else: progress += 1
 
-        elif progress == 7:
+        elif progress == 9:
             phone_number = add_phone_num()
             if phone_number == "0": break
             elif phone_number == "9": progress -= 1
             else: progress += 1
 
-        elif progress == 8:
-            camp_name = add_camp()
-            if camp_name == "0": break
-            elif camp_name == "9": progress -= 1
-            else: progress += 1
-
     # if exited loop before entering all details, it was to return to previous menu
-    if progress < 9:
-        main_menu_vol()
+    if progress < 10:
+        return
 
     # Update csv tables
     users = open("users.csv", "a")
     if camp_name:
-        users.write(f'\n{username},{password},1,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{camp_name}')
+        users.write(f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},{camp_name}')
     else:
-        users.write(f'\n{username},{password},1,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},')
+        users.write(f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},')
     users.close()
 
     # users = pd.read_csv('users.csv', dtype={'password': str})
@@ -394,24 +423,25 @@ def volunteer_registration():
     # users.to_csv('users.csv', index=False)
 
     if camp_name:
-        camps = pd.read_csv('camps.csv')
+        camps = pd.read_csv(plan_id + '.csv')
         chosen = (camps['camp_name'] == camp_name)
         camps.loc[chosen, 'volunteers'] = camps.loc[chosen, 'volunteers'] + 1
-        camps.to_csv('camps.csv', index=False)
+        camps.to_csv(plan_id + '.csv', index=False)
 
     # Print details provided in registration
     gender_str = convert_gender(gender)
 
     print("\nThank you for registering as a volunteer,", first_name, last_name+"!")
     print("Your details are as follows:")
+    print("Plan:", plan_id)
+    print("Camp:", camp_name)
     print("Username:", username)
     print("Email:", email)
     print("Phone number:", phone_number)
     print("Gender:", gender_str)
     print("Date of birth:", date_of_birth)
-    print("Camp:", camp_name)
     print("You may now login to your account.")
-    main_menu_vol()
+    return
 
 
 # Run the program
