@@ -2,6 +2,7 @@
 import pandas as pd, numpy as np, re, datetime
 from volunteer import Volunteer
 from coded_vars import convert_gender
+import admin as admin
 
 def main_menu():
     while True:
@@ -55,6 +56,7 @@ def admin_login():
 
         print("Login successful!")
         # create admin object
+        admin.admin_menu()
         break
 
 def main_menu_vol():

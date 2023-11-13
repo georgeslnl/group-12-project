@@ -24,7 +24,7 @@ def string(line):
             _str[0]
             try:
                 float(_str)
-                print('Please make sure description is of correct data type.')
+                print('Please make sure data entered is of correct data type.')
             except ValueError:
                 break
         except IndexError:
