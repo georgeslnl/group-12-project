@@ -107,12 +107,10 @@ class Admin:
             - Their camp identification
             - Number of volunteers working at each camp
         """
-        # what is the hum_plan input?
-        # humanitarian_plan = pd.read_csv('humanitarian_plan.csv')
-        camps = pd.read_csv('camps.csv')
-        print('Total number of refugees: ', sum(camps['refugees']))
-        print('Camp ID of camps involved: \n', camps['camp_name'])
-        print('Number of volunteers working at each camp: \n', camps[['camp_name', 'volunteers']])
+        hu_pl = pd.read_csv('%s.csv' %(hum_plan))
+        print('Total number of refugees: ', sum(hu_pl['refugees']))
+        print('Camp ID of camps involved: \n', hu_pl['camp_name'])
+        print('Number of volunteers working at each camp: \n', hu_pl[['camp_name', 'volunteers']])
 
     def edit_volunteer(self):
         df = pd.read_csv('users.csv')
@@ -290,7 +288,23 @@ class Admin:
                             elif func == 2:
                                 pass  # write function for editing
                             elif func == 3:
-                                admin.display_hum_plan('hum_plan')
+                                humani_plan = pd.read_csv('humanitarian_plan.csv')
+                                location = v.string("Enter the location of the humanitarian plan you would like to access.")
+                                year = v.integer("Enter the year of the humanitarian plan you would like to access.")
+                                if any(humani_plan['location'].str.contains(location)) == True:
+                                    mask = humani_plan['location'] == location
+                                    loc_plan = humani_plan[mask]
+                                    year = str(year)
+                                    date_plan = str(loc_plan['start_date'])
+                                    if year in date_plan:
+                                        plan_name = location + '_' + year
+                                        admin.display_hum_plan(plan_name)
+                                    else:
+                                        print("Year entered does not match location entered.")
+                                else:
+                                    print("Location entered does not match that of any humanitarian plans.")
+
+
                             elif func == 4:
                                 pass  # write function for ending
                         else:
@@ -320,6 +334,7 @@ class Admin:
                         print('Please enter an integer from 1-4.')
                 if action == 3:
                     func_format = True
+
                     pass
 
 
