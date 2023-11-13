@@ -13,9 +13,11 @@ Add methods for the following:
 7. Display camp information (population, capacity, resources) - added
 8. Update camp information - added
 
-9. Request account deactivation
+9. Request account deactivation - added
 
-Possible extras
+Extras
 10. Book volunteering slots
 11. View booked volunteering slots
 12. Edit/cancel volunteering slots
+
+13. Send messages to admin?
