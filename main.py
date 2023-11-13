@@ -3,6 +3,7 @@ import pandas as pd, numpy as np, re, datetime
 import logging
 from volunteer import Volunteer
 from coded_vars import convert_gender
+import admin as admin
 
 logging.basicConfig(level=logging.DEBUG,
                     filename='output.log',
@@ -62,6 +63,7 @@ def admin_login():
 
         print("Login successful!")
         # create admin object
+        admin.admin_menu()
         break
 
 
@@ -160,7 +162,7 @@ def volunteer_registration():
                 continue
             break
 
-        plan_id = plans['location'].iloc[plan_num - 1] + "_" + plans['start_date'].iloc[plan_num - 1][:4]
+        plan_id = plans['location'].iloc[plan_num - 1] + "_" + plans['start_date'].iloc[plan_num - 1][6:]
         print("Your plan ID is:", plan_id)
         return plan_id  # e.g. Australia_2023
 
@@ -279,13 +281,15 @@ def volunteer_registration():
     def add_dob():
         while True:
             print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-            date_of_birth = input("Enter your date of birth in the format YYYY-MM-DD: ")
+            date_of_birth = input("Enter your date of birth in the format DD-MM-YYYY: ").strip()
             if date_of_birth in ("0", "9"):
                 return date_of_birth
             try:
-                dob = datetime.date.fromisoformat(date_of_birth)
+                dob = datetime.datetime.strptime(date_of_birth, "%d-%m-%Y")
+                dob = dob.date()
+                # dob = datetime.date.fromisoformat(date_of_birth)
             except ValueError:
-                print("Incorrect date format. Please use the format YYYY-MM-DD (e.g. 1999-07-23).")
+                print("Incorrect date format. Please use the format DD-MM-YYYY (e.g. 23-07-1999).")
                 continue
             t = datetime.date.today()
             if dob > t:
@@ -485,7 +489,7 @@ def volunteer_registration():
     print("Email:", email)
     print("Phone number:", phone_number)
     print("Gender:", gender_str)
-    print("Date of birth:", date_of_birth)
+    print("Date of birth (DD-MM-YYYY):", date_of_birth)
     print("You may now login to your account.")
     return
 
