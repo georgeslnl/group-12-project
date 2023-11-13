@@ -1,3 +1,3 @@
-refugee_id,refugee_name,gender,date_of_birth,camp_name,medical_condition,family_members,remarks
-1,First Refugee,2,1990-04-01,camp1,1,2,
-2,Second Refugee,1,1970-01-01,camp3,4,1,
+refugee_id,refugee_name,gender,date_of_birth,plan_id,camp_name,medical_condition,family_members,remarks
+1,First Refugee,2,1990-04-01,Australia_2023,camp1,1,2,
+2,Second Refugee,1,1970-01-01,Australia_2023,camp3,4,1,

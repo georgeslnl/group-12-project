@@ -1,2 +1,3 @@
-Description,Location,Start Date,Number of camps
-"Storm caused flooding",United Kingdom,02-11-2023,7
+description,location,start_date,number_of_camps,end_date
+"Storm caused flooding",United Kingdom,2023-11-02,7,
+"Wildfire",Australia,2023-11-10,5,

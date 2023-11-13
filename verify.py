@@ -31,6 +31,7 @@ def string(line):
             print('No data was entered.')
         except Exception as e:
             print(e)
+    return _str
 
 
 def date(line):
@@ -40,8 +41,8 @@ def date(line):
             print("No data was entered. Please enter a date.")
             continue
         try:
-            _date = datetime.strptime(_date, "%d-%m-%Y")
-            return _date
+            _date = datetime.datetime.strptime(_date, "%d-%m-%Y")
+            return _date.date()
         except ValueError:
             print("Date must be in (DD-MM-YYYY) format. Please try again.")
 
