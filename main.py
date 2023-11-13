@@ -1,7 +1,13 @@
 '''Run this file in the command line to open the application.'''
 import pandas as pd, numpy as np, re, datetime
+import logging
 from volunteer import Volunteer
 from coded_vars import convert_gender
+
+logging.basicConfig(level=logging.DEBUG,
+                    filename='output.log',
+                    filemode='w',
+                    format='%(module)s - %(levelname)s - %(message)s')
 
 def main_menu():
     while True:
@@ -25,6 +31,7 @@ def main_menu():
             admin_login()
         else:  # login_option == 2
             main_menu_vol()
+
 
 def admin_login():
     print("\n-----------------")
@@ -57,6 +64,7 @@ def admin_login():
         # create admin object
         break
 
+
 def main_menu_vol():
     while True:
         print("\nEnter [1] to register as a new volunteer")
@@ -78,6 +86,7 @@ def main_menu_vol():
         else:  # login_option == 2
             volunteer_login()
 
+
 def volunteer_login():
     print("\nVolunteer Login")
     while True:
@@ -95,15 +104,15 @@ def volunteer_login():
         users = pd.read_csv('users.csv', dtype={'password': str})
 
         select_user = users[(users['username'] == username) & (users['account_type'] == "volunteer")]
-        if len(select_user.index) == 0: # username not registered
+        if len(select_user.index) == 0:  # username not registered
             print("Username not found. Please try again.\n")
             continue
 
-        if select_user.iloc[0]['password'] != password: # password incorrect
+        if select_user.iloc[0]['password'] != password:  # password incorrect
             print("Incorrect password. Please try again.\n")
             continue
 
-        if select_user.iloc[0]['active'] == 0: # user has been deactivated
+        if select_user.iloc[0]['active'] == 0:  # user has been deactivated
             print("Your account has been deactivated. Please contact system administrator.\n")
             return
 
@@ -118,6 +127,7 @@ def volunteer_login():
         v.volunteer_menu()
         # proceed only when user has logged out
         return
+
 
 def volunteer_registration():
     print("\nVolunteer Registration")
@@ -152,7 +162,7 @@ def volunteer_registration():
 
         plan_id = plans['location'].iloc[plan_num - 1] + "_" + plans['start_date'].iloc[plan_num - 1][:4]
         print("Your plan ID is:", plan_id)
-        return plan_id # e.g. Australia_2023
+        return plan_id  # e.g. Australia_2023
 
     def add_camp(plan_id):
         camps = pd.read_csv(plan_id + '.csv')
@@ -191,7 +201,8 @@ def volunteer_registration():
                 continue
             s = re.search("^[a-zA-Z]+[a-zA-Z0-9_]*$", username)
             if not s:
-                print("Username can only contain letters, digits (0-9) and underscore (_), and must start with a letter. Please choose another username.")
+                print(
+                    "Username can only contain letters, digits (0-9) and underscore (_), and must start with a letter. Please choose another username.")
                 continue
             users = pd.read_csv('users.csv', dtype={'password': str})
             select_username = users[users['username'] == username]
@@ -203,7 +214,7 @@ def volunteer_registration():
     def add_password():
         while True:
             print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-            password = input("Enter password: ") # use 111 for demonstration
+            password = input("Enter password: ")  # use 111 for demonstration
             if password in ("0", "9"):
                 return password
             # validation
@@ -228,7 +239,8 @@ def volunteer_registration():
                 continue
             s = re.search("^[A-Z][a-zA-Z-' ]*$", first_name)
             if not s:
-                print("First name can only contain letters, hyphen (-) and apostrophe ('), and must start with a capital letter.")
+                print(
+                    "First name can only contain letters, hyphen (-) and apostrophe ('), and must start with a capital letter.")
                 continue
             return first_name
 
@@ -279,11 +291,13 @@ def volunteer_registration():
             if dob > t:
                 print("Date of birth cannot be in the future. Please try again.")
                 continue
-            if t.year - dob.year < 18 or (t.year - dob.year == 18 and t.month < dob.month) or (t.year - dob.year == 18 and t.month == dob.month and t.day < dob.day):
+            if t.year - dob.year < 18 or (t.year - dob.year == 18 and t.month < dob.month) or (
+                    t.year - dob.year == 18 and t.month == dob.month and t.day < dob.day):
                 print("Volunteers must be at least 18 years old.")
-                invalid_age_option() # allows user to exit if they are ineligible
+                invalid_age_option()  # allows user to exit if they are ineligible
                 continue
-            if t.year - dob.year > 100 or (t.year - dob.year == 100 and t.month > dob.month) or (t.year - dob.year == 100 and t.month == dob.month and t.day >= dob.day):
+            if t.year - dob.year > 100 or (t.year - dob.year == 100 and t.month > dob.month) or (
+                    t.year - dob.year == 100 and t.month == dob.month and t.day >= dob.day):
                 print("Volunteers must be 18-99 years old (inclusive).")
                 invalid_age_option()
                 continue
@@ -300,7 +314,8 @@ def volunteer_registration():
             except ValueError:
                 print("Please enter a number from the options provided.\n")
                 continue
-            if opt == 0: return
+            if opt == 0:
+                return
             else:
                 print("\nExiting the application.")
                 print("Thank you for your interest in becoming a volunteer.\n")
@@ -325,13 +340,14 @@ def volunteer_registration():
     def add_phone_num():
         while True:
             print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-            phone_num = input("Enter your phone number, including country code followed by a space (e.g. +44 07020123456): ").strip()
+            phone_num = input(
+                "Enter your phone number, including country code followed by a space (e.g. +44 07020123456): ").strip()
             if phone_num in ("0", "9"):
                 return phone_num
             if phone_num == "":
                 print("Please enter a phone number.")
                 continue
-            s = re.search("^\+?\d{1,3} \d{8,11}$", phone_num) # allow starting + to be omitted
+            s = re.search("^\+?\d{1,3} \d{8,11}$", phone_num)  # allow starting + to be omitted
             if not s:
                 print("Incorrect phone number format. Please try again.")
                 continue
@@ -339,68 +355,96 @@ def volunteer_registration():
                 phone_num = "+" + phone_num
             return phone_num
 
-
     progress = 0
     # loop allowing user to go back
     while progress < 10:
         if progress == 0:
             plan_id = add_plan()
-            if plan_id == "B": break
-            else: progress += 1
+            if plan_id == "B":
+                break
+            else:
+                progress += 1
 
         elif progress == 1:
             camp_name = add_camp(plan_id)
-            if camp_name == "0": break
-            elif camp_name == "9": progress -= 1
-            else: progress += 1
+            if camp_name == "0":
+                break
+            elif camp_name == "9":
+                progress -= 1
+            else:
+                progress += 1
 
         elif progress == 2:
             username = add_username()
-            if username == "0": break
-            elif username == "9": progress -= 1
-            else: progress += 1
+            if username == "0":
+                break
+            elif username == "9":
+                progress -= 1
+            else:
+                progress += 1
 
         elif progress == 3:
             password = add_password()
-            if password == "0": break
-            elif password == "9": progress -= 1
-            else: progress += 1
+            if password == "0":
+                break
+            elif password == "9":
+                progress -= 1
+            else:
+                progress += 1
 
         elif progress == 4:
             first_name = add_first_name()
-            if first_name == "0": break
-            elif first_name == "9": progress -= 1
-            else: progress += 1
+            if first_name == "0":
+                break
+            elif first_name == "9":
+                progress -= 1
+            else:
+                progress += 1
 
         elif progress == 5:
             last_name = add_last_name()
-            if last_name == "0": break
-            elif last_name == "9": progress -= 1
-            else: progress += 1
+            if last_name == "0":
+                break
+            elif last_name == "9":
+                progress -= 1
+            else:
+                progress += 1
 
         elif progress == 6:
             gender = add_gender()
-            if gender == 0: break
-            elif gender == 9: progress -= 1
-            else: progress += 1
+            if gender == 0:
+                break
+            elif gender == 9:
+                progress -= 1
+            else:
+                progress += 1
 
         elif progress == 7:
             date_of_birth = add_dob()
-            if date_of_birth == "0": break
-            elif date_of_birth == "9": progress -= 1
-            else: progress += 1
+            if date_of_birth == "0":
+                break
+            elif date_of_birth == "9":
+                progress -= 1
+            else:
+                progress += 1
 
         elif progress == 8:
             email = add_email()
-            if email == "0": break
-            elif email == "9": progress -= 1
-            else: progress += 1
+            if email == "0":
+                break
+            elif email == "9":
+                progress -= 1
+            else:
+                progress += 1
 
         elif progress == 9:
             phone_number = add_phone_num()
-            if phone_number == "0": break
-            elif phone_number == "9": progress -= 1
-            else: progress += 1
+            if phone_number == "0":
+                break
+            elif phone_number == "9":
+                progress -= 1
+            else:
+                progress += 1
 
     # if exited loop before entering all details, it was to return to previous menu
     if progress < 10:
@@ -409,9 +453,11 @@ def volunteer_registration():
     # Update csv tables
     users = open("users.csv", "a")
     if camp_name:
-        users.write(f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},{camp_name}')
+        users.write(
+            f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},{camp_name}')
     else:
-        users.write(f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},')
+        users.write(
+            f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},')
     users.close()
 
     # users = pd.read_csv('users.csv', dtype={'password': str})
@@ -431,7 +477,7 @@ def volunteer_registration():
     # Print details provided in registration
     gender_str = convert_gender(gender)
 
-    print("\nThank you for registering as a volunteer,", first_name, last_name+"!")
+    print("\nThank you for registering as a volunteer,", first_name, last_name + "!")
     print("Your details are as follows:")
     print("Plan:", plan_id)
     print("Camp:", camp_name)

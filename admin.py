@@ -3,6 +3,53 @@ from datetime import datetime
 from humanitarianplan import HumanitarianPlan
 import verify as v
 
+
+def check_deactivation_requests():
+    users = pd.read_csv('users.csv', dtype={'password': str})
+    nb_of_requests = len(users[users["deactivation_requested"] == 1])
+    if nb_of_requests == 0:
+        print('No new deactivation requests.')
+        return
+    elif nb_of_requests == 1:
+        print('You have received a deactivation request')
+        user_deactivating = users.loc[users['deactivation_requested'] == 1, 'username'].item()
+        deactivate_account(df=users, user=user_deactivating)
+        users.to_csv('users.csv', index=False)
+        print('The deactivation request has been processed!')
+    else:
+        print(f'You have received {nb_of_requests} deactivation requests')
+        users_deactivating = users.loc[users['deactivation_requested'] == 1, 'username'].tolist()
+        for username in users_deactivating:
+            deactivate_account(df=users, user=username)
+        users.to_csv('users.csv', index=False)
+        print('All deactivation requests have been processed!')
+
+
+def deactivate_account(df, user):
+    while True:
+        print(f'User {user} has requested to deactivate their account.')
+        print('Enter [1] to deactivate the account')
+        print('Enter [2] to keep the account active')
+        try:
+            option = int(input("Select an option: "))
+            if option not in (1, 2):
+                raise ValueError
+        except ValueError:
+            print("Please enter a number from the options provided.")
+            continue
+        break
+    # admin chose to deactivate account
+    if option == 1:
+        df.loc[df['username'] == user, ['deactivation_requested', 'active']] = 0
+        print(f'You have deactivated {user}')
+    # admin chose to keep account active
+    else:
+        df.loc[df['username'] == user, 'deactivation_requested'] = 0
+        print(f'Request processed for {user}')
+
+
+check_deactivation_requests()
+
 class Admin:
     """Class for the Admin user. Since there can only be 1 admin, this class can only be initialised once"""
 
@@ -112,6 +159,7 @@ class Admin:
         """
         # what is the hum_plan input?
         # humanitarian_plan = pd.read_csv('humanitarian_plan.csv')
+
         camps = pd.read_csv('camps.csv')
         print('Total number of refugees: ', sum(camps['refugees']))
         print('Camp ID of camps involved: \n', camps['camp_name'])
@@ -335,3 +383,4 @@ while admin_authorised == False:
                         pass
     else:
         print("Wrong username or password entered.")
+
