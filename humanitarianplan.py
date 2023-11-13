@@ -23,7 +23,7 @@ class HumanitarianPlan:
         # When a Humanitarian Plan object is created, it also creates a resources csv for that HP
         create = open(f"{self.name}.csv", "w")
         create.write("Camp ID,Volunteers,Refugees,Capacity,Food Packs,Water,First-Aid Kits"
-                     "\nStorage,100,100,25") #default amount of resources
+                     "\nStorage,0,0,0,100,100,25") # default amount of resources
         create.close()
 
         # Adds the rows for each camp into the resources.csv file, based on how many camps exist

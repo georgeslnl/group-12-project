@@ -28,7 +28,7 @@ class Volunteer:
                 print("Enter [2] to create, view, edit or remove a refugee profile")
                 print("Enter [3] to display or update your camp's information")
                 print("Enter [4] to request account deactivation")
-                # print("Enter [5] to add or manage a booking slot for volunteering")
+                print("Enter [5] to add or manage volunteering times")
                 print("Enter [0] to logout")
                 try:
                     option = int(input("Select an option: "))
@@ -48,6 +48,8 @@ class Volunteer:
                 self.camp_info_menu()
             if option == 4:
                 self.request_deactivation()
+            if option == 5:
+                self.volunteering_times()
 
     def account_personal_menu(self):
         while True:
@@ -121,6 +123,32 @@ class Volunteer:
             if option == 2:
                 self.update_camp_info()
 
+    def volunteering_times(self):
+        while True:
+            print("\nManage Volunteering Times")
+            print("Tell us when you are coming to volunteer.")
+            while True:
+                print("Enter [1] to add a volunteering time")
+                print("Enter [2] to view your volunteering times")
+                print("Enter [3] to edit your volunteering times")
+                print("Enter [0] to return to the volunteer menu")
+                try:
+                    option = int(input("Select an option: "))
+                    if option not in range(4):
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a number from the options provided.\n")
+                    continue
+                break
+            if option == 0:
+                return
+            # if option == 1:
+            #     self.add_volunteering_time()
+            # if option == 2:
+            #     self.view_volunteering_times()
+            # if option == 3:
+            #     self.edit_volunteering_times()
+
     def logout(self):
         self.logged_in = False
         print("You are now logged out. See you again!")
@@ -169,7 +197,7 @@ class Volunteer:
         print("Email:", self.email)
         print("Phone number:", self.phone_number)
         print("Gender:", gender_str)
-        print("Date of birth:", self.date_of_birth)
+        print("Date of birth (DD-MM-YYYY):", self.date_of_birth)
 
         while True:
             print("\nEnter [1] if you would like to view your password. The password will appear in plain text.")
@@ -562,13 +590,15 @@ class Volunteer:
         def add_dob():
             while True:
                 print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-                date_of_birth = input("Enter refugee's date of birth in the format YYYY-MM-DD: ")
+                date_of_birth = input("Enter refugee's date of birth in the format DD-MM-YYYY: ").strip()
                 if date_of_birth in ("0", "9"):
                     return date_of_birth
                 try:
-                    dob = datetime.date.fromisoformat(date_of_birth)
+                    dob = datetime.datetime.strptime(date_of_birth, "%d-%m-%Y")
+                    dob = dob.date()
+                    # dob = datetime.date.fromisoformat(date_of_birth)
                 except ValueError:
-                    print("Incorrect date format. Please use the format YYYY-MM-DD (e.g. 1999-07-23).")
+                    print("Incorrect date format. Please use the format DD-MM-YYYY (e.g. 23-07-1999).")
                     continue
                 t = datetime.date.today()
                 if dob > t:
@@ -837,7 +867,7 @@ class Volunteer:
         print("Camp name:", self.camp_name)
         print("Refugee name:", refugee_name)
         print("Gender:", gender_str)
-        print("Date of birth:", date_of_birth)
+        print("Date of birth (DD-MM-YYYY):", date_of_birth)
         print("Medical condition:", medical_str)
         print("No. of family members:", family)
         print("Additional remarks:", remarks)
