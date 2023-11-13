@@ -2,6 +2,7 @@ import pandas as pd
 from datetime import datetime
 from humanitarianplan import HumanitarianPlan
 import verify as v
+import logging
 
 
 class Admin:
@@ -48,10 +49,13 @@ class Admin:
                     float(loc)
                     print('Please make sure description is of correct data type.')
                 except ValueError:
+                    logging.error('ValueError raised from user input')
                     break
             except IndexError:
+                logging.error('IndexError raised from user input')
                 print('No data was entered.')
             except Exception as e:
+                logging.error(f'Error raised from user input: {e}')
                 print(e)
 
         while True:
@@ -64,9 +68,11 @@ class Admin:
                     datetime.strptime(start_date, "%d-%m-%Y")  # no need for check variable
                     break
                 except ValueError:
+                    logging.error('ValueError raised from user input')
                     print("Date must be in (DD-MM-YYYY) format. Please try again.")
                     continue  # added continue because print doesn't continue the loop
             except Exception as e:
+                logging.error(f'Error raised from user input: {e}')
                 print(e)
                 continue
 
@@ -74,10 +80,13 @@ class Admin:
             try:
                 nb_of_camps = input("Please enter the number of camps to set up: ").strip()
                 if not nb_of_camps:
+                    logging.error('ValueError raised from user input')
                     raise ValueError("Please enter a data.")
                 if not nb_of_camps.isdigit():  # check if it is an integer
+                    logging.error('ValueError raised from user input')
                     raise ValueError('Please enter an integer.')
             except Exception as e:
+                logging.error(f'Error raised from user input: {e}')
                 print(e)
                 continue
             break
@@ -161,7 +170,7 @@ class Admin:
         updated = df['username'] == user
         print("The updated account details of " + user + "is:\n", df[updated])
 
-    def creat_volunteer(self):
+    def create_volunteer(self):
         new = open("users.csv", "a")
 
         username = v.string("Please enter an user name: ")
@@ -197,6 +206,7 @@ class Admin:
         df = df[df.username != delete_user]
         df.to_csv('users.csv', index=False)
         print(f"{delete_user} is now deleted.")
+        logging.info(f'{delete_user} deleted by Admin')
         print(df)
 
     def active_volunteer(self):
@@ -233,6 +243,7 @@ class Admin:
         print(f'Complete. {user} is now modified.'
               "All status below:")
         print(df)
+        logging.info({f'Admin has {_str}d {user}'})
 
     def check_deactivation_requests(self):
         """
@@ -285,10 +296,12 @@ class Admin:
         if option == 1:
             df.loc[df['username'] == user, ['deactivation_requested', 'active']] = 0
             print(f'You have deactivated {user}')
+            logging.info(f'Admin has deactivated {user}')
         # admin chose to keep account active
         else:
             df.loc[df['username'] == user, 'deactivation_requested'] = 0
             print(f'Request processed for {user}')
+            logging.info(f'Admin has declined deactivation request from {user}')
 
     def end_event(self, hum_plan):
         """
@@ -305,15 +318,17 @@ class Admin:
                 break
             except ValueError:
                 print("Date must be in DD-MM-YYYY format. Please try again.")
+                logging.error('ValueError raised from user input')
 
         hum_plan.end_date = end
+        logging.info(f'Admin has added the following end date for {hum_plan.name}: {end}')
         return hum_plan
 
     def admin_menu(self):
         continue_admin = True
-        while continue_admin == True:
+        while continue_admin:
             choice_format = False
-            while choice_format == False:
+            while not choice_format:
                 try:
                     action = int(input('Enter what you would like to do.'
                                        '\n 1 for creating, editing, displaying or ending a humanitarian plan'
@@ -329,6 +344,7 @@ class Admin:
                         print('Please enter an integer from 0-3.')
                 except ValueError:
                     print('Please enter an integer from 0-3.')
+                    logging.error('ValueError raised from user input')
             func_format = False
             while func_format == False:
                 if action == 1:
@@ -341,7 +357,7 @@ class Admin:
                         if func in range(1, 5):
                             func_format = True
                             if func == 1:
-                                humanitarian_plan = admin.create_hum_plan()
+                                humanitarian_plan = self.create_hum_plan()
                             elif func == 2:
                                 pass  # write function for editing
                             elif func == 3:
@@ -359,7 +375,7 @@ class Admin:
                                     date_plan = str(loc_plan['start_date'])
                                     if year in date_plan:
                                         plan_name = location + '_' + year
-                                        admin.display_hum_plan(plan_name)
+                                        self.display_hum_plan(plan_name)
                                         break
                                     else:
                                         print("Year entered does not match location entered.")
@@ -368,6 +384,7 @@ class Admin:
                         else:
                             print('Please enter an integer from 1-4.')
                     except ValueError:
+                        logging.error('ValueError raised from user input')
                         print('Please enter an integer from 1-4.')
                 if action == 2:
                     self.check_deactivation_requests()
@@ -380,16 +397,17 @@ class Admin:
                         if func in range(1, 5):
                             func_format = True
                             if func == 1:
-                                admin.creat_volunteer()
+                                self.create_volunteer()
                             elif func == 2:
-                                admin.edit_volunteer()
+                                self.edit_volunteer()
                             elif func == 3:
-                                admin.active_volunteer()
+                                self.active_volunteer()
                             elif func == 4:
-                                admin.delete_volunteer()
+                                self.delete_volunteer()
                         else:
                             print('Please enter an integer from 1-4.')
                     except ValueError:
+                        logging.error('ValueError raised from user input')
                         print('Please enter an integer from 1-4.')
                 if action == 3:
                     func_format = True
@@ -398,22 +416,22 @@ class Admin:
 
 # admin username and password have been hardcoded here
 # login process
-admin_authorised = False
-while admin_authorised == False:
-    username_attempt = input("Enter username.")
-    password_attempt = input("Enter password.")
-    if username_attempt == 'admin' and password_attempt == '111':
-        admin_authorised = True
-        try:
-            admin = Admin('admin', '111')
-        except ValueError as e:
-            print(e)  # If login details are incorrect, admin user will not be created
-        else:
-            print(admin)
-            # list of functions for admin to choose what to do, exception handling to ensure correct format
-            admin.admin_menu()
-    else:
-        print("Wrong username or password entered.")
+# admin_authorised = False
+# while admin_authorised == False:
+#     username_attempt = input("Enter username.")
+#     password_attempt = input("Enter password.")
+#     if username_attempt == 'admin' and password_attempt == '111':
+#         admin_authorised = True
+#         try:
+#             admin = Admin('admin', '111')
+#         except ValueError as e:
+#             print(e)  # If login details are incorrect, admin user will not be created
+#         else:
+#             print(admin)
+#             # list of functions for admin to choose what to do, exception handling to ensure correct format
+#             admin.admin_menu()
+#     else:
+#         print("Wrong username or password entered.")
 
 
 

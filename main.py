@@ -3,12 +3,13 @@ import pandas as pd, numpy as np, re, datetime
 import logging
 from volunteer import Volunteer
 from coded_vars import convert_gender
-import admin as admin
+from admin import Admin
 
 logging.basicConfig(level=logging.DEBUG,
                     filename='output.log',
                     filemode='w',
                     format='%(module)s - %(levelname)s - %(message)s')
+
 
 def main_menu():
     while True:
@@ -22,11 +23,13 @@ def main_menu():
                 raise ValueError
         except ValueError:
             print("Please enter a number from the options provided.\n")
+            logging.error("ValueError raised from user input")
             continue
 
         if login_option == 0:
             print("\nExiting the application.")
             print("Thank you for using the Humanitarian Management System.\n")
+            logging.info("User logged out.")
             exit()
         elif login_option == 1:
             admin_login()
@@ -62,7 +65,9 @@ def admin_login():
             continue
 
         print("Login successful!")
+        logging.info("User logged in as: Admin")
         # create admin object
+        admin = Admin(username, password)
         admin.admin_menu()
         break
 
@@ -120,6 +125,7 @@ def volunteer_login():
 
         # Login successful, initialise volunteer object and go to volunteer menu
         print("Login successful!")
+        logging.info("User logged in as: Volunteer")
         select_user = select_user.replace({np.nan: None})
         v = Volunteer(select_user.iloc[0]['username'], select_user.iloc[0]['password'],
                       select_user.iloc[0]['first_name'], select_user.iloc[0]['last_name'], select_user.iloc[0]['email'],
@@ -158,6 +164,7 @@ def volunteer_registration():
                 if plan_num not in range(1, len(plans.index) + 1):
                     raise ValueError
             except ValueError:
+                logging.error("ValueError raised from user input")
                 print("Please enter a number from the options provided.\n")
                 continue
             break
@@ -204,7 +211,8 @@ def volunteer_registration():
             s = re.search("^[a-zA-Z]+[a-zA-Z0-9_]*$", username)
             if not s:
                 print(
-                    "Username can only contain letters, digits (0-9) and underscore (_), and must start with a letter. Please choose another username.")
+                    "Username can only contain letters, digits (0-9) and underscore (_), "
+                    "and must start with a letter. Please choose another username.")
                 continue
             users = pd.read_csv('users.csv', dtype={'password': str})
             select_username = users[users['username'] == username]
