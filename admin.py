@@ -122,13 +122,11 @@ class Admin:
         # uses pandas to print a table first for selection. So admin doesn't have to type it themselves
         print(df.iloc[1:, 0])
         while True:
-            user = v.integer('Please enter the number of the volunteer whose account details you would like to modify. ')
-            user = str(user)
-            user = "volunteer"+user
+            user = v.string('Please enter the username of the volunteer whose account details you would like to modify.')
             if any(df['username'].str.contains(user)) == True: #testing if volunteer account already exists
                 break
             else:
-                print('Number entered does not match any volunteer numbers.')
+                print('Username entered does not match with any volunteer.')
                 continue
         while True:
             # a list for admin to choose from, edited to work for the merged 'users' file
@@ -193,8 +191,12 @@ class Admin:
         df = pd.read_csv('users.csv')
         # uses pandas to print a table first for selection. So admin doesn't have to type it themselves
         print(df.iloc[1:, 0])
-        delete_user = v.integer('Please enter the number of the user you would like to delete. ')
-        delete_user = f"volunteer{delete_user}"
+        while True:
+            delete_user = v.string('Please enter the username you would like to delete. ')
+            if any(df['username'].str.contains(delete_user)) == False:  # testing if volunteer account already exists
+                print("Username not found. Please enter again.")
+            else:
+                break
         # create a dataform without that specific row where username is...
         df = df[df.username != delete_user]
         df.to_csv('users.csv', index=False)
@@ -203,29 +205,33 @@ class Admin:
 
     def active_volunteer(self):
         while True:
-            status = input("Would you like to deactivate or reactivate an user? (D/R)"
+            status = v.string("Would you like to deactivate or reactivate an user? (D/R)"
                               "\n D for deactivate"
                               "\n R for reactivate")
-            status = v.string("")  # will be used to input into csv as status
-            _str = ""  # just a placeholder
             if status != "R" and status != "D":
                 print("Please enter only D or R.")
             elif status == "R":
-                status = "A"
+                status = "1"    #input this into the csv
+                request = "0"
                 _str = "reactivate"
                 break
             elif status == "D":
+                status = "0"
                 _str = "deactivate"
-                break
-            else:
+                request = "0"
                 break
 
         df = pd.read_csv('users.csv')
         # uses pandas to print a table first for selection. So admin doesn't have to type it themselves
         print(df.iloc[1:, 0])
-        user = v.integer(f'Please enter the number of the user you would like to {_str}. ')
-        user = f"volunteer{user}"
+        while True:
+            user = v.string(f'Please enter the username you would like to {_str}. ')
+            if any(df['username'].str.contains(user)) == False:  # testing if volunteer account already exists
+                print("Username not found. Please enter again.")
+            else:
+                break
         df.loc[df['username'] == user, 'status'] = status  # modify the dataform
+        df.loc[df['username'] == user, 'active'] = request
         df.to_csv('users.csv', index=False)  # write it into the .csv file
 
         print(f'Complete. {user} is now modified.'
@@ -300,7 +306,7 @@ while admin_authorised == False:
                                 if func == 1:
                                     humanitarian_plan = admin.create_hum_plan()
                                 elif func == 2:
-                                    pass #write function for editing
+                                    pass    # write function for editing
                                 elif func == 3:
                                     admin.display_hum_plan('hum_plan')
                                 elif func == 4:
