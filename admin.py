@@ -303,8 +303,8 @@ class Admin:
                                         print("Year entered does not match location entered.")
                                 else:
                                     print("Location entered does not match that of any humanitarian plans.")
-
-
+                                #need to rearrange so wrong location will print corresponding message
+                                #need to make it a loop
                             elif func == 4:
                                 pass  # write function for ending
                         else:
@@ -336,76 +336,6 @@ class Admin:
                     func_format = True
 
                     pass
-
-
-    def admin_menu(self):
-        continue_admin = True
-        while continue_admin == True:
-            choice_format = False
-            while choice_format == False:
-                try:
-                    action = int(input('Enter what you would like to do.'
-                                       '\n 1 for creating, editing, displaying or ending a humanitarian plan'
-                                       '\n 2 for creating, editing, deactivating, reactivating or deleting a volunteer account'
-                                       '\n 3 for allocating resources'
-                                       '\n 0 to log out and quit the application'))
-                    if action in range(0, 4):
-                        choice_format = True
-                        if action == 0:
-                            continue_admin = False
-                            exit("You have logged out and quit the application.")
-                    else:
-                        print('Please enter an integer from 0-3.')
-                except ValueError:
-                    print('Please enter an integer from 0-3.')
-            func_format = False
-            while func_format == False:
-                if action == 1:
-                    try:
-                        func = int(input('Enter what you would like to do.'
-                                         '\n 1 for creating a humanitarian plan'
-                                         '\n 2 for editing a humanitarian plan'
-                                         '\n 3 for displaying a humanitarian plan'
-                                         '\n 4 for ending a humanitarian plan'))
-                        if func in range(1, 5):
-                            func_format = True
-                            if func == 1:
-                                humanitarian_plan = admin.create_hum_plan()
-                            elif func == 2:
-                                pass  # write function for editing
-                            elif func == 3:
-                                admin.display_hum_plan('hum_plan')
-                            elif func == 4:
-                                pass  # write function for ending
-                        else:
-                            print('Please enter an integer from 1-4.')
-                    except ValueError:
-                        print('Please enter an integer from 1-4.')
-                if action == 2:
-                    try:
-                        func = int(input('Enter what you would like to do.'
-                                         '\n 1 for creating a volunteer account'
-                                         '\n 2 for editing a volunteer account'
-                                         '\n 3 for deactivating/reactivating a volunteer account'
-                                         '\n 4 for deleting a volunteer account'))
-                        if func in range(1, 5):
-                            func_format = True
-                            if func == 1:
-                                admin.creat_volunteer()
-                            elif func == 2:
-                                admin.edit_volunteer()
-                            elif func == 3:
-                                admin.active_volunteer()
-                            elif func == 4:
-                                admin.delete_volunteer()
-                        else:
-                            print('Please enter an integer from 1-4.')
-                    except ValueError:
-                        print('Please enter an integer from 1-4.')
-                if action == 3:
-                    func_format = True
-                    pass
-
 
 # admin username and password have been hardcoded here
 # login process
