@@ -289,22 +289,23 @@ class Admin:
                                 pass  # write function for editing
                             elif func == 3:
                                 humani_plan = pd.read_csv('humanitarian_plan.csv')
-                                location = v.string("Enter the location of the humanitarian plan you would like to access.")
-                                year = v.integer("Enter the year of the humanitarian plan you would like to access.")
-                                if any(humani_plan['location'].str.contains(location)) == True:
-                                    mask = humani_plan['location'] == location
-                                    loc_plan = humani_plan[mask]
+                                while True:
+                                    location = v.string("Enter the location of the humanitarian plan you would like to access.")
+                                    if any(humani_plan['location'].str.contains(location)) == True:
+                                        mask = humani_plan['location'] == location
+                                        loc_plan = humani_plan[mask]
+                                    else:
+                                        print("Location entered does not match that of any humanitarian plans.")
+                                        continue
+                                    year = v.integer("Enter the year of the humanitarian plan you would like to access.")
                                     year = str(year)
                                     date_plan = str(loc_plan['start_date'])
                                     if year in date_plan:
                                         plan_name = location + '_' + year
                                         admin.display_hum_plan(plan_name)
+                                        break
                                     else:
                                         print("Year entered does not match location entered.")
-                                else:
-                                    print("Location entered does not match that of any humanitarian plans.")
-                                #need to rearrange so wrong location will print corresponding message
-                                #need to make it a loop
                             elif func == 4:
                                 pass  # write function for ending
                         else:
