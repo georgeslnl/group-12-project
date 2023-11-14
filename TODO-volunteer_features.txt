@@ -16,8 +16,8 @@ Add methods for the following:
 9. Request account deactivation - added
 
 Extras
-10. Book volunteering slots
-11. View booked volunteering slots
-12. Edit/cancel volunteering slots
+10. Add volunteering sessions
+11. View volunteering sessions
+12. Remove volunteering sessions
 
 13. Send messages to admin?

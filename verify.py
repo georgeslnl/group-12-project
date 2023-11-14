@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 """Hi, This is a function set that verify all the inputs.
 You can simply use them to replace the input() functions."""
@@ -14,6 +15,7 @@ def integer(line):
                 raise ValueError('Please enter an integer.')
             return int(_int)
         except ValueError as e:
+            logging.error('ValueError raised from user input')
             print(e)
 
 
@@ -26,10 +28,13 @@ def string(line):
                 float(_str)
                 print('Please make sure data entered is of correct data type.')
             except ValueError:
+                logging.error('ValueError raised from user input')
                 break
         except IndexError:
+            logging.error('IndexError raised from user input')
             print('No data was entered.')
         except Exception as e:
+            logging.error(f'Error raised from user input: {e}')
             print(e)
     return _str
 
@@ -44,6 +49,7 @@ def date(line):
             _date = datetime.datetime.strptime(_date, "%d-%m-%Y")
             return _date.date()
         except ValueError:
+            logging.error('ValueError raised from user input')
             print("Date must be in (DD-MM-YYYY) format. Please try again.")
 
 
