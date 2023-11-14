@@ -1,7 +1,6 @@
 camp_name,volunteers,refugees,capacity,food,water,medical_supplies
-Storage,0,0,0,100,100,25
-camp1,2,50,120,35,36,28
+camp1,2,50,120,35,40,32
 camp2,0,0,50,0,0,0
 camp3,3,148,150,50,60,45
-camp4,1,0,40,0,0,0
+camp4,0,0,40,0,0,0
 camp5,0,0,60,0,0,0

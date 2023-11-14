@@ -69,7 +69,7 @@ def admin_login():
         # create admin object
         admin = Admin(username, password)
         admin.admin_menu()
-        break
+        return
 
 
 def main_menu_vol():
@@ -82,7 +82,7 @@ def main_menu_vol():
             if login_option_vol not in (0, 1, 2):
                 raise ValueError
         except ValueError:
-            print("Please enter a number from the options provided.\n")
+            print("Please enter a number from the options provided.")
             continue
 
         if login_option_vol == 0:
@@ -293,8 +293,7 @@ def volunteer_registration():
             if date_of_birth in ("0", "9"):
                 return date_of_birth
             try:
-                dob = datetime.datetime.strptime(date_of_birth, "%d-%m-%Y")
-                dob = dob.date()
+                dob = datetime.datetime.strptime(date_of_birth, "%d-%m-%Y").date()
                 # dob = datetime.date.fromisoformat(date_of_birth)
             except ValueError:
                 print("Incorrect date format. Please use the format DD-MM-YYYY (e.g. 23-07-1999).")
