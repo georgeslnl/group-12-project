@@ -233,6 +233,66 @@ class Admin:
               "All status below:")
         print(df)
 
+    def allocate(self):
+        try:  # first, get the plan which the admin wants to allocate resources to, by entering index
+            hum_df = pd.read_csv('humanitarian_plan.csv')
+            print(hum_df.iloc[0:])
+            index = v.integer(
+                "Please enter the index of the humanitarian plan which you would like to allocate resources to.")
+            # use the index to pick up the corresponding csv automatically
+            start_year = hum_df.loc[index, 'start_date'].split('-')[2]
+            location = hum_df.loc[index, 'location'].replace(' ', '_')
+            plan_csv = f"{location}_{start_year}.csv"
+            print(f"opening {plan_csv}...\n")
+        except IndexError:
+            print("Please enter a correct index.")
+
+        # show the storage resources
+        print(f"This is our total resources ready for distributing.")
+        storage_df = pd.read_csv("Storage.csv")
+        print(storage_df.to_string(index=False))
+        print("")
+
+        # and then show the plan's resources
+        print(f"This is the resources details of {location}_{start_year}.")
+        plan_df = pd.read_csv(plan_csv)
+        print(plan_df.iloc[0:])
+
+        # select the specific camp by entering the index
+        camp = v.integer("Please enter the index of the camp where you would like to allocate resources to.\n"
+                         "'auto' for auto-allocation.\n")
+        camp_name = plan_df.loc[camp, 'camp_name']
+        print(f"You have selected {camp_name}.")
+
+        # getting the specific amount of food, water, and medical supplies
+        resource = v.string(
+            "Please enter the amount of food, water, and medical supplies you would like to distribute,\n"
+            "with coma as a separator ('20,30,40, for example):\n").split(",")
+        food, water, medical_supplies = resource
+        # confirm before sending resource
+        confirm = v.string(
+            f"You are going to distribute {food} food, {water} water, and {medical_supplies} medical supplies to {camp_name}.\n"
+            f"Is that correct? Y/N ")
+        # add the resources to the camp
+        if confirm == "Y":
+            # add and write into the new values
+            plan_df.loc[plan_df['camp_name'] == camp_name, 'food'] += int(food)  # like a = a + food
+            plan_df.loc[plan_df['camp_name'] == camp_name, 'water'] += int(water)
+            plan_df.loc[plan_df['camp_name'] == camp_name, 'medical_supplies'] += int(medical_supplies)
+            plan_df.to_csv(plan_csv, index=False)
+            print(f"This is the new amount resources in {camp_name}")
+            print(plan_df.loc[camp])
+
+            storage_df['food'] -= int(food)
+            storage_df['water'] -= int(water)
+            storage_df['medical_supplies'] -= int(medical_supplies)
+            storage_df.to_csv("Storage.csv", index=False)
+            print("This is the remaining resources in storage.\n",
+                  storage_df)
+
+        elif confirm == "N":
+            ...
+
     def end_event(self, hum_plan):
         """
         This method requires a HumanitarianPlan object as argument.
@@ -268,6 +328,8 @@ class Admin:
                         if action == 0:
                             continue_admin = False
                             exit("You have logged out and quit the application.")
+                        if action == 3:
+                            admin.allocate()
                     else:
                         print('Please enter an integer from 0-3.')
                 except ValueError:
