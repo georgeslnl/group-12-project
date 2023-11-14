@@ -20,11 +20,16 @@ class HumanitarianPlan:
         self.nb_of_camps = int(nb_of_camps)
         self.end_date = None  # end_date will be redefined with end_event method from Admin class
 
-        # When a Humanitarian Plan object is created, it also creates a resources csv for that HP
-        create = open(f"{self.name}.csv", "w")
-        create.write("Camp ID,Volunteers,Refugees,Capacity,Food Packs,Water,First-Aid Kits"
-                     "\nStorage,0,0,0,100,100,25") # default amount of resources
+        # When a Humanitarian Plan object is created, it also creates 2 .csv files for that HP
+        create = open(f"{self.name}.csv", "w") #this one for general info + CURRENT amount of resources in each camp (can be edited by volunteers/admin)
+        create.write("Camp ID,Volunteers,Refugees,Capacity,Food Packs,Water,First-Aid Kits")
         create.close()
+        resources = open(f"{self.name}_resources.csv", "w") #this one for resources specifically: how much in storage and how much ALLOCATED to each camp by admin
+        resources.write(",Food Packs,Water,First-Aid Kits"
+                        "\nStorage,100,100,25") # default amount of resources
+        for i in range(1, self.nb_of_camps + 1):  # starts at 1 since default is 0 and doesn't make sense to have Camp 0
+            resources.write(f"\nCamp {i},0,0,0")
+        resources.close()
 
         # Adds the rows for each camp into the resources.csv file, based on how many camps exist
         # e.g. if nb_of_camps is 3, there will be a row added to the csv for Camp 1, Camp 2, and Camp 3
