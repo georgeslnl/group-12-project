@@ -25,7 +25,7 @@ class HumanitarianPlan:
         create.write("Camp ID,Volunteers,Refugees,Capacity,Food Packs,Water,First-Aid Kits")
         create.close()
         resources = open(f"{self.name}_resources.csv", "w") #this one for resources specifically: how much in storage and how much ALLOCATED to each camp by admin
-        resources.write(",Food Packs,Water,First-Aid Kits"
+        resources.write("Location,Food Packs,Water,First-Aid Kits"
                         "\nStorage,100,100,25") # default amount of resources
         for i in range(1, self.nb_of_camps + 1):  # starts at 1 since default is 0 and doesn't make sense to have Camp 0
             resources.write(f"\nCamp {i},0,0,0")
