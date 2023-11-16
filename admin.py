@@ -217,17 +217,17 @@ class Admin:
             if status != "R" and status != "D":
                 print("Please enter only D or R.")
             elif status == "R":
-                status = "1"    #input this into the csv
-                request = "0"
+                status = 1    #input this into the csv
+                request = 0
                 _str = "reactivate"
                 break
             elif status == "D":
-                status = "0"
+                status = 0
                 _str = "deactivate"
-                request = "0"
+                request = 0
                 break
 
-        df = pd.read_csv('users.csv')
+        df = pd.read_csv('users.csv', dtype={'password': str})
         # uses pandas to print a table first for selection. So admin doesn't have to type it themselves
         print(df.iloc[1:, 0])
         while True:
@@ -236,13 +236,13 @@ class Admin:
                 print("Username not found. Please enter again.")
             else:
                 break
-        df.loc[df['username'] == user, 'status'] = status  # modify the dataform
-        df.loc[df['username'] == user, 'active'] = request
+        df.loc[df['username'] == user, 'deactivation_requested'] = request  # modify the dataform
+        df.loc[df['username'] == user, 'active'] = status
         df.to_csv('users.csv', index=False)  # write it into the .csv file
 
         # update files for camps and volunteering sessions
-        users = pd.read_csv('users.csv', dtype={'password': str})
-        cur_user = users[users['username'] == user]
+        # users = pd.read_csv('users.csv', dtype={'password': str})
+        cur_user = df[df['username'] == user]
         cur_user = cur_user.replace({np.nan: None})
         camp_name = cur_user.iloc[0]['camp_name']
         # increment or decrement number of volunteers if user has a camp
@@ -250,10 +250,10 @@ class Admin:
             plan_id = cur_user.iloc[0]['plan_id']
             camps = pd.read_csv(plan_id + '.csv')
             user_camp = (camps['camp_name'] == camp_name)
-            if _str == "activate":
+            if status == 1:
                 camps.loc[user_camp, 'volunteers'] = camps.loc[user_camp, 'volunteers'] + 1
                 camps.to_csv(plan_id + '.csv', index=False)
-            if _str == "deactivate":
+            if status == 0:
                 camps.loc[user_camp, 'volunteers'] = camps.loc[user_camp, 'volunteers'] - 1
                 camps.to_csv(plan_id + '.csv', index=False)
                 # if deactivated: delete the user's volunteering sessions
