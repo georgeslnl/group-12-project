@@ -41,7 +41,7 @@ class Volunteer:
                     continue
                 break
             if option == 0:
-                logging.debug(f"{self.username} has logged out.")
+                logging.debug(f"{self.username} has chosen to logout.")
                 self.logout()
             if option == 1:
                 logging.debug(f"{self.first_name} {self.last_name} has selected personal menu.")
@@ -53,11 +53,11 @@ class Volunteer:
                 logging.debug(f"{self.username} has selected the camp information menu.")
                 self.camp_info_menu()
             if option == 4:
-                logging.debug(f"{self.username} has requested account deactivation.")
+                logging.debug(f"{self.username} has selected to request account deactivation.")
                 self.request_deactivation()
             if option == 5:
-                logging.debug(f"{self.username} has selected to view the volunteering session information.")
-                self.volunteering_times()
+                logging.debug(f"{self.username} has selected the volunteering session menu.")
+                self.volunteering_session_menu()
 
     def personal_menu(self):
         while True:
@@ -79,7 +79,7 @@ class Volunteer:
                     continue
                 break
             if option == 0:
-                logging.debug(f"{self.username} has logged out.")
+                logging.debug(f"{self.username} has returned to the volunteer menu.")
                 return
             if option == 1:
                 logging.debug(f"{self.username} has chosen to view their personal information.")
@@ -152,7 +152,7 @@ class Volunteer:
                 logging.debug(f'{self.username} has chosen to update camp information.')
                 self.update_camp_info()
 
-    def volunteering_times(self):
+    def volunteering_session_menu(self):
         while True:
             print("\nManage Volunteering Times")
             print("Tell us when you are coming to volunteer.")
@@ -220,7 +220,7 @@ class Volunteer:
         cur_user = (users['username'] == self.username)
         users.loc[cur_user, 'deactivation_requested'] = 1
         users.to_csv('users.csv', index=False)
-        logging.info(f"{self.username}'s request to deactivate their account has been updated on the user.csv file.")
+        logging.info(f"{self.username}'s request to deactivate their account has been updated on the users.csv file.")
 
         print("Your request to deactivate your account has been registered.")
         print("An administrator will respond to your request shortly.")

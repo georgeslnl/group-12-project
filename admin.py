@@ -1,4 +1,4 @@
-import pandas as pd
+import pandas as pd, numpy as np
 from datetime import datetime
 from humanitarianplan import HumanitarianPlan
 import verify as v
@@ -240,6 +240,28 @@ class Admin:
         df.loc[df['username'] == user, 'active'] = request
         df.to_csv('users.csv', index=False)  # write it into the .csv file
 
+        # update files for camps and volunteering sessions
+        users = pd.read_csv('users.csv', dtype={'password': str})
+        cur_user = users[users['username'] == user]
+        cur_user = cur_user.replace({np.nan: None})
+        camp_name = cur_user.iloc[0]['camp_name']
+        # increment or decrement number of volunteers if user has a camp
+        if camp_name:
+            plan_id = cur_user.iloc[0]['plan_id']
+            camps = pd.read_csv(plan_id + '.csv')
+            user_camp = (camps['camp_name'] == camp_name)
+            if _str == "activate":
+                camps.loc[user_camp, 'volunteers'] = camps.loc[user_camp, 'volunteers'] + 1
+                camps.to_csv(plan_id + '.csv', index=False)
+            if _str == "deactivate":
+                camps.loc[user_camp, 'volunteers'] = camps.loc[user_camp, 'volunteers'] - 1
+                camps.to_csv(plan_id + '.csv', index=False)
+                # if deactivated: delete the user's volunteering sessions
+                vol_times = pd.read_csv("volunteering_times.csv")
+                vol_times = vol_times.drop(vol_times[vol_times['username'] == user].index)
+                vol_times.to_csv('volunteering_times.csv', index=False)
+
+
         print(f'Complete. {user} is now modified.'
               "All status below:")
         print(df)
@@ -297,6 +319,23 @@ class Admin:
             df.loc[df['username'] == user, ['deactivation_requested', 'active']] = 0
             print(f'You have deactivated {user}')
             logging.info(f'Admin has deactivated {user}')
+
+            # decrement number of volunteers in camps file if user has a camp
+            users = pd.read_csv('users.csv', dtype={'password': str})
+            cur_user = users[users['username'] == user]
+            cur_user = cur_user.replace({np.nan: None})
+            camp_name = cur_user.iloc[0]['camp_name']
+            if camp_name:
+                plan_id = cur_user.iloc[0]['plan_id']
+                camps = pd.read_csv(plan_id + '.csv')
+                user_camp = (camps['camp_name'] == camp_name)
+                camps.loc[user_camp, 'volunteers'] = camps.loc[user_camp, 'volunteers'] - 1
+                camps.to_csv(plan_id + '.csv', index=False)
+                # delete the user's volunteering sessions
+                vol_times = pd.read_csv("volunteering_times.csv")
+                vol_times = vol_times.drop(vol_times[vol_times['username'] == user].index)
+                vol_times.to_csv('volunteering_times.csv', index=False)
+
         # admin chose to keep account active
         else:
             df.loc[df['username'] == user, 'deactivation_requested'] = 0
@@ -322,6 +361,22 @@ class Admin:
 
         hum_plan.end_date = end
         logging.info(f'Admin has added the following end date for {hum_plan.name}: {end}')
+
+        # update csv files: add end date; remove volunteer accounts and volunteering sessions for that plan
+        plans = pd.read_csv('humanitarian_plan.csv')
+        cur_plan = (plans['location'] == hum_plan.location) & (plans['start_date'] == hum_plan.start_date)
+        plans.loc[cur_plan, 'end_date'] = end
+        plans.to_csv('humanitarian_plan.csv', index=False)
+
+        plan_id = hum_plan.location + "_" + hum_plan.start_date[6:]
+        users = pd.read_csv('users.csv', dtype={'password': str})
+        users = users.drop(users[users['plan_id'] == plan_id].index)
+        users.to_csv('users.csv', index=False)
+
+        vol_times = pd.read_csv("volunteering_times.csv")
+        vol_times = vol_times.drop(vol_times[vol_times['plan_id'] == plan_id].index)
+        vol_times.to_csv('volunteering_times.csv', index=False)
+
         return hum_plan
 
     def display_resources(self, hum_plan):
