@@ -169,9 +169,9 @@ def volunteer_registration():
                 continue
             break
 
-        plan_id = plans['location'].iloc[plan_num - 1] + "_" + plans['start_date'].iloc[plan_num - 1][6:]
+        plan_id = plans['plan_id'].iloc[plan_num - 1]
         print("Your plan ID is:", plan_id)
-        return plan_id  # e.g. Australia_2023
+        return plan_id  # e.g. London_2023
 
     def add_camp(plan_id):
         camps = pd.read_csv(plan_id + '.csv')

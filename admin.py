@@ -462,7 +462,7 @@ class Admin:
         plans = pd.read_csv('humanitarian_plan.csv')
         plans = plans.replace({np.nan: None})
         plans.loc[plan_num-1, 'end_date'] = end_date
-        plan_id = plans['location'].iloc[plan_num-1] + "_" + plans['start_date'].iloc[plan_num-1][6:]
+        plan_id = plans['plan_id'].iloc[plan_num-1]
         plans.to_csv('humanitarian_plan.csv', index=False)
 
         users = pd.read_csv('users.csv', dtype={'password': str})
@@ -837,7 +837,7 @@ class Admin:
         print("Water portions in storage:", plans.loc[plan_num - 1, 'water_storage'])
         print("First-aid kits in storage:", plans.loc[plan_num - 1, 'firstaid_kits_storage'])
 
-        plan_id = plans.loc[plan_num - 1, 'location'] + "_" + plans.loc[plan_num - 1, 'start_date'][6:]
+        plan_id = plans.loc[plan_num - 1, 'plan_id']
         camps = pd.read_csv(plan_id + '.csv')
         print("\nCamps in humanitarian plan:")
         print("Camp Name - # Volunteers - # Refugees - Refugee Capacity")
