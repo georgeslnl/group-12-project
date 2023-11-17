@@ -538,132 +538,399 @@ class Admin:
               f"\n{humani_plan}")
 
     def admin_menu(self):
-        continue_admin = True
-        while continue_admin:
-            choice_format = False
-            while not choice_format:
+        while self.logged_in:
+            print("\n---------------")
+            print("Admin Menu")
+            print("---------------")
+            while True:
+                print("Choose would you would like to do.")
+                print("Enter [1] to create, display, edit or end a humanitarian plan")
+                print("Enter [2] to manage volunteer accounts")
+                print("Enter [3] to display or allocate resources")
+                print("Enter [4] to manage refugee profiles")
+                print("Enter [5] to manage volunteering sessions")
+                print("Enter [0] to logout")
                 try:
-                    action = int(input('Enter what you would like to do.'
-                                       '\n 1 for creating, editing, displaying or ending a humanitarian plan'
-                                       '\n 2 for creating, editing, deactivating, reactivating or deleting a volunteer account'
-                                       '\n 3 for displaying or allocating resources'
-                                       '\n 0 to log out and quit the application'))
-                    if action in range(0, 4):
-                        choice_format = True
-                        if action == 0:
-                            continue_admin = False
-                            exit("You have logged out and quit the application.")
-                    else:
-                        print('Please enter an integer from 0-3.')
+                    option = int(input("Select an option: "))
+                    if option not in range(6):
+                        logging.error(f"Value error raised - Admin entered {option}")
+                        raise ValueError
                 except ValueError:
-                    print('Please enter an integer from 0-3.')
-                    logging.error('ValueError raised from user input')
-            func_format = False
-            while func_format == False:
-                if action == 1:
-                    try:
-                        func = int(input('Enter what you would like to do.'
-                                         '\n 1 for creating a humanitarian plan'
-                                         '\n 2 for editing a humanitarian plan'
-                                         '\n 3 for displaying a humanitarian plan'
-                                         '\n 4 for ending a humanitarian plan'))
-                        if func in range(1, 5):
-                            func_format = True
-                            if func == 1:
-                                humanitarian_plan = self.create_hum_plan()
-                            elif func == 2:
-                                pass  # write function for editing
-                            elif func == 3:
-                                humani_plan = pd.read_csv('humanitarian_plan.csv')
-                                while True:
-                                    location = v.string("Enter the location of the humanitarian plan you would like to access.")
-                                    if any(humani_plan['location'].str.contains(location)) == True:
-                                        loc_plan = humani_plan[humani_plan['location'] == location]
-                                    else:
-                                        print("Location entered does not match that of any humanitarian plans.")
-                                        continue
-                                    year = v.integer("Enter the year of the humanitarian plan you would like to access.")
-                                    year = str(year)
-                                    date_plan = str(loc_plan['start_date'])
-                                    if year in date_plan:
-                                        plan_name = location + '_' + year
-                                        self.display_hum_plan(plan_name)
-                                        break
-                                    else:
-                                        print("Year entered does not match location entered.")
-                            elif func == 4:
-                                pass  # write function for ending
-                        else:
-                            print('Please enter an integer from 1-4.')
-                    except ValueError:
-                        logging.error('ValueError raised from user input')
-                        print('Please enter an integer from 1-4.')
-                if action == 2:
-                    self.check_deactivation_requests()
-                    try:
-                        func = int(input('Enter what you would like to do.'
-                                         '\n 1 for creating a volunteer account'
-                                         '\n 2 for editing a volunteer account'
-                                         '\n 3 for deactivating/reactivating a volunteer account'
-                                         '\n 4 for deleting a volunteer account'))
-                        if func in range(1, 5):
-                            func_format = True
-                            if func == 1:
-                                self.create_volunteer()
-                            elif func == 2:
-                                self.edit_volunteer()
-                            elif func == 3:
-                                self.active_volunteer()
-                            elif func == 4:
-                                self.delete_volunteer()
-                        else:
-                            print('Please enter an integer from 1-4.')
-                    except ValueError:
-                        logging.error('ValueError raised from user input')
-                        print('Please enter an integer from 1-4.')
-                if action == 3:
-                    try:
-                        func = int(input('Enter what you would like to do.'
-                                         '\n 1 for displaying resources in a humanitarian plan.'
-                                         '\n 2 for allocating resources to camps.'))
-                        if func in range(1,3):
-                            func_format = True
-                            if func == 1:
-                                humani_plan = pd.read_csv('humanitarian_plan.csv')
-                                while True:
-                                    try:
-                                        print(humani_plan)
-                                        index = v.integer(
-                                            "Please enter the index of the humanitarian plan which you would like to allocate resources to.")
-                                        location = humani_plan.loc[index, 'location'].replace(' ', '_')
-                                        year = humani_plan.loc[index,'start_date'].split('-')[2]
-                                        plan_csv = f"{location}_{year}.csv"
-                                        print(f"\nopening {plan_csv}...\n")
-                                        self.display_resources(plan_csv)
-                                        break
-                                    except KeyError:
-                                        print("Please enter a correct index.")
+                    print("Please enter a number from the options provided.\n")
+                    continue
+                break
+            if option == 0:
+                logging.debug(f"Admin has chosen to logout.")
+                self.logout()
+            if option == 1:
+                logging.debug(f"Admin has selected the humanitarian plan menu.")
+                self.hum_plan_menu()
+            if option == 2:
+                logging.debug(f"Admin has selected the volunteer accounts menu.")
+                self.vol_accounts_menu()
+            if option == 3:
+                logging.debug(f"Admin has selected the resources menu.")
+                self.resources_menu()
+            if option == 4:
+                logging.debug(f"Admin has selected the refugee menu.")
+                self.refugee_menu()
+            if option == 5:
+                logging.debug(f"{self.username} has selected the volunteering session menu.")
+                self.volunteering_session_menu()
 
-                            elif func == 2:
-                                humani_plan = pd.read_csv('humanitarian_plan.csv')
-                                while True:
-                                    try:
-                                        print(humani_plan)
-                                        index = v.integer(
-                                            "Please enter the index of the humanitarian plan §which you would like to allocate resources to.")
-                                        location = humani_plan.loc[index, 'location'].replace(' ', '_')
-                                        year = humani_plan.loc[index, 'start_date'].split('-')[2]
-                                        hum_plan = f"{location}_{year}.csv"
-                                        print(f"\nopening {hum_plan}...\n")
-                                        self.allocate_resources(hum_plan, location)
-                                        break
-                                    except KeyError:
-                                        print("Please enter a correct index.")
-                        else:
-                            print('Please enter an integer from 1-2.')
-                    except ValueError:
-                        logging.error('ValueError raised from user input')
-                        print('Please enter an integer from 1-2.')
+    def hum_plan_menu(self):
+        while True:
+            print("\nHumanitarian Plans")
+            while True:
+                print("Enter [1] to create a humanitarian plan")
+                print("Enter [2] to display a humanitarian plan")
+                print("Enter [3] to edit a humanitarian plan")
+                print("Enter [4] to end a humanitarian plan")
+                print("Enter [0] to return to the admin menu")
+                try:
+                    user_input = input("Select an option: ")
+                    option = int(user_input)
+                    logging.debug(f'Admin has entered {user_input}.')
+                    if option not in range(5):
+                        logging.error(f"Admin has entered {user_input}, raising a ValueError.")
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a number from the options provided.\n")
+                    continue
+                break
+            if option == 0:
+                logging.debug(f"Admin has returned to the admin menu.")
+                return
+            if option == 1:
+                logging.debug(f"Admin has chosen to create a humanitarian plan.")
+                humanitarian_plan = self.create_hum_plan()
+            if option == 2:
+                logging.debug(f"Admin has chosen to display a humanitarian plan.")
+                self.display_plan()
+            if option == 3:
+                logging.debug(f"Admin has chosen to edit a humanitarian plan.")
+                # TODO: add function
+            if option == 4:
+                logging.debug(f"Admin has chosen to end a humanitarian plan.")
+                # TODO: add function
+
+    def vol_accounts_menu(self):
+        while True:
+            print("\nManage Volunteer Accounts")
+            while True:
+                print("Enter [1] to create a volunteer account")
+                print("Enter [2] to view a volunteer account")
+                print("Enter [3] to edit a volunteer account")
+                print("Enter [4] to deactivate or reactivate a volunteer account")
+                print("Enter [5] to delete a volunteer account")
+                print("Enter [0] to return to the admin menu")
+                try:
+                    user_input = input("Select an option: ")
+                    option = int(user_input)
+                    logging.debug(f'Admin has entered {user_input}.')
+                    if option not in range(6):
+                        logging.error(f"Admin has entered {user_input}, raising a ValueError.")
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a number from the options provided.\n")
+                    continue
+                break
+            if option == 0:
+                logging.debug(f"Admin has returned to the admin menu.")
+                return
+            if option == 1:
+                logging.debug(f"Admin has chosen to create a volunteer account.")
+                self.create_volunteer()
+            if option == 2:
+                logging.debug(f"Admin has chosen to view a volunteer account.")
+                # TODO: add function
+            if option == 3:
+                logging.debug(f"Admin has chosen to edit a volunteer account.")
+                self.edit_volunteer()
+            if option == 4:
+                logging.debug(f"Admin has chosen to deactivate or reactivate a volunteer account.")
+                self.active_volunteer()
+            if option == 5:
+                logging.debug(f"Admin has chosen to delete a volunteer account.")
+                self.delete_volunteer()
+
+    def resources_menu(self):
+        while True:
+            print("\nManage Resources")
+            while True:
+                print("Enter [1] to display resources for a humanitarian plan")
+                print("Enter [2] to allocate resources to camps in a humanitarian plan")
+                print("Enter [0] to return to the admin menu")
+                try:
+                    user_input = input("Select an option: ")
+                    option = int(user_input)
+                    logging.debug(f'Admin has entered {user_input}.')
+                    if option not in range(5):
+                        logging.error(f"Admin has entered {user_input}, raising a ValueError.")
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a number from the options provided.\n")
+                    continue
+                break
+            if option == 0:
+                logging.debug(f"Admin has returned to the admin menu.")
+                return
+            if option == 1:
+                logging.debug(f"Admin has chosen to display resources.")
+                # TODO: add function
+            if option == 2:
+                logging.debug(f"Admin has chosen to allocate resources.")
+                # TODO: add function
+
+    def refugee_menu(self):
+        while True:
+            print("\nManage Refugee Profiles")
+            while True:
+                print("Enter [1] to create a new refugee profile")
+                print("Enter [2] to view a refugee profile")
+                print("Enter [3] to edit or remove a refugee profile")
+                print("Enter [0] to return to the volunteer menu")
+                try:
+                    option = int(input("Select an option: "))
+                    if option not in range(4):
+                        logging.error(f'Admin did not select a valid option at the Refugee Profile menu.')
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a number from the options provided.\n")
+                    continue
+                break
+            if option == 0:
+                logging.debug(f"Admin has returned to the admin menu.")
+                return
+            if option == 1:
+                logging.debug(f'Admin will be taken to the create refugee profile function.')
+                self.create_refugee_profile()
+            if option == 2:
+                logging.debug(f'Admin will be taken to the view refugee profile function.')
+                self.view_refugee_profile()
+            if option == 3:
+                logging.debug(f'Admin will be taken to the edit refugee profile function.')
+                self.edit_refugee_profile()
+
+    def volunteering_session_menu(self):
+        while True:
+            print("\nManage Volunteering Times")
+            while True:
+                print("Enter [1] to add a volunteering session")
+                print("Enter [2] to view a volunteer's volunteering sessions")
+                print("Enter [3] to remove a volunteering session")
+                print("Enter [0] to return to the volunteer menu")
+                try:
+                    user_input = input("Select an option: ")
+                    option = int(user_input)
+                    if option not in range(4):
+                        logging.error(f'Admin has entered {user_input}, which raised a ValueError.')
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a number from the options provided.\n")
+                    continue
+                break
+            if option == 0:
+                logging.debug(f'Admin has chosen to return to the volunteer menu.')
+                return
+            if option == 1:
+                logging.debug(f'Admin has chosen to add a volunteering session.')
+                self.add_volunteering_session()
+            if option == 2:
+                logging.debug(f"Admin has chosen to view a volunteer's volunteering sessions.")
+                self.view_volunteering_sessions()
+            if option == 3:
+                logging.debug(f'Admin has chosen to remove a volunteering session.')
+                self.remove_volunteering_session()
+
+    def logout(self):
+        logging.info(f'Admin has logged out of their session.')
+        self.logged_in = False
+        print("You are now logged out. See you again!")
+
+    def display_plan(self):
+        plans = pd.read_csv('humanitarian_plan.csv')
+        if len(plans.index) == 0:
+            print("No humanitarian plans have been created")
+            return
+
+        plans = plans.replace({np.nan: None})
+        print("Number - Location - Start Date - End Date")
+        for row in range(len(plans.index)):
+            print(row + 1, plans['location'].iloc[row], plans['start_date'].iloc[row], plans['end_date'].iloc[row],
+                  sep=" - ")
+
+        while True:
+            print("\nEnter [0] to return to the previous menu.")
+            try:
+                plan_num = int(input("Enter the number of the plan you would like to display: "))
+                if plan_num == 0:
+                    return
+                if plan_num not in range(1, len(plans.index) + 1):
+                    raise ValueError
+            except ValueError:
+                print("Please enter a plan number corresponding to a humanitarian plan listed above.")
+                continue
+            break
+
+        print("\nDetails of humanitarian plan:")
+        print("Location:", plans.loc[plan_num - 1, 'location'])
+        print("Description:", plans.loc[plan_num - 1, 'description'])
+        print("Number of camps:", plans.loc[plan_num - 1, 'number_of_camps'])
+        print("Start date:", plans.loc[plan_num - 1, 'start_date'])
+        print("End date:", plans.loc[plan_num - 1, 'end_date'])
+        print("Food packets in storage:", plans.loc[plan_num - 1, 'food_storage'])
+        print("Water portions in storage:", plans.loc[plan_num - 1, 'water_storage'])
+        print("First-aid kits in storage:", plans.loc[plan_num - 1, 'firstaid_kits_storage'])
+
+        plan_id = plans.loc[plan_num - 1, 'location'] + "_" + plans.loc[plan_num - 1, 'start_date'][6:]
+        camps = pd.read_csv(plan_id + '.csv')
+        print("\nCamps in humanitarian plan:")
+        print("Camp Name - # Volunteers - # Refugees - Refugee Capacity")
+        for row in range(len(camps.index)):
+            print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
+                  str(camps['refugees'].iloc[row]) + " refugees", str(camps['capacity'].iloc[row]) + " capacity",
+                  sep=" - ")
+        return
+
+    # def admin_menu_old(self):
+    #     continue_admin = True
+    #     while continue_admin:
+    #         choice_format = False
+    #         while not choice_format:
+    #             try:
+    #                 action = int(input('Enter what you would like to do.'
+    #                                    '\n 1 for creating, editing, displaying or ending a humanitarian plan'
+    #                                    '\n 2 for creating, editing, deactivating, reactivating or deleting a volunteer account'
+    #                                    '\n 3 for displaying or allocating resources'
+    #                                    '\n 0 to log out and quit the application'))
+    #                 if action in range(0, 4):
+    #                     choice_format = True
+    #                     if action == 0:
+    #                         continue_admin = False
+    #                         exit("You have logged out and quit the application.")
+    #                     if action == 3:
+    #                         admin.allocate()
+    #                 else:
+    #                     print('Please enter an integer from 0-3.')
+    #             except ValueError:
+    #                 print('Please enter an integer from 0-3.')
+    #                 logging.error('ValueError raised from user input')
+    #         func_format = False
+    #         while func_format == False:
+    #             if action == 1:
+    #                 try:
+    #                     func = int(input('Enter what you would like to do.'
+    #                                      '\n 1 for creating a humanitarian plan'
+    #                                      '\n 2 for editing a humanitarian plan'
+    #                                      '\n 3 for displaying a humanitarian plan'
+    #                                      '\n 4 for ending a humanitarian plan'))
+    #                     if func in range(1, 5):
+    #                         func_format = True
+    #                         if func == 1:
+    #                             humanitarian_plan = self.create_hum_plan()
+    #                         elif func == 2:
+    #                             pass  # write function for editing
+    #                         elif func == 3:
+    #                             humani_plan = pd.read_csv('humanitarian_plan.csv')
+    #                             while True:
+    #                                 location = v.string("Enter the location of the humanitarian plan you would like to access.")
+    #                                 if any(humani_plan['location'].str.contains(location)) == True:
+    #                                     loc_plan = humani_plan[humani_plan['location'] == location]
+    #                                 else:
+    #                                     print("Location entered does not match that of any humanitarian plans.")
+    #                                     continue
+    #                                 year = v.integer("Enter the year of the humanitarian plan you would like to access.")
+    #                                 year = str(year)
+    #                                 date_plan = str(loc_plan['start_date'])
+    #                                 if year in date_plan:
+    #                                     plan_name = location + '_' + year
+    #                                     self.display_hum_plan(plan_name)
+    #                                     break
+    #                                 else:
+    #                                     print("Year entered does not match location entered.")
+    #                         elif func == 4:
+    #                             pass  # write function for ending
+    #                     else:
+    #                         print('Please enter an integer from 1-4.')
+    #                 except ValueError:
+    #                     logging.error('ValueError raised from user input')
+    #                     print('Please enter an integer from 1-4.')
+    #             if action == 2:
+    #                 self.check_deactivation_requests()
+    #                 try:
+    #                     func = int(input('Enter what you would like to do.'
+    #                                      '\n 1 for creating a volunteer account'
+    #                                      '\n 2 for editing a volunteer account'
+    #                                      '\n 3 for deactivating/reactivating a volunteer account'
+    #                                      '\n 4 for deleting a volunteer account'))
+    #                     if func in range(1, 5):
+    #                         func_format = True
+    #                         if func == 1:
+    #                             self.create_volunteer()
+    #                         elif func == 2:
+    #                             self.edit_volunteer()
+    #                         elif func == 3:
+    #                             self.active_volunteer()
+    #                         elif func == 4:
+    #                             self.delete_volunteer()
+    #                     else:
+    #                         print('Please enter an integer from 1-4.')
+    #                 except ValueError:
+    #                     logging.error('ValueError raised from user input')
+    #                     print('Please enter an integer from 1-4.')
+    #             if action == 3:
+    #                 try:
+    #                     func = int(input('Enter what you would like to do.'
+    #                                      '\n 1 for displaying resources in a humanitarian plan.'
+    #                                      '\n 2 for allocating resources to camps.'))
+    #                     if func in range(1,3):
+    #                         func_format = True
+    #                         if func == 1:
+    #                             humani_plan = pd.read_csv('humanitarian_plan.csv')
+    #                             while True:
+    #                                 location = v.string(
+    #                                     "Enter the location of the humanitarian plan you would like to access.")
+    #                                 if any(humani_plan['location'].str.contains(location)) == True:
+    #                                     loc_plan = humani_plan[humani_plan['location'] == location]
+    #                                 else:
+    #                                     print("Location entered does not match that of any humanitarian plans.")
+    #                                     continue
+    #                                 year = v.integer(
+    #                                     "Enter the year of the humanitarian plan you would like to access.")
+    #                                 year = str(year)
+    #                                 date_plan = str(loc_plan['start_date'])
+    #                                 if year in date_plan:
+    #                                     plan_name = location + '_' + year
+    #                                     self.display_resources(plan_name)
+    #                                     break
+    #                                 else:
+    #                                     print("Year entered does not match location entered.")
+    #                         elif func == 2:
+    #                             humani_plan = pd.read_csv('humanitarian_plan.csv')
+    #                             while True:
+    #                                 location = v.string(
+    #                                     "Enter the location of the humanitarian plan you would like to access.")
+    #                                 if any(humani_plan['location'].str.contains(location)) == True:
+    #                                     loc_plan = humani_plan[humani_plan['location'] == location]
+    #                                 else:
+    #                                     print("Location entered does not match that of any humanitarian plans.")
+    #                                     continue
+    #                                 year = v.integer(
+    #                                     "Enter the year of the humanitarian plan you would like to access.")
+    #                                 year = str(year)
+    #                                 date_plan = str(loc_plan['start_date'])
+    #                                 if year in date_plan:
+    #                                     plan_name = location + '_' + year
+    #                                     self.allocate_resources(plan_name)
+    #                                     break
+    #                                 else:
+    #                                     print("Year entered does not match location entered.")
+    #                     else:
+    #                         print('Please enter an integer from 1-2.')
+    #                 except ValueError:
+    #                     logging.error('ValueError raised from user input')
+    #                     print('Please enter an integer from 1-2.')
 
 # admin username and password have been hardcoded here
 # login process
