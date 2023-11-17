@@ -97,10 +97,11 @@ class Admin:
 
         # Creating humanitarian plan object
         hu_pl = HumanitarianPlan(desc, loc, start_date, nb_of_camps)
+        name = f'{loc}_{start_date[6:]}'
 
         # Opens the csv file and adds the data for this humanitarian plan
         h = open("humanitarian_plan.csv", "a")
-        h.write(f'\n{desc},{loc},{start_date},{nb_of_camps},,{1000},{1000},{250}') # default amount of resources
+        h.write(f'\n{name},{desc},{loc},{start_date},{nb_of_camps},,{1000},{1000},{250}') # default amount of resources
         # desc is wrapped in "" because we don't want to csv file to see a "," in the description as a delimitter
         h.close()
 
@@ -113,18 +114,18 @@ class Admin:
 
         return hu_pl
 
-    def display_hum_plan(self, hum_plan):
-        """
-        This method displays summary information about the humanitarian plan.
-        Information to display:
-            - Number of refugees
-            - Their camp identification
-            - Number of volunteers working at each camp
-        """
-        hu_pl = pd.read_csv('%s.csv' %(hum_plan))
-        print('Total number of refugees: ', sum(hu_pl['refugees']))
-        print('Camp ID of camps involved: \n', hu_pl['camp_name'])
-        print('Number of volunteers working at each camp: \n', hu_pl[['camp_name', 'volunteers']])
+    # def display_hum_plan(self, hum_plan):
+    #     """
+    #     This method displays summary information about the humanitarian plan.
+    #     Information to display:
+    #         - Number of refugees
+    #         - Their camp identification
+    #         - Number of volunteers working at each camp
+    #     """
+    #     hu_pl = pd.read_csv('%s.csv' %(hum_plan))
+    #     print('Total number of refugees: ', sum(hu_pl['refugees']))
+    #     print('Camp ID of camps involved: \n', hu_pl['camp_name'])
+    #     print('Number of volunteers working at each camp: \n', hu_pl[['camp_name', 'volunteers']])
 
     def edit_volunteer(self):
         df = pd.read_csv('users.csv')
@@ -346,65 +347,65 @@ class Admin:
             print(f'Request processed for {user}')
             logging.info(f'Admin has declined deactivation request from {user}')
 
-    def allocate(self):
-        try:  # first, get the plan which the admin wants to allocate resources to, by entering index
-            hum_df = pd.read_csv('humanitarian_plan.csv')
-            print(hum_df.iloc[0:])
-            index = v.integer(
-                "Please enter the index of the humanitarian plan which you would like to allocate resources to.")
-            # use the index to pick up the corresponding csv automatically
-            start_year = hum_df.loc[index, 'start_date'].split('-')[2]
-            location = hum_df.loc[index, 'location'].replace(' ', '_')
-            plan_csv = f"{location}_{start_year}.csv"
-            print(f"opening {plan_csv}...\n")
-        except IndexError:
-            print("Please enter a correct index.")
-
-        # show the storage resources
-        print(f"This is our total resources ready for distributing.")
-        storage_df = pd.read_csv("Storage.csv")
-        print(storage_df.to_string(index=False))
-        print("")
-
-        # and then show the plan's resources
-        print(f"This is the resources details of {location}_{start_year}.")
-        plan_df = pd.read_csv(plan_csv)
-        print(plan_df.iloc[0:])
-
-        # select the specific camp by entering the index
-        camp = v.integer("Please enter the index of the camp where you would like to allocate resources to.\n"
-                         "'auto' for auto-allocation.\n")
-        camp_name = plan_df.loc[camp, 'camp_name']
-        print(f"You have selected {camp_name}.")
-
-        # getting the specific amount of food, water, and medical supplies
-        resource = v.string(
-            "Please enter the amount of food, water, and medical supplies you would like to distribute,\n"
-            "with coma as a separator ('20,30,40, for example):\n").split(",")
-        food, water, medical_supplies = resource
-        # confirm before sending resource
-        confirm = v.string(
-            f"You are going to distribute {food} food, {water} water, and {medical_supplies} medical supplies to {camp_name}.\n"
-            f"Is that correct? Y/N ")
-        # add the resources to the camp
-        if confirm == "Y":
-            # add and write into the new values
-            plan_df.loc[plan_df['camp_name'] == camp_name, 'food'] += int(food)  # like a = a + food
-            plan_df.loc[plan_df['camp_name'] == camp_name, 'water'] += int(water)
-            plan_df.loc[plan_df['camp_name'] == camp_name, 'medical_supplies'] += int(medical_supplies)
-            plan_df.to_csv(plan_csv, index=False)
-            print(f"This is the new amount resources in {camp_name}")
-            print(plan_df.loc[camp])
-
-            storage_df['food'] -= int(food)
-            storage_df['water'] -= int(water)
-            storage_df['medical_supplies'] -= int(medical_supplies)
-            storage_df.to_csv("Storage.csv", index=False)
-            print("This is the remaining resources in storage.\n",
-                  storage_df)
-
-        elif confirm == "N":
-            ...
+    # def allocate(self):
+    #     try:  # first, get the plan which the admin wants to allocate resources to, by entering index
+    #         hum_df = pd.read_csv('humanitarian_plan.csv')
+    #         print(hum_df.iloc[0:])
+    #         index = v.integer(
+    #             "Please enter the index of the humanitarian plan which you would like to allocate resources to.")
+    #         # use the index to pick up the corresponding csv automatically
+    #         start_year = hum_df.loc[index, 'start_date'].split('-')[2]
+    #         location = hum_df.loc[index, 'location'].replace(' ', '_')
+    #         plan_csv = f"{location}_{start_year}.csv"
+    #         print(f"opening {plan_csv}...\n")
+    #     except IndexError:
+    #         print("Please enter a correct index.")
+    #
+    #     # show the storage resources
+    #     print(f"This is our total resources ready for distributing.")
+    #     storage_df = pd.read_csv("Storage.csv")
+    #     print(storage_df.to_string(index=False))
+    #     print("")
+    #
+    #     # and then show the plan's resources
+    #     print(f"This is the resources details of {location}_{start_year}.")
+    #     plan_df = pd.read_csv(plan_csv)
+    #     print(plan_df.iloc[0:])
+    #
+    #     # select the specific camp by entering the index
+    #     camp = v.integer("Please enter the index of the camp where you would like to allocate resources to.\n"
+    #                      "'auto' for auto-allocation.\n")
+    #     camp_name = plan_df.loc[camp, 'camp_name']
+    #     print(f"You have selected {camp_name}.")
+    #
+    #     # getting the specific amount of food, water, and medical supplies
+    #     resource = v.string(
+    #         "Please enter the amount of food, water, and medical supplies you would like to distribute,\n"
+    #         "with coma as a separator ('20,30,40, for example):\n").split(",")
+    #     food, water, medical_supplies = resource
+    #     # confirm before sending resource
+    #     confirm = v.string(
+    #         f"You are going to distribute {food} food, {water} water, and {medical_supplies} medical supplies to {camp_name}.\n"
+    #         f"Is that correct? Y/N ")
+    #     # add the resources to the camp
+    #     if confirm == "Y":
+    #         # add and write into the new values
+    #         plan_df.loc[plan_df['camp_name'] == camp_name, 'food'] += int(food)  # like a = a + food
+    #         plan_df.loc[plan_df['camp_name'] == camp_name, 'water'] += int(water)
+    #         plan_df.loc[plan_df['camp_name'] == camp_name, 'medical_supplies'] += int(medical_supplies)
+    #         plan_df.to_csv(plan_csv, index=False)
+    #         print(f"This is the new amount resources in {camp_name}")
+    #         print(plan_df.loc[camp])
+    #
+    #         storage_df['food'] -= int(food)
+    #         storage_df['water'] -= int(water)
+    #         storage_df['medical_supplies'] -= int(medical_supplies)
+    #         storage_df.to_csv("Storage.csv", index=False)
+    #         print("This is the remaining resources in storage.\n",
+    #               storage_df)
+    #
+    #     elif confirm == "N":
+    #         ...
 
     def end_event(self):
         """
