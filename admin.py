@@ -444,17 +444,20 @@ class Admin:
         This method requires a HumanitarianPlan object as argument
         and prints out the corresponding resources .csv file.
         """
-        resources = pd.read_csv('%s_resources.csv' % (hum_plan))
+        resources = pd.read_csv(hum_plan)
         print(resources)
 
-    def allocate_resources(self, hum_plan):
+    def allocate_resources(self, hum_plan, location):
         """
         This method requires a HumanitarianPlan object as argument, retrieves the
         corresponding resources .csv file and allows admin to allocate resources
         (Food packs, Water or First-Aid Kits) to camps in that HumanitarianPlan from storage.
         """
-        resources = pd.read_csv(f"{hum_plan}_resources.csv")
-        print(f"Currently, the resources in {hum_plan} are as follows:"
+        resources = pd.read_csv(hum_plan)
+        humani_plan = pd.read_csv("humanitarian_plan.csv")
+        print(f"Currently, the resources in storage as follows:"
+              f"\n{humani_plan['location','start_date','food_storage','water_storage','firstaid_kits_storage']}\n")
+        print(f"And the resources in {hum_plan} are as follows:"
               f"\n{resources}")
         camp_format = False
         while camp_format == False:
@@ -485,34 +488,54 @@ class Admin:
                 print('Please enter an integer from 1-3.')
         if resource_choice == 1: #need to make sure number of {resource} entered does not exceed number in storage
             amount = v.integer(f'Enter the number of food packs you would like to allocate to Camp {camp_no}.')
-            amount = int(amount) #please don't remove, error otherwise
-            original = resources.loc[0, 'Food Packs']
-            new = original - amount
-            resources.loc[0, 'Food Packs'] = new
-            original = resources.loc[camp_index, 'Food Packs']
-            new = original + amount
-            resources.loc[camp_index, 'Food Packs'] = new
+            # try to remove from storage first
+            humani_plan.loc[humani_plan['location'] == location, 'food_storage'] -= int(amount)
+            if humani_plan.loc[humani_plan['location'] == location, 'food_storage'] <= 0:
+                ...     # break
+            else:
+                resources.loc[resources['camp_name'] == f"Camp {camp_no}", 'food'] += int(amount)  # like a = a + food
+
+            # original = resources.loc[0, 'Food Packs']
+            # new = original - amount
+            # resources.loc[0, 'Food Packs'] = new
+            # original = resources.loc[camp_index, 'Food Packs']
+            # new = original + amount
+            # resources.loc[camp_index, 'Food Packs'] = new
+
         elif resource_choice == 2:
             amount = v.integer(f'Enter the number of boxes of water you would like to allocate to Camp {camp_no}.')
-            amount = int(amount)  # please don't remove, error otherwise
-            original = resources.loc[0, 'Water']
-            new = original - amount
-            resources.loc[0, 'Water'] = new
-            original = resources.loc[camp_index, 'Water']
-            new = original + amount
-            resources.loc[camp_index, 'Water'] = new
+            humani_plan.loc[humani_plan['location'] == location, 'water_storage'] -= int(amount)
+            if humani_plan.loc[humani_plan['location'] == location, 'water_storage'] <= 0:
+                ...  # break
+            else:
+                resources.loc[resources['camp_name'] == f"Camp {camp_no}", 'water'] += int(amount)  # like a = a + food
+
+            # original = resources.loc[0, 'Water']
+            # new = original - amount
+            # resources.loc[0, 'Water'] = new
+            # original = resources.loc[camp_index, 'Water']
+            # new = original + amount
+            # resources.loc[camp_index, 'Water'] = new
         elif resource_choice == 3:
             amount = v.integer(f'Enter the number of first-aid kits you would like to allocate to Camp {camp_no}.')
-            amount = int(amount)  # please don't remove, error otherwise
-            original = resources.loc[0, 'First-Aid Kits']
-            new = original - amount
-            resources.loc[0, 'First-Aid Kits'] = new
-            original = resources.loc[camp_index, 'First-Aid Kits']
-            new = original + amount
-            resources.loc[camp_index, 'First-Aid Kits'] = new
-        resources.to_csv(f"{hum_plan}_resources.csv")
+            humani_plan.loc[humani_plan['location'] == location, 'firstaid_kits_storage'] -= int(amount)
+            if humani_plan.loc[humani_plan['location'] == location, 'firstaid_kits_storage'] <= 0:
+                ...  # break
+            else:
+                resources.loc[resources['camp_name'] == f"Camp {camp_no}", 'firstaid_kits'] += int(amount)  # like a = a + food
+
+            # original = resources.loc[0, 'First-Aid Kits']
+            # new = original - amount
+            # resources.loc[0, 'First-Aid Kits'] = new
+            # original = resources.loc[camp_index, 'First-Aid Kits']
+            # new = original + amount
+            # resources.loc[camp_index, 'First-Aid Kits'] = new
+        resources.to_csv(hum_plan, index=False)
+        humani_plan.to_csv("humanitarian_plan.csv", index=False)
         print(f"Allocation complete. Currently, the resources in {hum_plan} are as follows:"
               f"\n{resources}")
+        print(f"And the remaining resources in storage: "
+              f"\n{humani_plan}")
 
     def admin_menu(self):
         continue_admin = True
@@ -530,8 +553,6 @@ class Admin:
                         if action == 0:
                             continue_admin = False
                             exit("You have logged out and quit the application.")
-                        if action == 3:
-                            admin.allocate()
                     else:
                         print('Please enter an integer from 0-3.')
                 except ValueError:
@@ -610,43 +631,34 @@ class Admin:
                             if func == 1:
                                 humani_plan = pd.read_csv('humanitarian_plan.csv')
                                 while True:
-                                    location = v.string(
-                                        "Enter the location of the humanitarian plan you would like to access.")
-                                    if any(humani_plan['location'].str.contains(location)) == True:
-                                        loc_plan = humani_plan[humani_plan['location'] == location]
-                                    else:
-                                        print("Location entered does not match that of any humanitarian plans.")
-                                        continue
-                                    year = v.integer(
-                                        "Enter the year of the humanitarian plan you would like to access.")
-                                    year = str(year)
-                                    date_plan = str(loc_plan['start_date'])
-                                    if year in date_plan:
-                                        plan_name = location + '_' + year
-                                        self.display_resources(plan_name)
+                                    try:
+                                        print(humani_plan)
+                                        index = v.integer(
+                                            "Please enter the index of the humanitarian plan which you would like to allocate resources to.")
+                                        location = humani_plan.loc[index, 'location'].replace(' ', '_')
+                                        year = humani_plan.loc[index,'start_date'].split('-')[2]
+                                        plan_csv = f"{location}_{year}.csv"
+                                        print(f"\nopening {plan_csv}...\n")
+                                        self.display_resources(plan_csv)
                                         break
-                                    else:
-                                        print("Year entered does not match location entered.")
+                                    except KeyError:
+                                        print("Please enter a correct index.")
+
                             elif func == 2:
                                 humani_plan = pd.read_csv('humanitarian_plan.csv')
                                 while True:
-                                    location = v.string(
-                                        "Enter the location of the humanitarian plan you would like to access.")
-                                    if any(humani_plan['location'].str.contains(location)) == True:
-                                        loc_plan = humani_plan[humani_plan['location'] == location]
-                                    else:
-                                        print("Location entered does not match that of any humanitarian plans.")
-                                        continue
-                                    year = v.integer(
-                                        "Enter the year of the humanitarian plan you would like to access.")
-                                    year = str(year)
-                                    date_plan = str(loc_plan['start_date'])
-                                    if year in date_plan:
-                                        plan_name = location + '_' + year
-                                        self.allocate_resources(plan_name)
+                                    try:
+                                        print(humani_plan)
+                                        index = v.integer(
+                                            "Please enter the index of the humanitarian plan §which you would like to allocate resources to.")
+                                        location = humani_plan.loc[index, 'location'].replace(' ', '_')
+                                        year = humani_plan.loc[index, 'start_date'].split('-')[2]
+                                        hum_plan = f"{location}_{year}.csv"
+                                        print(f"\nopening {hum_plan}...\n")
+                                        self.allocate_resources(hum_plan, location)
                                         break
-                                    else:
-                                        print("Year entered does not match location entered.")
+                                    except KeyError:
+                                        print("Please enter a correct index.")
                         else:
                             print('Please enter an integer from 1-2.')
                     except ValueError:
