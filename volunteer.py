@@ -1,5 +1,6 @@
 import pandas as pd, numpy as np, re, datetime
 from coded_vars import convert_gender, convert_medical_condition
+import logging
 
 class Volunteer:
     """Class for Volunteer users. Initialised when a user successfully logs in as a volunteer."""
@@ -33,23 +34,30 @@ class Volunteer:
                 try:
                     option = int(input("Select an option: "))
                     if option not in range(6):
+                        logging.error(f"Value error raised - {self.username} entered {option}")
                         raise ValueError
                 except ValueError:
                     print("Please enter a number from the options provided.\n")
                     continue
                 break
             if option == 0:
+                logging.debug(f"{self.username} has chosen to logout.")
                 self.logout()
             if option == 1:
+                logging.debug(f"{self.first_name} {self.last_name} has selected personal menu.")
                 self.personal_menu()
             if option == 2:
+                logging.debug(f"{self.username} has selected refugee menu.")
                 self.refugee_menu()
             if option == 3:
+                logging.debug(f"{self.username} has selected the camp information menu.")
                 self.camp_info_menu()
             if option == 4:
+                logging.debug(f"{self.username} has selected to request account deactivation.")
                 self.request_deactivation()
             if option == 5:
-                self.volunteering_times()
+                logging.debug(f"{self.username} has selected the volunteering session menu.")
+                self.volunteering_session_menu()
 
     def personal_menu(self):
         while True:
@@ -60,26 +68,34 @@ class Volunteer:
                 print("Enter [3] to update your camp identification")
                 print("Enter [0] to return to the volunteer menu")
                 try:
-                    option = int(input("Select an option: "))
+                    user_input = input("Select an option: ")
+                    option = int(user_input)
+                    logging.debug(f'{self.username} has entered {user_input}.')
                     if option not in range(4):
+                        logging.error(f"{self.username} has entered {user_input}, raising a ValueError.")
                         raise ValueError
                 except ValueError:
                     print("Please enter a number from the options provided.\n")
                     continue
                 break
             if option == 0:
+                logging.debug(f"{self.username} has returned to the volunteer menu.")
                 return
             if option == 1:
+                logging.debug(f"{self.username} has chosen to view their personal information.")
                 self.view_personal_info()
             if option == 2:
+                logging.debug(f"{self.username} has chosen to edit their personal information.")
                 self.edit_personal_info()
             if option == 3:
+                logging.debug(f"{self.username} has chosen to update their camp identification.")
                 self.update_camp()
 
     def refugee_menu(self):
         while True:
             print("\nManage Refugee Profiles")
             if not self.camp_name:
+                logging.debug(f"{self.username} has not entered the correct camp details for their profile.")
                 print("\nVolunteers can only manage refugee profiles for their current camp. Please add your camp identification.")
                 return
 
@@ -91,18 +107,23 @@ class Volunteer:
                 try:
                     option = int(input("Select an option: "))
                     if option not in range(4):
+                        logging.error(f'{self.username} did not select a valid option at the Refugee Profile menu.')
                         raise ValueError
                 except ValueError:
                     print("Please enter a number from the options provided.\n")
                     continue
                 break
             if option == 0:
+                logging.debug(f"{self.username} has returned to the volunteer menu.")
                 return
             if option == 1:
+                logging.debug(f'{self.username} will be taken to the create refugee profile function.')
                 self.create_refugee_profile()
             if option == 2:
+                logging.debug(f'{self.username} will be taken to the view refugee profile function.')
                 self.view_refugee_profile()
             if option == 3:
+                logging.debug(f'{self.username} will be taken to the edit refugee profile function.')
                 self.edit_refugee_profile()
 
     def camp_info_menu(self):
@@ -115,19 +136,23 @@ class Volunteer:
                 try:
                     option = int(input("Select an option: "))
                     if option not in range(3):
+                        logging.error(f'{self.username} has entered {option} which is not an option on the camp information menu.')
                         raise ValueError
                 except ValueError:
                     print("Please enter a number from the options provided.\n")
                     continue
                 break
             if option == 0:
+                logging.debug(f'{self.username} has returned to the volunteer menu.')
                 return
             if option == 1:
+                logging.debug(f'{self.username} has chosen to display camp information.')
                 self.display_camp_info()
             if option == 2:
+                logging.debug(f'{self.username} has chosen to update camp information.')
                 self.update_camp_info()
 
-    def volunteering_times(self):
+    def volunteering_session_menu(self):
         while True:
             print("\nManage Volunteering Times")
             print("Tell us when you are coming to volunteer.")
@@ -141,23 +166,30 @@ class Volunteer:
                 print("Enter [3] to remove volunteering sessions")
                 print("Enter [0] to return to the volunteer menu")
                 try:
-                    option = int(input("Select an option: "))
+                    user_input = input("Select an option: ")
+                    option = int(user_input)
                     if option not in range(4):
+                        logging.error(f'{self.username} has entered {user_input}, which raised a ValueError.')
                         raise ValueError
                 except ValueError:
                     print("Please enter a number from the options provided.\n")
                     continue
                 break
             if option == 0:
+                logging.debug(f'{self.username} has chosen to return to the volunteer menu.')
                 return
             if option == 1:
+                logging.debug(f'{self.username} has chosen to add a volunteering session.')
                 self.add_volunteering_session()
             if option == 2:
+                logging.debug(f'{self.username} has chosen to view their volunteering sessions.')
                 self.view_volunteering_sessions()
             if option == 3:
+                logging.debug(f'{self.username} has chosen to remove a volunteering session.')
                 self.remove_volunteering_session()
 
     def logout(self):
+        logging.info(f'{self.username} has logged out of their session.')
         self.logged_in = False
         print("You are now logged out. See you again!")
 
@@ -170,14 +202,17 @@ class Volunteer:
             print("Enter [1] to proceed")
             print("Enter [0] to return to the volunteer menu")
             try:
-                option = int(input("Select an option: "))
+                user_input = input("Select an option: ")
+                option = int(user_input)
                 if option not in (0, 1):
+                    logging.error(f'{self.username} has entered {user_input} when trying to deactivate their account. ValueError raised.')
                     raise ValueError
             except ValueError:
                 print("Please enter a number from the options provided.\n")
                 continue
             break
         if option == 0:
+            logging.debug(f'{self.username} has returned to the volunteer menu from the "request deactivation" menu.')
             return
 
         # update csv files
@@ -185,9 +220,11 @@ class Volunteer:
         cur_user = (users['username'] == self.username)
         users.loc[cur_user, 'deactivation_requested'] = 1
         users.to_csv('users.csv', index=False)
+        logging.info(f"{self.username}'s request to deactivate their account has been updated on the users.csv file.")
 
         print("Your request to deactivate your account has been registered.")
         print("An administrator will respond to your request shortly.")
+        logging.debug(f"{self.username} has been informed that their request for deactivation has been passed to an administrator.")
         return
 
     def view_personal_info(self):
@@ -207,18 +244,23 @@ class Volunteer:
         print("Gender:", gender_str)
         print("Date of birth (DD-MM-YYYY):", self.date_of_birth)
 
+        logging.debug(f"{self.username}'s personal information has been displayed.")
+
         while True:
             print("\nEnter [1] if you would like to view your password. The password will appear in plain text.")
             print("Enter [0] to return to the previous menu")
             try:
-                option = int(input("Select an option: "))
+                user_input = input("Select an option: ")
+                option = int(user_input)
                 if option not in (0, 1):
+                    logging.error(f"{self.username} has entered {user_input} when trying to view their password. They should have entered either 0 or 1. A ValueError has been raised.")
                     raise ValueError
             except ValueError:
                 print("Please enter a number from the options provided.")
                 continue
             break
         if option == 1:
+            logging.debug(f"{self.username} has chosen to view their password.")
             print("Your password is:", self.password)
             input("Press Enter to return to the previous menu. ")
         # back to volunteer_menu() loop while logged in
@@ -227,6 +269,7 @@ class Volunteer:
     def edit_personal_info(self):
         def edit_username():
             print("\nYour current username is:", self.username)
+            logging.debug(f"{self.username} has been shown their current username.")
             while True:
                 print("Enter [0] to return to previous step.")
                 new_username = input("Enter new username: ").strip()
