@@ -163,7 +163,7 @@ class Volunteer:
             while True:
                 print("Enter [1] to add a volunteering session")
                 print("Enter [2] to view your volunteering sessions")
-                print("Enter [3] to remove volunteering sessions")
+                print("Enter [3] to remove a volunteering session")
                 print("Enter [0] to return to the volunteer menu")
                 try:
                     user_input = input("Select an option: ")
@@ -1251,7 +1251,7 @@ class Volunteer:
         print("\nResources available")
         print("Food packets:", my_camp.iloc[0]['food'])
         print("Water portions:", my_camp.iloc[0]['water'])
-        print("First-aid kits:", my_camp.iloc[0]['medical_supplies'])
+        print("First-aid kits:", my_camp.iloc[0]['firstaid_kits'])
         return
 
     def update_camp_info(self):
@@ -1382,7 +1382,7 @@ class Volunteer:
         def edit_medical_supplies():
             camps = pd.read_csv(self.plan_id + '.csv')
             my_camp = camps[camps['camp_name'] == self.camp_name]
-            cur_medical = my_camp.iloc[0]['medical_supplies']
+            cur_medical = my_camp.iloc[0]['firstaid_kits']
             print("\nCurrent supply of first-aid kits at " + self.camp_name + ": " + str(cur_medical))
 
             while True:
@@ -1420,7 +1420,7 @@ class Volunteer:
                 break
             # update csv file
             chosen = (camps['camp_name'] == self.camp_name)
-            camps.loc[chosen, 'medical_supplies'] = cur_medical - medical_used
+            camps.loc[chosen, 'firstaid_kits'] = cur_medical - medical_used
             camps.to_csv(self.plan_id + '.csv', index=False)
             print("Updated supply of first-aid kits:", cur_medical - medical_used)
             return

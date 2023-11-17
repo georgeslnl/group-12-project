@@ -455,7 +455,6 @@ class Admin:
         """
         resources = pd.read_csv(hum_plan)
         humani_plan = pd.read_csv("humanitarian_plan.csv")
-        print("test")
         print(f"Currently, the resources in storage as follows:"
               f"\n{humani_plan['location','start_date','food_storage','water_storage','firstaid_kits_storage']}\n")
         print(f"And the resources in {hum_plan} are as follows:"
@@ -651,15 +650,15 @@ class Admin:
                                     try:
                                         print(humani_plan)
                                         index = v.integer(
-                                            "Please enter the index of the humanitarian plan which you would like to allocate resources to.")
+                                            "Please enter the index of the humanitarian plan §which you would like to allocate resources to.")
                                         location = humani_plan.loc[index, 'location'].replace(' ', '_')
                                         year = humani_plan.loc[index, 'start_date'].split('-')[2]
                                         hum_plan = f"{location}_{year}.csv"
                                         print(f"\nopening {hum_plan}...\n")
-                                    except Exception as e:
-                                        print(e)
-                                    self.allocate_resources(str(hum_plan), str(location))
-                                    break
+                                        self.allocate_resources(hum_plan, location)
+                                        break
+                                    except KeyError:
+                                        print("Please enter a correct index.")
                         else:
                             print('Please enter an integer from 1-2.')
                     except ValueError:
