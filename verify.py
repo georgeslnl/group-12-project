@@ -13,7 +13,7 @@ def integer(line):
                 raise ValueError('No data was entered.')
             if not _int.isdigit():  # if int is not a number
                 raise ValueError('Please enter an integer.')
-            return _int
+            return int(_int)
         except ValueError as e:
             logging.error('ValueError raised from user input')
             print(e)
