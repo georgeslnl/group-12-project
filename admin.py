@@ -17,6 +17,7 @@ class Admin:
             self.username = username  # if login credentials are correct, admin object is initialised
             self.password = password
             self.logged_in = True
+            pd.set_option('display.max_columns', None) #all columns of DataFrames will be displayed (nothing is cut off)
 
     def create_hum_plan(self):
         """This method lets the admin create a new humanitarian plan.
@@ -459,7 +460,7 @@ class Admin:
         resources = pd.read_csv(hum_plan)
         humani_plan = pd.read_csv("humanitarian_plan.csv")
         print(f"Currently, the resources in storage as follows:"
-              f"\n{humani_plan['location','start_date','food_storage','water_storage','firstaid_kits_storage']}\n")
+              f"\n{humani_plan[['location','start_date','food_storage','water_storage','firstaid_kits_storage']]}\n")
         print(f"And the resources in {hum_plan} are as follows:"
               f"\n{resources}")
         camp_format = False
@@ -615,7 +616,7 @@ class Admin:
                 # TODO: add function
             if option == 4:
                 logging.debug(f"Admin has chosen to end a humanitarian plan.")
-                # TODO: add function
+                self.end_event() #what is the hum_plan input?
 
     def vol_accounts_menu(self):
         while True:
@@ -680,10 +681,36 @@ class Admin:
                 return
             if option == 1:
                 logging.debug(f"Admin has chosen to display resources.")
-                # TODO: add function
+                humani_plan = pd.read_csv('humanitarian_plan.csv')
+                while True:
+                     try:
+                         print(humani_plan)
+                         index = v.integer(
+                             "Please enter the index of the humanitarian plan of which you would like to display resources.")
+                         location = humani_plan.loc[index, 'location'].replace(' ', '_')
+                         year = humani_plan.loc[index,'start_date'].split('-')[2]
+                         plan_csv = f"{location}_{year}.csv"
+                         print(f"\nopening {plan_csv}...\n")
+                         self.display_resources(plan_csv)
+                         break
+                     except KeyError:
+                         print("Please enter a correct index.")
             if option == 2:
                 logging.debug(f"Admin has chosen to allocate resources.")
-                # TODO: add function
+                humani_plan = pd.read_csv('humanitarian_plan.csv')
+                while True:
+                    try:
+                        print(humani_plan)
+                        index = v.integer(
+                            "Please enter the index of the humanitarian plan which you would like to allocate resources to.")
+                        location = humani_plan.loc[index, 'location'].replace(' ', '_')
+                        year = humani_plan.loc[index, 'start_date'].split('-')[2]
+                        hum_plan = f"{location}_{year}.csv"
+                        print(f"\nopening {hum_plan}...\n")
+                        self.allocate_resources(hum_plan, location)
+                        break
+                    except KeyError:
+                        print("Please enter a correct index.")
 
     def refugee_menu(self):
         while True:
@@ -796,7 +823,8 @@ class Admin:
                   sep=" - ")
         return
 
-    # def admin_menu_old(self):
+    # old admin menu
+    # def admin_menu(self):
     #     continue_admin = True
     #     while continue_admin:
     #         choice_format = False
@@ -812,8 +840,6 @@ class Admin:
     #                     if action == 0:
     #                         continue_admin = False
     #                         exit("You have logged out and quit the application.")
-    #                     if action == 3:
-    #                         admin.allocate()
     #                 else:
     #                     print('Please enter an integer from 0-3.')
     #             except ValueError:
@@ -892,43 +918,34 @@ class Admin:
     #                         if func == 1:
     #                             humani_plan = pd.read_csv('humanitarian_plan.csv')
     #                             while True:
-    #                                 location = v.string(
-    #                                     "Enter the location of the humanitarian plan you would like to access.")
-    #                                 if any(humani_plan['location'].str.contains(location)) == True:
-    #                                     loc_plan = humani_plan[humani_plan['location'] == location]
-    #                                 else:
-    #                                     print("Location entered does not match that of any humanitarian plans.")
-    #                                     continue
-    #                                 year = v.integer(
-    #                                     "Enter the year of the humanitarian plan you would like to access.")
-    #                                 year = str(year)
-    #                                 date_plan = str(loc_plan['start_date'])
-    #                                 if year in date_plan:
-    #                                     plan_name = location + '_' + year
-    #                                     self.display_resources(plan_name)
+    #                                 try:
+    #                                     print(humani_plan)
+    #                                     index = v.integer(
+    #                                         "Please enter the index of the humanitarian plan which you would like to allocate resources to.")
+    #                                     location = humani_plan.loc[index, 'location'].replace(' ', '_')
+    #                                     year = humani_plan.loc[index,'start_date'].split('-')[2]
+    #                                     plan_csv = f"{location}_{year}.csv"
+    #                                     print(f"\nopening {plan_csv}...\n")
+    #                                     self.display_resources(plan_csv)
     #                                     break
-    #                                 else:
-    #                                     print("Year entered does not match location entered.")
+    #                                 except KeyError:
+    #                                     print("Please enter a correct index.")
+    #
     #                         elif func == 2:
     #                             humani_plan = pd.read_csv('humanitarian_plan.csv')
     #                             while True:
-    #                                 location = v.string(
-    #                                     "Enter the location of the humanitarian plan you would like to access.")
-    #                                 if any(humani_plan['location'].str.contains(location)) == True:
-    #                                     loc_plan = humani_plan[humani_plan['location'] == location]
-    #                                 else:
-    #                                     print("Location entered does not match that of any humanitarian plans.")
-    #                                     continue
-    #                                 year = v.integer(
-    #                                     "Enter the year of the humanitarian plan you would like to access.")
-    #                                 year = str(year)
-    #                                 date_plan = str(loc_plan['start_date'])
-    #                                 if year in date_plan:
-    #                                     plan_name = location + '_' + year
-    #                                     self.allocate_resources(plan_name)
+    #                                 try:
+    #                                     print(humani_plan)
+    #                                     index = v.integer(
+    #                                         "Please enter the index of the humanitarian plan §which you would like to allocate resources to.")
+    #                                     location = humani_plan.loc[index, 'location'].replace(' ', '_')
+    #                                     year = humani_plan.loc[index, 'start_date'].split('-')[2]
+    #                                     hum_plan = f"{location}_{year}.csv"
+    #                                     print(f"\nopening {hum_plan}...\n")
+    #                                     self.allocate_resources(hum_plan, location)
     #                                     break
-    #                                 else:
-    #                                     print("Year entered does not match location entered.")
+    #                                 except KeyError:
+    #                                     print("Please enter a correct index.")
     #                     else:
     #                         print('Please enter an integer from 1-2.')
     #                 except ValueError:
