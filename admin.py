@@ -10,10 +10,13 @@ class Admin:
 
     def __init__(self, username, password):
         if username != 'admin' or password != '111':  # Checks if password and username are correct
-            raise ValueError('Login failed')
+            # raise ValueError('Login failed')
+            print('Login failed')
+            self.logged_in = False
         else:
             self.username = username  # if login credentials are correct, admin object is initialised
             self.password = password
+            self.logged_in = True
 
     def create_hum_plan(self):
         """This method lets the admin create a new humanitarian plan.
