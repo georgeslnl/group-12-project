@@ -406,33 +406,64 @@ class Admin:
         elif confirm == "N":
             ...
 
-    def end_event(self, hum_plan):
+    def end_event(self):
         """
-        This method requires a HumanitarianPlan object as argument.
-        The method then updates the end_date attribute to the input date from the admin.
+        The method adds the end_date of the selected humanitarian plan.
 
         The while loop is used to ensure the user inputs a date in the correct format
         """
+        plans = pd.read_csv('humanitarian_plan.csv')
+        plans = plans[plans['end_date'].isna()]
+        print("\nEnd humanitarian plan")
+        if len(plans.index) == 0:
+            print("There are no ongoing humanitarian plans.")
+            return
+
+        print("The following humanitarian plans are ongoing:")
+        print("Number - Location - Start Date")
+        for row in range(len(plans.index)):
+            print(row + 1, plans['location'].iloc[row], plans['start_date'].iloc[row], sep=" - ")
 
         while True:
-            end = input('Please input the end date of the event: (DD-MM-YYYY) ')
+            print("\nEnter [0] to return to the previous menu.")
             try:
-                check = datetime.strptime(end, "%d-%m-%Y")
-                break
+                plan_num = int(input("Enter the number of the plan you would like to close: "))
+                if plan_num == 0:
+                    return
+                if plan_num not in range(1, len(plans.index) + 1):
+                    raise ValueError
             except ValueError:
-                print("Date must be in DD-MM-YYYY format. Please try again.")
-                logging.error('ValueError raised from user input')
+                print("Please enter a plan number corresponding to a humanitarian plan listed above.")
+                continue
 
-        hum_plan.end_date = end
-        logging.info(f'Admin has added the following end date for {hum_plan.name}: {end}')
+            # enter end date
+            while True:
+                print("\nEnter [0] to go back to the previous step.")
+                end_date = input('Please input the end date of the event (DD-MM-YYYY): ')
+                if end_date == "0":
+                    break
+                try:
+                    end = datetime.strptime(end_date, "%d-%m-%Y").date()
+                except ValueError:
+                    print("Incorrect date format. Please use the format DD-MM-YYYY (e.g. 15-12-2023).")
+                    logging.error('ValueError raised from user input')
+                    continue
+                t = datetime.now().date()
+                if end > t:
+                    print("End date cannot be in the future. Please try again.")
+                    continue
+                break
+            if end_date == "0": # return to plan selection
+                continue
+            break
 
         # update csv files: add end date; remove volunteer accounts and volunteering sessions for that plan
         plans = pd.read_csv('humanitarian_plan.csv')
-        cur_plan = (plans['location'] == hum_plan.location) & (plans['start_date'] == hum_plan.start_date)
-        plans.loc[cur_plan, 'end_date'] = end
+        plans = plans.replace({np.nan: None})
+        plans.loc[plan_num-1, 'end_date'] = end_date
+        plan_id = plans['location'].iloc[plan_num-1] + "_" + plans['start_date'].iloc[plan_num-1][6:]
         plans.to_csv('humanitarian_plan.csv', index=False)
 
-        plan_id = hum_plan.location + "_" + hum_plan.start_date[6:]
         users = pd.read_csv('users.csv', dtype={'password': str})
         users = users.drop(users[users['plan_id'] == plan_id].index)
         users.to_csv('users.csv', index=False)
@@ -441,7 +472,8 @@ class Admin:
         vol_times = vol_times.drop(vol_times[vol_times['plan_id'] == plan_id].index)
         vol_times.to_csv('volunteering_times.csv', index=False)
 
-        return hum_plan
+        print("The humanitarian plan", plan_id, "has been closed, with end date", end_date + ".")
+        return
 
     def display_resources(self, hum_plan):
         """
@@ -616,7 +648,7 @@ class Admin:
                 # TODO: add function
             if option == 4:
                 logging.debug(f"Admin has chosen to end a humanitarian plan.")
-                self.end_event() #what is the hum_plan input?
+                self.end_event()
 
     def vol_accounts_menu(self):
         while True:
@@ -669,7 +701,7 @@ class Admin:
                     user_input = input("Select an option: ")
                     option = int(user_input)
                     logging.debug(f'Admin has entered {user_input}.')
-                    if option not in range(5):
+                    if option not in range(3):
                         logging.error(f"Admin has entered {user_input}, raising a ValueError.")
                         raise ValueError
                 except ValueError:

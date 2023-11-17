@@ -95,7 +95,7 @@ class Volunteer:
         while True:
             print("\nManage Refugee Profiles")
             if not self.camp_name:
-                logging.debug(f"{self.username} has not entered the correct camp details for their profile.")
+                logging.debug(f"{self.username} does not have a camp on their profile.")
                 print("\nVolunteers can only manage refugee profiles for their current camp. Please add your camp identification.")
                 return
 
@@ -515,41 +515,51 @@ class Volunteer:
         def add_camp(plan_id):
             camps = pd.read_csv(plan_id + '.csv')
             while True:
-                print("Enter [0] to return to the previous menu.")
+                print("Enter [X] to return to the previous menu.")
                 print("Choose a camp.")
                 print("\nCamp Name - # Volunteers - # Refugees - Capacity")
                 for row in range(len(camps.index)):
                     print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
                           str(camps['refugees'].iloc[row]) + " refugees",
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
-                new_camp = input("Enter the name of the camp you would like to join: ")
-                if new_camp == "0":
+                camp_num = input("Enter the number of the camp you would like to join (e.g. [1] for Camp 1): ")
+                if camp_num == "X":
                     return None
-                if new_camp not in camps['camp_name'].values:
-                    print("Please enter the name of a camp from the list displayed.\n")
+                try:
+                    camp_num = int(camp_num)
+                    if camp_num not in range(1, len(camps.index) + 1):
+                        raise ValueError
+                except ValueError:
+                    print("Please enter the number of a camp from the list displayed.")
                     continue
+                new_camp = "Camp " + str(camp_num)
                 return new_camp
 
         def edit_camp(plan_id):
             camps = pd.read_csv(plan_id + '.csv')
-            if len(camps.index) == 2: # storage and current camp
+            if len(camps.index) == 1:
                 print("There is currently only one camp. It is not possible to change camp identification.")
                 return self.camp_name
 
             while True:
-                print("Enter [0] to return to the previous menu.")
+                print("Enter [X] to return to the previous menu.")
                 print("Choose a new camp.")
                 print("\nCamp Name - # Volunteers - # Refugees - Capacity")
                 for row in range(len(camps.index)):
                     print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
                           str(camps['refugees'].iloc[row]) + " refugees",
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
-                new_camp = input("Enter the name of the camp you would like to join: ")
-                if new_camp == "0":
+                camp_num = input("Enter the number of the camp you would like to join (e.g. [1] for Camp 1): ")
+                if camp_num == "X":
                     return self.camp_name
-                if new_camp not in camps['camp_name'].values:
-                    print("Please enter the name of a camp from the list displayed.\n")
+                try:
+                    camp_num = int(camp_num)
+                    if camp_num not in range(1, len(camps.index) + 1):
+                        raise ValueError
+                except ValueError:
+                    print("Please enter the number of a camp from the list displayed.")
                     continue
+                new_camp = "Camp " + str(camp_num)
                 if new_camp == self.camp_name:
                     print("New camp is the same as current camp. Please try again or return to the previous menu.\n")
                     continue
@@ -611,7 +621,7 @@ class Volunteer:
                 camps.loc[old, 'volunteers'] = camps.loc[old, 'volunteers'] - 1
             camps.to_csv(self.plan_id + '.csv', index=False)
 
-            if not new_camp:
+            if self.camp_name and not new_camp:
                 vol_times = pd.read_csv("volunteering_times.csv")
                 vol_times = vol_times.drop(vol_times[vol_times['username'] == self.username].index)
                 vol_times.to_csv('volunteering_times.csv', index=False)

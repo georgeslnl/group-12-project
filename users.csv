@@ -1,7 +1,7 @@
 username,password,account_type,active,deactivation_requested,first_name,last_name,email,phone_number,gender,date_of_birth,plan_id,camp_name
 admin,111,admin,1,0,System,Admin,admin@example.com,+44 0000000000,3,02-03-1990,,
-volunteer1,111,volunteer,1,0,First,Volunteer,volunteer1@example.com,+44 1111111111,1,01-01-2000,Australia_2023,camp1
-volunteer2,111,volunteer,1,0,Second,Volunteer,volunteer2@example.com,+44 2222222222,2,25-12-1995,Australia_2023,camp3
-volunteer3,111,volunteer,1,0,Third,Volunteer,volunteer3@example.com,+44 3333333333,1,14-03-1996,Australia_2023,camp3
-volunteer4,111,volunteer,1,0,Fourth,Volunteer,v4@example.com,+44 4444444444,2,02-02-2002,Australia_2023,camp1
-volunteer5,111,volunteer,1,0,Fifth,Volunteer,v5@example.com,+44 5555555555,1,16-03-1990,Australia_2023,camp3
+volunteer1,111,volunteer,1,0,First,Volunteer,volunteer1@example.com,+44 1111111111,1,01-01-2000,London_2023,Camp 1
+volunteer2,111,volunteer,1,0,Second,Volunteer,volunteer2@example.com,+44 2222222222,2,25-12-1995,London_2023,Camp 3
+volunteer3,111,volunteer,1,0,Third,Volunteer,volunteer3@example.com,+44 3333333333,1,14-03-1996,London_2023,Camp 3
+volunteer4,111,volunteer,1,0,Fourth,Volunteer,v4@example.com,+44 4444444444,2,02-02-2002,London_2023,Camp 1
+volunteer5,111,volunteer,1,0,Fifth,Volunteer,v5@example.com,+44 5555555555,1,16-03-1990,London_2023,Camp 3
