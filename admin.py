@@ -460,22 +460,21 @@ class Admin:
         resources = pd.read_csv(hum_plan)
         humani_plan = pd.read_csv("humanitarian_plan.csv")
         print(f"Currently, the resources in storage as follows:"
-              f"\n{humani_plan[['location','start_date','food_storage','water_storage','firstaid_kits_storage']]}\n")
-        print(f"And the resources in {hum_plan} are as follows:"
+              f"\n{humani_plan.loc[humani_plan.location == location,['location','start_date','food_storage','water_storage','firstaid_kits_storage']]}\n")
+        print(f"And the resources in {hum_plan[:-4]} are as follows:"
               f"\n{resources}")
         camp_format = False
         while camp_format == False:
             try:
-                camp_no = int(input('Enter the camp ID you would like to allocate resources to (only the number).'))
-                if any(resources['Location'].str.contains(f"Camp {camp_no}")) == True:
+                camp_no = v.integer('Enter the camp ID you would like to allocate resources to (only the number).')
+                if any(resources['camp_name'].str.contains(f"Camp {camp_no}")):
                     camp_format = True
                 else:
                     print('The camp ID you entered does not belong to any existing camp in this humanitarian plan.')
             except ValueError:
                 logging.error('ValueError raised from user input')
                 print('Please enter an integer.')
-        camp_index = resources.index[resources['Location'] == f"Camp {camp_no}"]
-        print(camp_index)
+        camp_index = resources.index[resources['camp_name'] == f"Camp {camp_no}"]
         choice_format = False
         while choice_format == False:
             try:
@@ -490,53 +489,45 @@ class Admin:
             except ValueError:
                 logging.error('ValueError raised from user input')
                 print('Please enter an integer from 1-3.')
-        if resource_choice == 1: #need to make sure number of {resource} entered does not exceed number in storage
-            amount = v.integer(f'Enter the number of food packs you would like to allocate to Camp {camp_no}.')
-            # try to remove from storage first
-            humani_plan.loc[humani_plan['location'] == location, 'food_storage'] -= int(amount)
-            if humani_plan.loc[humani_plan['location'] == location, 'food_storage'] <= 0:
-                ...     # break
-            else:
-                resources.loc[resources['camp_name'] == f"Camp {camp_no}", 'food'] += int(amount)  # like a = a + food
 
-            # original = resources.loc[0, 'Food Packs']
-            # new = original - amount
-            # resources.loc[0, 'Food Packs'] = new
-            # original = resources.loc[camp_index, 'Food Packs']
-            # new = original + amount
-            # resources.loc[camp_index, 'Food Packs'] = new
-
+        if resource_choice == 1:
+            while True:
+                amount = v.integer(f'Enter the number of food packs you would like to allocate to Camp {camp_no}.')
+                # making sure number of {resource} entered does not exceed number in storage
+                in_storage = humani_plan.loc[humani_plan['location'] == location, 'food_storage']
+                if any(in_storage - amount <= 0):
+                    print('The amount entered exceeds the amount available in storage.'
+                          '\nPlease check the amount in storage and try again.')
+                else:
+                    humani_plan.loc[humani_plan['location'] == location, 'food_storage'] -= int(amount)
+                    resources.loc[resources['camp_name'] == f"Camp {camp_no}", 'food'] += int(amount)# like a = a + food
+                    break
         elif resource_choice == 2:
-            amount = v.integer(f'Enter the number of boxes of water you would like to allocate to Camp {camp_no}.')
-            humani_plan.loc[humani_plan['location'] == location, 'water_storage'] -= int(amount)
-            if humani_plan.loc[humani_plan['location'] == location, 'water_storage'] <= 0:
-                ...  # break
-            else:
-                resources.loc[resources['camp_name'] == f"Camp {camp_no}", 'water'] += int(amount)  # like a = a + food
-
-            # original = resources.loc[0, 'Water']
-            # new = original - amount
-            # resources.loc[0, 'Water'] = new
-            # original = resources.loc[camp_index, 'Water']
-            # new = original + amount
-            # resources.loc[camp_index, 'Water'] = new
+            while True:
+                amount = v.integer(f'Enter the number of boxes of water you would like to allocate to Camp {camp_no}.')
+                in_storage = humani_plan.loc[humani_plan['location'] == location, 'water_storage']
+                if any(in_storage - amount <= 0):
+                    print('The amount entered exceeds the amount available in storage.'
+                          '\nPlease check the amount in storage and try again.')
+                else:
+                    humani_plan.loc[humani_plan['location'] == location, 'water_storage'] -= int(amount)
+                    resources.loc[resources['camp_name'] == f"Camp {camp_no}", 'water'] += int(amount)  # like a = a + food
+                    break
         elif resource_choice == 3:
-            amount = v.integer(f'Enter the number of first-aid kits you would like to allocate to Camp {camp_no}.')
-            humani_plan.loc[humani_plan['location'] == location, 'firstaid_kits_storage'] -= int(amount)
-            if humani_plan.loc[humani_plan['location'] == location, 'firstaid_kits_storage'] <= 0:
-                ...  # break
-            else:
-                resources.loc[resources['camp_name'] == f"Camp {camp_no}", 'firstaid_kits'] += int(amount)  # like a = a + food
+            while True:
+                amount = v.integer(f'Enter the number of first-aid kits you would like to allocate to Camp {camp_no}.')
+                in_storage = humani_plan.loc[humani_plan['location'] == location, 'firstaid_kits_storage']
+                if any(in_storage - amount <= 0):
+                    print('The amount entered exceeds the amount available in storage.'
+                          '\nPlease check the amount in storage and try again.')
+                else:
+                    humani_plan.loc[humani_plan['location'] == location, 'firstaid_kits_storage'] -= int(amount)
+                    resources.loc[resources['camp_name'] == f"Camp {camp_no}", 'firstaid_kits'] += int(amount)  # like a = a + food
+                    break
 
-            # original = resources.loc[0, 'First-Aid Kits']
-            # new = original - amount
-            # resources.loc[0, 'First-Aid Kits'] = new
-            # original = resources.loc[camp_index, 'First-Aid Kits']
-            # new = original + amount
-            # resources.loc[camp_index, 'First-Aid Kits'] = new
         resources.to_csv(hum_plan, index=False)
         humani_plan.to_csv("humanitarian_plan.csv", index=False)
-        print(f"Allocation complete. Currently, the resources in {hum_plan} are as follows:"
+        print(f"Allocation complete. Currently, the resources in {hum_plan[:-4]} are as follows:"
               f"\n{resources}")
         print(f"And the remaining resources in storage: "
               f"\n{humani_plan}")
@@ -707,10 +698,10 @@ class Admin:
                         year = humani_plan.loc[index, 'start_date'].split('-')[2]
                         hum_plan = f"{location}_{year}.csv"
                         print(f"\nopening {hum_plan}...\n")
-                        self.allocate_resources(hum_plan, location)
                         break
                     except KeyError:
                         print("Please enter a correct index.")
+                self.allocate_resources(hum_plan, location)
 
     def refugee_menu(self):
         while True:
