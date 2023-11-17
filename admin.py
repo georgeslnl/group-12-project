@@ -96,7 +96,7 @@ class Admin:
 
         # Opens the csv file and adds the data for this humanitarian plan
         h = open("humanitarian_plan.csv", "a")
-        h.write(f'\n"{desc}",{loc},{start_date},{nb_of_camps}')
+        h.write(f'\n{desc},{loc},{start_date},{nb_of_camps},,{1000},{1000},{250}') # default amount of resources
         # desc is wrapped in "" because we don't want to csv file to see a "," in the description as a delimitter
         h.close()
 
