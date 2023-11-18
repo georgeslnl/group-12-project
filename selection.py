@@ -1,3 +1,5 @@
+import pandas as pd
+
 def select_plan():
     print("\nSelect a humanitarian plan.")
     plans = pd.read_csv('humanitarian_plan.csv')
@@ -41,6 +43,7 @@ def select_camp(plan_id):
             continue
         return camps['camp_name'].iloc[camp_num-1]
 
+# used if plan, camp and other attributes are entered one by one when creating a profile
 def select_camp2(plan_id):
     print("\nSelect a camp.")
     camps = pd.read_csv(plan_id + ".csv")

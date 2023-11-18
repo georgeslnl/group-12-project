@@ -649,16 +649,17 @@ class Admin:
             print("\nManage Volunteer Accounts")
             while True:
                 print("Enter [1] to create a volunteer account")
-                print("Enter [2] to view a volunteer account")
-                print("Enter [3] to edit a volunteer account")
-                print("Enter [4] to deactivate or reactivate a volunteer account")
-                print("Enter [5] to delete a volunteer account")
+                print("Enter [2] to view a volunteer's details")
+                print("Enter [3] to edit a volunteer's details")
+                print("Enter [4] to edit a volunteer's camp identification")
+                print("Enter [5] to deactivate or reactivate a volunteer account")
+                print("Enter [6] to delete a volunteer account")
                 print("Enter [0] to return to the admin menu")
                 try:
                     user_input = input("Select an option: ")
                     option = int(user_input)
                     logging.debug(f'Admin has entered {user_input}.')
-                    if option not in range(6):
+                    if option not in range(7):
                         logging.error(f"Admin has entered {user_input}, raising a ValueError.")
                         raise ValueError
                 except ValueError:
@@ -672,15 +673,19 @@ class Admin:
                 logging.debug(f"Admin has chosen to create a volunteer account.")
                 self.create_volunteer()
             if option == 2:
-                logging.debug(f"Admin has chosen to view a volunteer account.")
+                logging.debug(f"Admin has chosen to view a volunteer's details.")
                 self.view_volunteer()
             if option == 3:
-                logging.debug(f"Admin has chosen to edit a volunteer account.")
+                logging.debug(f"Admin has chosen to edit a volunteer's details.")
                 self.edit_volunteer()
             if option == 4:
+                logging.debug(f"Admin has chosen to edit a volunteer's camp identification.")
+                # TODO: bring in functions from volunteer
+                self.edit_volunteer_camp()
+            if option == 5:
                 logging.debug(f"Admin has chosen to deactivate or reactivate a volunteer account.")
                 self.active_volunteer()
-            if option == 5:
+            if option == 6:
                 logging.debug(f"Admin has chosen to delete a volunteer account.")
                 self.delete_volunteer()
 
@@ -745,7 +750,7 @@ class Admin:
                 print("Enter [1] to create a new refugee profile")
                 print("Enter [2] to view a refugee profile")
                 print("Enter [3] to edit or remove a refugee profile")
-                print("Enter [0] to return to the volunteer menu")
+                print("Enter [0] to return to the admin menu")
                 try:
                     option = int(input("Select an option: "))
                     if option not in range(4):
@@ -775,7 +780,7 @@ class Admin:
                 print("Enter [1] to add a volunteering session")
                 print("Enter [2] to view a volunteer's volunteering sessions")
                 print("Enter [3] to remove a volunteering session")
-                print("Enter [0] to return to the volunteer menu")
+                print("Enter [0] to return to the admin menu")
                 try:
                     user_input = input("Select an option: ")
                     option = int(user_input)
