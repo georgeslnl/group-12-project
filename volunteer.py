@@ -626,9 +626,13 @@ class Volunteer:
                 camps.loc[old, 'volunteers'] = camps.loc[old, 'volunteers'] - 1
             camps.to_csv(self.plan_id + '.csv', index=False)
 
-            if self.camp_name and not new_camp:
+            if self.camp_name and not new_camp: # remove volunteering sessions
                 vol_times = pd.read_csv("volunteering_times.csv")
                 vol_times = vol_times.drop(vol_times[vol_times['username'] == self.username].index)
+                vol_times.to_csv('volunteering_times.csv', index=False)
+            if self.camp_name and new_camp: # change camp_name in volunteering_times.csv
+                vol_times = pd.read_csv("volunteering_times.csv")
+                vol_times.loc[vol_times["username"] == self.username, "camp_name"] = new_camp
                 vol_times.to_csv('volunteering_times.csv', index=False)
 
             print("Your new camp is:", new_camp)

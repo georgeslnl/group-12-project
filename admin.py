@@ -2,7 +2,7 @@ import pandas as pd, numpy as np
 from datetime import datetime
 from humanitarianplan import HumanitarianPlan
 from coded_vars import convert_gender, convert_medical_condition
-from selection import select_plan, select_camp, select_camp2, select_plan_camp_vol
+from selection import select_plan, select_camp, select_camp2, select_plan_camp_vol, select_plan_camp_vol_none
 import refugee_profile_funcs, volunteering_session_funcs
 import verify as v
 import logging
@@ -570,7 +570,7 @@ class Admin:
             while True:
                 print("Choose would you would like to do.")
                 print("Enter [1] to create, display, edit or end a humanitarian plan")
-                print("Enter [2] to manage volunteer accounts")
+                print("Enter [2] to manage volunteer accounts (including camp identification)")
                 print("Enter [3] to display or allocate resources")
                 print("Enter [4] to manage refugee profiles")
                 print("Enter [5] to manage volunteering sessions")
@@ -646,7 +646,7 @@ class Admin:
                 print("Enter [1] to create a volunteer account")
                 print("Enter [2] to view a volunteer's details")
                 print("Enter [3] to edit a volunteer's details")
-                print("Enter [4] to edit a volunteer's camp identification")
+                print("Enter [4] to update a volunteer's camp identification")
                 print("Enter [5] to deactivate or reactivate a volunteer account")
                 print("Enter [6] to delete a volunteer account")
                 print("Enter [0] to return to the admin menu")
@@ -675,8 +675,7 @@ class Admin:
                 self.edit_volunteer()
             if option == 4:
                 logging.debug(f"Admin has chosen to edit a volunteer's camp identification.")
-                # TODO: bring in functions from volunteer
-                self.edit_volunteer_camp()
+                self.update_volunteer_camp()
             if option == 5:
                 logging.debug(f"Admin has chosen to deactivate or reactivate a volunteer account.")
                 self.active_volunteer()
@@ -879,6 +878,133 @@ class Admin:
         print("Camp name:", select_user.iloc[0]['camp_name'])
 
         logging.debug(f"{username}'s personal information has been displayed.")
+        return
+
+    def update_volunteer_camp(self):
+        print("\nUpdate a volunteer's camp identification")
+        selected = select_plan_camp_vol_none()  # returns (plan_id, camp_name, username)
+        if selected == 0:
+            return
+        else:
+            plan_id, camp_name, username = selected
+
+        def add_camp(plan_id):
+            camps = pd.read_csv(plan_id + '.csv')
+            while True:
+                print("\nEnter [X] to return to the previous menu.")
+                print("Choose a camp.")
+                print("\nCamp Name - # Volunteers - # Refugees - Capacity")
+                for row in range(len(camps.index)):
+                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
+                          str(camps['refugees'].iloc[row]) + " refugees",
+                          str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
+                camp_num = input("Enter the number of the camp the volunteer will join (e.g. [1] for Camp 1): ")
+                if camp_num == "X":
+                    return None
+                try:
+                    camp_num = int(camp_num)
+                    if camp_num not in range(1, len(camps.index) + 1):
+                        raise ValueError
+                except ValueError:
+                    print("Please enter the number of a camp from the list displayed.")
+                    continue
+                new_camp = "Camp " + str(camp_num)
+                return new_camp
+
+        def edit_camp(plan_id, camp_name):
+            camps = pd.read_csv(plan_id + '.csv')
+            if len(camps.index) == 1:
+                print("There is currently only one camp. It is not possible to change camp identification.")
+                return camp_name
+
+            while True:
+                print("\nEnter [X] to return to the previous menu.")
+                print("Choose a new camp.")
+                print("\nCamp Name - # Volunteers - # Refugees - Capacity")
+                for row in range(len(camps.index)):
+                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
+                          str(camps['refugees'].iloc[row]) + " refugees",
+                          str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
+                camp_num = input("Enter the number of the camp the volunteer will join (e.g. [1] for Camp 1): ")
+                if camp_num == "X":
+                    return camp_name
+                try:
+                    camp_num = int(camp_num)
+                    if camp_num not in range(1, len(camps.index) + 1):
+                        raise ValueError
+                except ValueError:
+                    print("Please enter the number of a camp from the list displayed.")
+                    continue
+                new_camp = "Camp " + str(camp_num)
+                if new_camp == camp_name:
+                    print("New camp is the same as current camp. Please try again or return to the previous menu.")
+                    continue
+                return new_camp
+
+        if not camp_name:
+            new_camp = add_camp(plan_id)
+        else:
+            while True:
+                print("Enter [1] to update camp identification")
+                print("Enter [2] to remove camp identification")
+                print("Enter [0] to return to the previous menu")
+                try:
+                    option = int(input("Select an option: "))
+                    if option not in range(3):
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a number from the options provided.")
+                    continue
+
+                if option == 0:
+                    return
+                if option == 1:
+                    new_camp = edit_camp(plan_id, camp_name)
+                if option == 2:
+                    while True:
+                        print("\nAre you sure you would like to remove the camp identification of", username + "?")
+                        print("All volunteering sessions for this volunteer will be erased.")
+                        print("Enter [1] to proceed")
+                        print("Enter [0] to go back to the previous step")
+                        try:
+                            remove_option = int(input("Select an option: "))
+                            if remove_option not in (0, 1):
+                                raise ValueError
+                        except ValueError:
+                            print("Please enter a number from the options provided.\n")
+                            continue
+                        break
+                    if remove_option == 0:
+                        continue
+                    new_camp = None
+                break
+
+        # update csv files
+        if new_camp != camp_name:
+            users = pd.read_csv('users.csv', dtype={'password': str})
+            cur_user = (users['username'] == username)
+            users.loc[cur_user, 'camp_name'] = new_camp
+            users.to_csv('users.csv', index=False)
+
+            camps = pd.read_csv(plan_id + '.csv')
+            if new_camp:
+                chosen = (camps['camp_name'] == new_camp)
+                camps.loc[chosen, 'volunteers'] = camps.loc[chosen, 'volunteers'] + 1
+            if camp_name:
+                old = (camps['camp_name'] == camp_name)
+                camps.loc[old, 'volunteers'] = camps.loc[old, 'volunteers'] - 1
+            camps.to_csv(plan_id + '.csv', index=False)
+
+            if camp_name and not new_camp: # remove volunteering sessions
+                vol_times = pd.read_csv("volunteering_times.csv")
+                vol_times = vol_times.drop(vol_times[vol_times['username'] == username].index)
+                vol_times.to_csv('volunteering_times.csv', index=False)
+            if camp_name and new_camp: # change camp_name in volunteering_times.csv
+                vol_times = pd.read_csv("volunteering_times.csv")
+                vol_times.loc[vol_times["username"] == username, "camp_name"] = new_camp
+                vol_times.to_csv('volunteering_times.csv', index=False)
+
+            print(username + "'s new camp is:", new_camp)
         return
 
     def create_refugee_profile(self):
@@ -1261,7 +1387,7 @@ class Admin:
 
     def remove_volunteering_session(self):
         print("\nRemove a volunteering session")
-        print("Select the volunteer whose sessions you are viewing.")
+        print("Select the volunteer for whom you are removing a session.")
         selected = select_plan_camp_vol()
         if selected == 0:
             return
