@@ -9,7 +9,7 @@ You can simply use them to replace the input() functions."""
 # The csv file comes from the World Cities Database by SimpleMaps.com, last updated: March 31, 2023.
 # The file contains data for about 43 thousand cities.
 valid_cities_csv = pd.read_csv('worldcities.csv')
-valid_cities = valid_cities_csv['City'].list()
+valid_cities = valid_cities_csv['city'].tolist()
 
 
 def integer(line):
@@ -86,7 +86,7 @@ def email(line):
     while True:
         # first checks that email is a string
         _email = string(line)
-        if '@' in _email and all(email.split('@')):
+        if '@' in _email and all(_email.split('@')):
             return _email
         else:
             logging.error(f'Email {_email} input by user is not in the correct format.')
