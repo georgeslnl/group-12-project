@@ -1,2 +1,2 @@
-description,location,start_date,number_of_camps,end_date,food_storage,water_storage,firstaid_kits_storage
-Storm caused flooding,London,17-11-2023,5,,1000,1000,250
+plan_id,description,location,start_date,number_of_camps,end_date,food_storage,water_storage,firstaid_kits_storage
+London_2023,Storm caused flooding,London,17-11-2023,5,,1000,1000,200
