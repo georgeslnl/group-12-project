@@ -1258,3 +1258,55 @@ class Volunteer:
             vol_times.to_csv('volunteering_times.csv', index=False)
             print("Volunteering session has been removed.")
             return
+
+    def request_resources(self):
+        """Store volunteer request in resource_requests.csv"""
+        print("\nRequest more resources for your camp.")
+        username = self.username
+        plan_id = self.plan_id
+        camp_name = self.camp_name
+        print("You are requesting resources for plan:", plan_id, "camp:", camp_name)
+        while True:
+            try:
+                food = int(input("Enter the amount of food you request: "))
+            except ValueError:
+                print("Please enter a valid integer number for food amount.")
+                continue
+        while True:
+            try:
+                water = int(input("Enter the amount of water you request: "))
+            except ValueError:
+                print("Please enter a valid integer number for water amount.")
+                continue
+        while True:
+            try:
+                kits = int(input("Enter the amount of first-aid kits you request: "))
+            except ValueError:
+                print("Please enter a valid integer number for first-aid kit amount.")
+                continue
+
+        # collected data
+        data = {
+            'user_name': [username],
+            'plan_id': [plan_id],
+            'camp_name': [camp_name],
+            'food': [food],
+            'water': [water],
+            'firstaid_kits': [kits],
+            'if_resolved': 0
+        }
+        df = pd.DataFrame(data)
+
+        try:
+            existing_df = pd.read_csv('resource_requests.csv')
+        except FileNotFoundError:
+            df.to_csv('resource_requests.csv', index=False)
+            logging.info(f"{self.username} requests for more resources while no file found.\nNew csv file is created.")
+            print("Your request is recorded successfully.\n"
+                  "The admin will resolve your request soon.")
+            return
+        # Append the new data
+        updated_df = pd.concat([existing_df, df], ignore_index=True)
+        updated_df.to_csv('resource_requests.csv', index=False)
+        print("Your request is recorded successfully.\n"
+              "The admin will resolve your request soon.")
