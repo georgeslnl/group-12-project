@@ -43,7 +43,7 @@ def select_camp(plan_id):
             continue
         return camps['camp_name'].iloc[camp_num-1]
 
-# used if plan, camp and other attributes are entered one by one when creating a profile
+# select camp allowing user to go back to plan selection
 def select_camp2(plan_id):
     print("\nSelect a camp.")
     camps = pd.read_csv(plan_id + ".csv")
@@ -55,7 +55,7 @@ def select_camp2(plan_id):
 
     while True:
         print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
-        camp_num = int(input("Enter the number of your chosen camp: "))
+        camp_num = input("Enter the number of your chosen camp: ")
         if camp_num in ("X", "B"):
             return camp_num
         try:
@@ -66,3 +66,54 @@ def select_camp2(plan_id):
             print("Please enter a camp number corresponding to a camp listed above.")
             continue
         return camps['camp_name'].iloc[camp_num-1]
+
+def select_volunteer(plan_id, camp_name):
+    print("\nSelect a volunteer.")
+    users = pd.read_csv('users.csv', dtype={'password': str})
+    users = users[(users['plan_id'] == plan_id) & (users['camp_name'] == camp_name)]
+    if len(users.index) == 0:
+        print("There are no volunteers at the selected camp. Please try again.")
+        return "9"
+
+    while True:
+        print("Enter [0] to return to the previous menu or [9] to go back to the previous step.")
+        username = input("Enter the username of your chosen volunteer: ")
+        if username in ("0", "9"):
+            return username
+        if username not in users['username'].values:
+            print("Username not found. Please enter again.\n")
+            continue
+        return username
+
+
+# for admin methods requiring plan, camp and volunteer to be selected at the start (but no further progress loop)
+# returns 0 if user chooses to return to previous memu
+def select_plan_camp_vol():
+    progress = 0
+    while progress < 3:
+        if progress == 0:
+            plan_id = select_plan()
+            if plan_id == 0:
+                return 0
+            else:
+                progress += 1
+
+        if progress == 1:
+            camp_name = select_camp2(plan_id)
+            if camp_name == "X":
+                return 0
+            elif camp_name == "B":
+                progress -= 1
+            else:
+                progress += 1
+
+        if progress == 2:
+            username = select_volunteer(plan_id, camp_name)
+            if username == "0":
+                return 0
+            elif username == "9":
+                progress -= 1
+            else:
+                progress += 1
+
+    return plan_id, camp_name, username
