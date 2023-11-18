@@ -182,9 +182,9 @@ class Admin:
 
         username = v.string("Please enter an user name: ")
         pw = input("Please enter the password: ") #password should be just '111'
-        first_name = v.string("Please enter the first name: ")
-        last_name = v.string("Please enter the last name: ")
-        email = v.string("PLease enter the email address: ")
+        first_name = v.name("Please enter the first name: ")
+        last_name = v.name("Please enter the last name: ")
+        email = v.email("PLease enter the email address: ")
         phone = v.integer("Please enter the phone number: ")
         gender = v.integer("Please enter the gender: ")
         DOB = v.date("Please enter the date of birth (DD-MM-YYYY): ")
@@ -279,7 +279,6 @@ class Admin:
         This method tells the Admin if volunteers have requested to deactivate their
         account, and informs the Admin of the steps to take.
         This is done by reading the users.csv file and calling the deactivate_account_request() method
-
         """
         users = pd.read_csv('users.csv', dtype={'password': str})
         nb_of_requests = len(users[users["deactivation_requested"] == 1])
