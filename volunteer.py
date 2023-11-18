@@ -28,7 +28,7 @@ class Volunteer:
                 print("What would you like to do,", self.first_name, self.last_name + "?")
                 print("Enter [1] for personal information and camp identification")
                 print("Enter [2] to create, view, edit or remove a refugee profile")
-                print("Enter [3] to display or update your camp's information")
+                print("Enter [3] to display or update your camp's information (including resource requests)")
                 print("Enter [4] to request account deactivation")
                 print("Enter [5] to add, view or remove volunteering sessions")
                 print("Enter [0] to logout")
@@ -137,10 +137,11 @@ class Volunteer:
             while True:
                 print("Enter [1] to display your camp's information")
                 print("Enter [2] to update your camp's information")
+                print("Enter [3] to request resources for your camp")
                 print("Enter [0] to return to the volunteer menu")
                 try:
                     option = int(input("Select an option: "))
-                    if option not in range(3):
+                    if option not in range(4):
                         logging.error(f'{self.username} has entered {option} which is not an option on the camp information menu.')
                         raise ValueError
                 except ValueError:
@@ -156,6 +157,9 @@ class Volunteer:
             if option == 2:
                 logging.debug(f'{self.username} has chosen to update camp information.')
                 self.update_camp_info()
+            if option == 3:
+                logging.debug(f'{self.username} has chosen to request resources.')
+                self.request_resources()
 
     def volunteering_session_menu(self):
         while True:
@@ -1261,39 +1265,91 @@ class Volunteer:
 
     def request_resources(self):
         """Store volunteer request in resource_requests.csv"""
-        print("\nRequest more resources for your camp.")
+        print("\nRequest resources for your camp.")
         username = self.username
         plan_id = self.plan_id
         camp_name = self.camp_name
-        print("You are requesting resources for plan:", plan_id, "camp:", camp_name)
-        while True:
-            try:
-                food = int(input("Enter the amount of food you request: "))
-            except ValueError:
-                print("Please enter a valid integer number for food amount.")
-                continue
-        while True:
-            try:
-                water = int(input("Enter the amount of water you request: "))
-            except ValueError:
-                print("Please enter a valid integer number for water amount.")
-                continue
-        while True:
-            try:
-                kits = int(input("Enter the amount of first-aid kits you request: "))
-            except ValueError:
-                print("Please enter a valid integer number for first-aid kit amount.")
-                continue
+
+        print("You are requesting resources for", camp_name, "at plan", plan_id)
+        camps = pd.read_csv(self.plan_id + '.csv')
+        my_camp = camps[camps['camp_name'] == self.camp_name]
+        print("\nYour camp's current resources:")
+        print("Food packets:", my_camp.iloc[0]['food'])
+        print("Water portions:", my_camp.iloc[0]['water'])
+        print("First-aid kits:", my_camp.iloc[0]['firstaid_kits'])
+
+        progress = 0
+        while progress <= 3:
+            if progress == 0:
+                while True:
+                    print("\nEnter [X] to return to the previous menu.")
+                    food = input("Enter the number of food packets you are requesting: ")
+                    if food == "X":
+                        return
+                    try:
+                        food = int(food)
+                        if food < 0:
+                            raise ValueError
+                    except ValueError:
+                        print("Please enter a non-negative integer.")
+                        continue
+                    progress += 1
+                    break
+
+            if progress == 1:
+                while True:
+                    print("\nEnter [X] to return to the previous menu or [B] to return to the previous step.")
+                    water = input("Enter the number of water portions you are requesting: ")
+                    if water == "X":
+                        return
+                    if water == "B":
+                        progress -= 1
+                        break
+                    try:
+                        water = int(water)
+                        if water < 0:
+                            raise ValueError
+                    except ValueError:
+                        print("Please enter a non-negative integer.")
+                        continue
+                    progress += 1
+                    break
+
+            if progress == 2:
+                while True:
+                    print("\nEnter [X] to return to the previous menu or [B] to return to the previous step.")
+                    kits = input("Enter the number of first-aid kits you are requesting: ")
+                    if kits == "X":
+                        return
+                    if kits == "B":
+                        progress -= 1
+                        break
+                    try:
+                        kits = int(kits)
+                        if kits < 0:
+                            raise ValueError
+                    except ValueError:
+                        print("Please enter a non-negative integer.")
+                        continue
+                    progress += 1
+                    break
+
+            if progress == 3: # check that not all requested resources are 0
+                if food == 0 and water == 0 and kits == 0:
+                    print("You cannot request 0 of all resources. Please enter your request again.")
+                    progress = 0
+                else:
+                    progress += 1
 
         # collected data
         data = {
-            'user_name': [username],
+            'username': [username],
             'plan_id': [plan_id],
             'camp_name': [camp_name],
             'food': [food],
             'water': [water],
             'firstaid_kits': [kits],
-            'if_resolved': 0
+            'resolved': 0
         }
         df = pd.DataFrame(data)
 
@@ -1303,10 +1359,11 @@ class Volunteer:
             df.to_csv('resource_requests.csv', index=False)
             logging.info(f"{self.username} requests for more resources while no file found.\nNew csv file is created.")
             print("Your request is recorded successfully.\n"
-                  "The admin will resolve your request soon.")
+                  "An administrator will respond to your request soon.")
             return
         # Append the new data
         updated_df = pd.concat([existing_df, df], ignore_index=True)
         updated_df.to_csv('resource_requests.csv', index=False)
-        print("Your request is recorded successfully.\n"
-              "The admin will resolve your request soon.")
+        print("\nYour request is recorded successfully.\n"
+              "An administrator will respond to your request soon.")
+        return

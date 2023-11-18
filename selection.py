@@ -95,7 +95,6 @@ def select_camp_none(plan_id):
         return camps['camp_name'].iloc[camp_num-1]
 
 def select_volunteer(plan_id, camp_name):
-    print("\nSelect a volunteer.")
     users = pd.read_csv('users.csv', dtype={'password': str})
     users = users.replace({np.nan: None})
     if camp_name:
@@ -106,11 +105,22 @@ def select_volunteer(plan_id, camp_name):
         print("There are no volunteers at the selected camp. Please try again.")
         return "9"
 
+    print("\nSelect a volunteer.")
     while True:
         print("Enter [0] to return to the previous menu or [9] to go back to the previous step.")
+        print("Enter [1] to list the usernames of all volunteers at the selected camp.")
         username = input("Enter the username of your chosen volunteer: ")
         if username in ("0", "9"):
             return username
+        if username == "1":
+            if camp_name:
+                print("Volunteers at plan", plan_id + ",", camp_name + ":")
+            else:
+                print("Volunteers at plan", plan_id, "with no camp identification:")
+            for row in range(len(users.index)):
+                print(users['username'].iloc[row])
+            print("")
+            continue
         if username not in users['username'].values:
             print("Username not found. Please enter again.\n")
             continue
