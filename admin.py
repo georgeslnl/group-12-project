@@ -1,7 +1,8 @@
 import pandas as pd, numpy as np
 from datetime import datetime
 from humanitarianplan import HumanitarianPlan
-from coded_vars import convert_gender, convert_medical_condition, select_plan, select_camp
+from coded_vars import convert_gender, convert_medical_condition
+from selection import select_plan, select_camp, select_camp2
 import refugee_profile_funcs
 import verify as v
 import logging
