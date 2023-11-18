@@ -1236,6 +1236,92 @@ class Admin:
         print("Volunteering session added successfully!")
         return
 
+    def view_volunteering_sessions(self):
+        print("\nView volunteering sessions")
+        print("Select the volunteer whose sessions you are viewing.")
+        selected = select_plan_camp_vol()
+        if selected == 0:
+            return
+        else:
+            username = selected[2]
+
+        vol_times = pd.read_csv("volunteering_times.csv")
+        cur_user_times = vol_times[vol_times['username'] == username]
+        if len(cur_user_times.index) == 0:
+            print(username, "does not have any volunteering sessions.")
+            return
+
+        # sort existing times by ascending start time (need date in YYYY-MM-DD format)
+        cur_user_times = cur_user_times.sort_values(by=['start_time'])
+        print(username, "has added the following volunteering sessions:")
+        for row in range(len(cur_user_times.index)):
+            print(str(row+1) + ".", "Start:", datetime.strptime(cur_user_times['start_time'].iloc[row], "%Y-%m-%d %H:%M").strftime("%d-%m-%Y %H:%M"),
+                  "\t", "End:", datetime.strptime(cur_user_times['end_time'].iloc[row], "%Y-%m-%d %H:%M").strftime("%d-%m-%Y %H:%M"))
+        return
+
+    def remove_volunteering_session(self):
+        print("\nRemove a volunteering session")
+        print("Select the volunteer whose sessions you are viewing.")
+        selected = select_plan_camp_vol()
+        if selected == 0:
+            return
+        else:
+            username = selected[2]
+
+        vol_times = pd.read_csv("volunteering_times.csv")
+        cur_user_times = vol_times[vol_times['username'] == username]
+        if len(cur_user_times.index) == 0:
+            print(username, "does not have any volunteering sessions.")
+            return
+        # sort existing times by ascending start time (need date in YYYY-MM-DD format)
+        cur_user_times = cur_user_times.sort_values(by=['start_time'])
+
+        while True:
+            print("\nEnter [X] to return to the previous menu.")
+            print(username + "'s volunteering sessions:")
+            for row in range(len(cur_user_times.index)):
+                start = datetime.strptime(cur_user_times['start_time'].iloc[row], '%Y-%m-%d %H:%M').strftime('%d-%m-%Y %H:%M')
+                end = datetime.strptime(cur_user_times['end_time'].iloc[row], '%Y-%m-%d %H:%M').strftime('%d-%m-%Y %H:%M')
+                print("[" + str(row + 1) + "]", "Start:", start, "\t", "End:", end)
+            remove = input("Enter the number of the session you would like to remove: ").strip()
+            if remove == "X":
+                return
+            try:
+                remove = int(remove)
+                if remove not in range(1, len(cur_user_times.index) + 1):
+                    raise ValueError
+            except ValueError:
+                print("Please enter a number corresponding to one of the above volunteering sessions.")
+                continue
+
+            # confirmation
+            start = datetime.strptime(cur_user_times['start_time'].iloc[remove-1], '%Y-%m-%d %H:%M').strftime(
+                '%d-%m-%Y %H:%M')
+            end = datetime.strptime(cur_user_times['end_time'].iloc[remove-1], '%Y-%m-%d %H:%M').strftime(
+                '%d-%m-%Y %H:%M')
+            while True:
+                print("\nAre you sure you would like to remove the following session?")
+                print("Start:", start, "\t", "End:", end)
+                print("Enter [1] to proceed")
+                print("Enter [0] to go back to the previous step")
+                try:
+                    remove_option = int(input("Select an option: "))
+                    if remove_option not in (0, 1):
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a number from the options provided.")
+                    continue
+                break
+            if remove_option == 0:
+                continue
+
+            # update csv file
+            vol_times = vol_times.drop(vol_times[(vol_times['username'] == username) &
+                                                 (vol_times['start_time'] == cur_user_times['start_time'].iloc[remove-1])].index)
+            vol_times.to_csv('volunteering_times.csv', index=False)
+            print("Volunteering session has been removed.")
+            return
+
     # old admin menu
     # def admin_menu(self):
     #     continue_admin = True
