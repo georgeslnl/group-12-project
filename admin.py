@@ -270,6 +270,142 @@ class Admin:
         print(df)
         logging.info({f'Admin has {_str}d {user}'})
 
+
+    def check_resource_request(self):
+        """
+        This method is called to check requests made by volunteers to allocate resources to their camps.
+        The method will itirate through every resource request that isn't resolved.
+        This method uses the resource_requests.csv file to check for requests and amount requested.
+        """
+
+        try:
+            df = pd.read_csv('resource_requests.csv')
+        except FileNotFoundError:
+            print('No requests for resources have been made.')
+            return
+        else:
+            # nb_of_requests = len(df[df["resolved"] == 1])
+            if df[df["resolved"] == 'no'].empty:
+                print('No requests for resources have been made.')
+                return
+            print('You have received new requests to allocate resources')
+            requests_df = df[df["resolved"] == 'no']
+            for index, row in requests_df.iterrows():
+                user = row["username"]
+                plan = row["plan_id"]
+                camp = row["camp_name"]
+                food_request = row["food"]
+                water_request = row["water"]
+                kit_request = row["firstaid_kits"]
+
+                # progress = 0
+                # while progress < 3:
+                #     if progress == 0 and food_request == 0:
+                #         print('No requests for food.')
+                #         progress += 1
+                #     elif progress == 0:
+                #         print("\nYou have received a new request for food reallocation.")
+                #         option = v.string("Enter [C] to continue or [X] to return to the previous menu.\n")
+                #         if option == "X":
+                #             return
+                #         if option == "C":
+                #             resource_request_processing(food_request, 'food', user, camp, plan, resolved)
+                #         progress += 1
+                #     if progress == 1 and water_request == 0:
+                #         print('No requests for water.')
+                #         progress += 1
+                #     elif progress == 1:
+                #         print("\nYou have received a new request for water reallocation.")
+                #         option = input("\nEnter [C] to continue, [X] to return to the previous menu "
+                #                        "or [B] to return to the previous step.\n")
+                #         if option == "X":
+                #             return
+                #         elif option == "B":
+                #             progress -= 1
+                #         elif water_request != 0:
+                #             resource_request_processing(water_request, 'water', user, camp, plan, resolved)
+                #         progress += 1
+                #     if progress == 2 and kit_request == 0:
+                #         print('No requests for first-aid kits.')
+                #         progress += 1
+                #     elif progress == 2:
+                #         print("\nYou have received a new request for first-aid kit reallocation.")
+                #         option = input("\nEnter [C] to continue, [X] to return to the previous menu "
+                #                        "or [B] to return to the previous step.\n")
+                #         if option == "X":
+                #             return
+                #         elif option == "B":
+                #             progress -= 1
+                #         elif kit_request != 0:
+                #             resource_request_processing(kit_request, 'firstaid_kits', user, camp, plan, resolved)
+                #         progress += 1
+
+                if food_request != 0:
+                    self.resource_request_processing(food_request, 'food', user, camp, plan)
+                else:
+                    print('No requests for food.')
+
+                if water_request != 0:
+                    self.resource_request_processing(water_request, 'water', user, camp, plan)
+                else:
+                    print('No requests for water.')
+
+                if kit_request != 0:
+                    self.resource_request_processing(water_request, 'water', user, camp, plan)
+                else:
+                    print('No requests for first-aid kits.')
+
+                df.loc[index, "resolved"] = 'yes'
+            df.to_csv('resource_requests.csv', index=False)
+
+    def resource_request_processing(self, requested_nb, resource, user, camp, plan):
+        """
+        This method is called when a request for more resources has been made by a volunteer.
+        The admin uses the method to either accept or decline the request, updating the storage and
+        camp resources accordingly.
+        """
+        resources_df = pd.read_csv(f'{plan}.csv')
+        humani_plan_df = pd.read_csv("humanitarian_plan.csv")
+        if resource != 0:
+            print(f'\n{user} has requested {requested_nb} {resource} for {camp} of {plan}')
+            storage_units = humani_plan_df.loc[humani_plan_df.plan_id == plan, f'{resource}_storage'].item()
+            camp_units = resources_df.loc[resources_df.camp_name == camp, resource].item()
+            print(f'Currently, the storage for {plan} has the following {resource} units: {storage_units}')
+            print(f'And {camp} has the following {resource} units: {camp_units}\n')
+
+            if requested_nb > storage_units:
+                print('Amount requested is too high, storage units are too low!')
+                print('Please add more resources to the storage before proceeding')
+                # We could add a call to the add_storage_resource method here once we have it?
+                return
+
+            while True:
+                print('Enter [1] to approve their request')
+                print('Enter [2] to decline their request')
+                try:
+                    option = int(input("Select an option: \n"))
+                    if option not in (1, 2):
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a number from the options provided.")
+                    continue
+                break
+            if option == 1:
+                print('Request accepted')
+                humani_plan_df.loc[humani_plan_df.plan_id == plan, f'{resource}_storage'] -= requested_nb
+                humani_plan_df.to_csv('humanitarian_plan.csv', index=False)
+                resources_df.loc[resources_df.camp_name == camp, resource] += requested_nb
+                resources_df.to_csv(f'{plan}.csv', index=False)
+                print(f'The {resource} units for {camp} have increased by: {requested_nb}')
+
+                print('This request has been marked as resolved.')
+            elif option == 2:
+                print('Request declined: no resource has been reallocated.')
+                print('This request has been marked as resolved.')
+
+
+
+
     def check_deactivation_requests(self):
         """
         This method tells the Admin if volunteers have requested to deactivate their
