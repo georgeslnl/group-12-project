@@ -1,6 +1,6 @@
 import pandas as pd, numpy as np, re, datetime
 from coded_vars import convert_gender, convert_medical_condition
-import refugee_profile_funcs
+import refugee_profile_funcs, volunteering_session_funcs
 import logging
 
 class Volunteer:
@@ -28,7 +28,7 @@ class Volunteer:
                 print("What would you like to do,", self.first_name, self.last_name + "?")
                 print("Enter [1] for personal information and camp identification")
                 print("Enter [2] to create, view, edit or remove a refugee profile")
-                print("Enter [3] to display or update your camp's information")
+                print("Enter [3] to display or update your camp's information (including resource requests)")
                 print("Enter [4] to request account deactivation")
                 print("Enter [5] to add, view or remove volunteering sessions")
                 print("Enter [0] to logout")
@@ -137,10 +137,11 @@ class Volunteer:
             while True:
                 print("Enter [1] to display your camp's information")
                 print("Enter [2] to update your camp's information")
+                print("Enter [3] to request resources for your camp")
                 print("Enter [0] to return to the volunteer menu")
                 try:
                     option = int(input("Select an option: "))
-                    if option not in range(3):
+                    if option not in range(4):
                         logging.error(f'{self.username} has entered {option} which is not an option on the camp information menu.')
                         raise ValueError
                 except ValueError:
@@ -156,6 +157,9 @@ class Volunteer:
             if option == 2:
                 logging.debug(f'{self.username} has chosen to update camp information.')
                 self.update_camp_info()
+            if option == 3:
+                logging.debug(f'{self.username} has chosen to request resources.')
+                self.request_resources()
 
     def volunteering_session_menu(self):
         while True:
@@ -626,9 +630,13 @@ class Volunteer:
                 camps.loc[old, 'volunteers'] = camps.loc[old, 'volunteers'] - 1
             camps.to_csv(self.plan_id + '.csv', index=False)
 
-            if self.camp_name and not new_camp:
+            if self.camp_name and not new_camp: # remove volunteering sessions
                 vol_times = pd.read_csv("volunteering_times.csv")
                 vol_times = vol_times.drop(vol_times[vol_times['username'] == self.username].index)
+                vol_times.to_csv('volunteering_times.csv', index=False)
+            if self.camp_name and new_camp: # change camp_name in volunteering_times.csv
+                vol_times = pd.read_csv("volunteering_times.csv")
+                vol_times.loc[vol_times["username"] == self.username, "camp_name"] = new_camp
                 vol_times.to_csv('volunteering_times.csv', index=False)
 
             print("Your new camp is:", new_camp)
@@ -1133,158 +1141,6 @@ class Volunteer:
                 edit_medical_supplies()
 
     def add_volunteering_session(self):
-        def select_date():
-            while True:
-                print("You can add volunteering sessions within the next 2 weeks, starting from tomorrow.")
-                start_date = datetime.date.today() + datetime.timedelta(days=1)
-                end_date = start_date + datetime.timedelta(days=13)
-                print("Available dates: " + start_date.strftime('%d-%m-%Y') + " to " + end_date.strftime('%d-%m-%Y'))
-
-                print("\nEnter [0] to return to the previous menu.")
-                vol_date = input(
-                    "Enter the date of the volunteering session in the format DD-MM-YYYY: ").strip()
-                if vol_date == "0":
-                    return vol_date
-                try:
-                    vol_dt = datetime.datetime.strptime(vol_date, "%d-%m-%Y").date()
-                except ValueError:
-                    print("Incorrect date format. Please use the format DD-MM-YYYY (e.g. 18-11-2023).")
-                    continue
-                if vol_dt < start_date or vol_dt > end_date:
-                    print("Please enter a date from " + start_date.strftime('%d-%m-%Y') + " to " + end_date.strftime(
-                        '%d-%m-%Y') + " (inclusive).")
-                    continue
-                return datetime.datetime.strftime(vol_dt, '%Y-%m-%d')  # e.g. 2023-11-18
-
-        def select_start_time(vol_date):
-            vol_date2 = datetime.datetime.strptime(vol_date, '%Y-%m-%d').date().strftime('%d-%m-%Y')
-
-            prev_day = datetime.datetime.strptime(vol_date, '%Y-%m-%d').date() - datetime.timedelta(days=1)
-            prev_day1 = prev_day.strftime('%Y-%m-%d') + " 23:30"
-            next_day = datetime.datetime.strptime(vol_date, '%Y-%m-%d').date() + datetime.timedelta(days=1)
-            next_day1 = next_day.strftime('%Y-%m-%d') + " 00:00"
-            next_day2 = next_day.strftime('%Y-%m-%d') + " 00:30"
-
-            booked_slots = cur_user_times[(cur_user_times['start_time'].str.startswith(vol_date)) |
-                                          (cur_user_times['start_time'] == next_day1) |
-                                          (cur_user_times['start_time'] == next_day2) |
-                                          (cur_user_times['end_time'].str.startswith(vol_date)) |
-                                          (cur_user_times['end_time'] == prev_day1)]
-
-            if len(booked_slots.index) == 0:
-                print("\nYou have not added any volunteering sessions on or affecting", vol_date2 + " yet.")
-            else:
-                print("\nYou have added the following volunteering sessions:")
-                # print existing times affecting the selected date, switching from YYYY-MM-DD to DD-MM-YYYY
-                for row in range(len(booked_slots.index)):
-                    print("Start:",
-                          datetime.datetime.strptime(booked_slots['start_time'].iloc[row], "%Y-%m-%d %H:%M").strftime(
-                              "%d-%m-%Y %H:%M"), "\t", "End:",
-                          datetime.datetime.strptime(booked_slots['end_time'].iloc[row], "%Y-%m-%d %H:%M").strftime(
-                              "%d-%m-%Y %H:%M"))
-
-            print("\nYou are welcome to volunteer at any time of the day.")
-            print("Note that all volunteering sessions must start on the hour or half past (e.g. 09:00, 15:30).")
-            print("Each volunteering session must be a multiple of 30 minutes, up to a maximum of 5 hours.")
-            print(
-                "There must be at least 1 hour between volunteering sessions. Please cancel your existing sessions first if necessary.")
-
-            available = []
-            # generate list of available start times based on conditions above
-            for time in [datetime.time(h, m).strftime('%H:%M') for h in range(0, 24) for m in (0, 30)]:
-                time_str = vol_date + " " + time  # e.g. 2023-11-18 00:30
-                time_d = datetime.datetime.strptime(time_str, "%Y-%m-%d %H:%M")
-                for row in range(len(booked_slots.index)):
-                    if (time_d >= datetime.datetime.strptime(booked_slots['start_time'].iloc[row], "%Y-%m-%d %H:%M") - datetime.timedelta(hours=1)
-                            and time_d < datetime.datetime.strptime(booked_slots['end_time'].iloc[row], "%Y-%m-%d %H:%M") + datetime.timedelta(hours=1)):
-                        break
-                else:
-                    available.append(time)
-
-            start = None
-            while True:
-                print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-                if start != "1":
-                    print("Enter [1] to show all available start times.")
-                start = input(
-                    "Enter the start time of the volunteering session in the format HH:mm (e.g. 14:00): ").strip()
-                if start in ("0", "9"):
-                    return start
-                if start == "1":
-                    print("\nThe following start times are available on", vol_date2 + ":")
-                    print(", ".join(available))
-                    continue
-                if start not in available:
-                    print("Please enter an available start time in the format HH:mm.")
-                    continue
-                return vol_date + " " + start  # e.g. 2023-11-18 00:30
-
-        def select_end_time(start_time):
-            # find next slot booked after start time
-            next_slot = cur_user_times[cur_user_times['start_time'] > start_time].head(1)
-            available_end = []
-            # generate list of available end times
-            st = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M')
-            for step in range(1, 11):
-                time_d = st + datetime.timedelta(minutes=30 * step)
-                if len(next_slot.index) > 0:
-                    if time_d > datetime.datetime.strptime(next_slot['start_time'].iloc[0],
-                                                           "%Y-%m-%d %H:%M") - datetime.timedelta(hours=1):
-                        break
-                time = time_d.strftime('%d-%m-%Y %H:%M')
-                available_end.append(time)
-            print(available_end)
-
-            while True:
-                print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
-                print("Choose the end time of your volunteering session.")
-                for i, time in enumerate(available_end):
-                    print("[" + str(i + 1) + "] " + time)
-                end = input("Enter the number of your chosen end time: ").strip()
-                if end in ("X", "B"):
-                    return end
-                try:
-                    end = int(end)
-                    if end not in range(1, len(available_end) + 1):
-                        raise ValueError
-                except ValueError:
-                    print("Please enter a number corresponding to one of the available end times.")
-                    continue
-                end_time = available_end[end - 1]
-                return datetime.datetime.strptime(end_time, '%d-%m-%Y %H:%M').strftime('%Y-%m-%d %H:%M')
-
-        def confirm_slot(start_time, end_time):
-            start_time2 = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M').strftime('%d-%m-%Y %H:%M')
-            end_time2 = datetime.datetime.strptime(end_time, '%Y-%m-%d %H:%M').strftime('%d-%m-%Y %H:%M')
-            print("\nYou are adding the following volunteering sessions:")
-            print("Start:", start_time2)
-            print("End:", end_time2)
-            duration = str(
-                datetime.datetime.strptime(end_time, "%Y-%m-%d %H:%M") - datetime.datetime.strptime(start_time,
-                                                                                                    "%Y-%m-%d %H:%M"))
-            if duration[0] == 0:
-                dur_str = ""
-            elif duration[0] == "1":
-                dur_str = duration[0] + " hour"
-            else:
-                dur_str = duration[0] + " hours"
-            if duration[2:4] == "30":
-                dur_str += " 30 minutes"
-            print("Duration:", dur_str)
-
-            while True:
-                print("\nEnter [1] to confirm")
-                print("Enter [9] to go back to the previous step")
-                print("Enter [0] to cancel and return to the previous menu")
-                try:
-                    option = int(input("Select an option: "))
-                    if option not in (0, 1, 9):
-                        raise ValueError
-                except ValueError:
-                    print("Please enter a number from the options provided.")
-                    continue
-                return option
-
         print("\nAdd a volunteering session")
         vol_times = pd.read_csv("volunteering_times.csv")
         cur_user_times = vol_times[vol_times['username'] == self.username]
@@ -1295,14 +1151,14 @@ class Volunteer:
         # loop allowing user to go back
         while progress < 4:
             if progress == 0:
-                vol_date = select_date()
+                vol_date = volunteering_session_funcs.select_date()
                 if vol_date == "0":
                     return
                 else:
                     progress += 1
 
             elif progress == 1:
-                start_time = select_start_time(vol_date)
+                start_time = volunteering_session_funcs.select_start_time(vol_date, cur_user_times)
                 if start_time == "0":
                     return
                 elif start_time == "9":
@@ -1311,7 +1167,7 @@ class Volunteer:
                     progress += 1
 
             elif progress == 2:
-                end_time = select_end_time(start_time)
+                end_time = volunteering_session_funcs.select_end_time(start_time, cur_user_times)
                 if end_time == "X":
                     return
                 elif end_time == "B":
@@ -1320,7 +1176,7 @@ class Volunteer:
                     progress += 1
 
             elif progress == 3:
-                confirm = confirm_slot(start_time, end_time)
+                confirm = volunteering_session_funcs.confirm_slot(start_time, end_time)
                 if confirm == 0:
                     return
                 elif confirm == 9:
@@ -1333,6 +1189,7 @@ class Volunteer:
         vol_times.write(f'\n{self.username},{self.plan_id},{self.camp_name},{start_time},{end_time}')
         vol_times.close()
         print("Volunteering session added successfully!")
+        return
 
     def view_volunteering_sessions(self):
         print("\nView volunteering sessions")
@@ -1405,3 +1262,108 @@ class Volunteer:
             vol_times.to_csv('volunteering_times.csv', index=False)
             print("Volunteering session has been removed.")
             return
+
+    def request_resources(self):
+        """Store volunteer request in resource_requests.csv"""
+        print("\nRequest resources for your camp.")
+        username = self.username
+        plan_id = self.plan_id
+        camp_name = self.camp_name
+
+        print("You are requesting resources for", camp_name, "at plan", plan_id)
+        camps = pd.read_csv(self.plan_id + '.csv')
+        my_camp = camps[camps['camp_name'] == self.camp_name]
+        print("\nYour camp's current resources:")
+        print("Food packets:", my_camp.iloc[0]['food'])
+        print("Water portions:", my_camp.iloc[0]['water'])
+        print("First-aid kits:", my_camp.iloc[0]['firstaid_kits'])
+
+        progress = 0
+        while progress <= 3:
+            if progress == 0:
+                while True:
+                    print("\nEnter [X] to return to the previous menu.")
+                    food = input("Enter the number of food packets you are requesting: ")
+                    if food == "X":
+                        return
+                    try:
+                        food = int(food)
+                        if food < 0:
+                            raise ValueError
+                    except ValueError:
+                        print("Please enter a non-negative integer.")
+                        continue
+                    progress += 1
+                    break
+
+            if progress == 1:
+                while True:
+                    print("\nEnter [X] to return to the previous menu or [B] to return to the previous step.")
+                    water = input("Enter the number of water portions you are requesting: ")
+                    if water == "X":
+                        return
+                    if water == "B":
+                        progress -= 1
+                        break
+                    try:
+                        water = int(water)
+                        if water < 0:
+                            raise ValueError
+                    except ValueError:
+                        print("Please enter a non-negative integer.")
+                        continue
+                    progress += 1
+                    break
+
+            if progress == 2:
+                while True:
+                    print("\nEnter [X] to return to the previous menu or [B] to return to the previous step.")
+                    kits = input("Enter the number of first-aid kits you are requesting: ")
+                    if kits == "X":
+                        return
+                    if kits == "B":
+                        progress -= 1
+                        break
+                    try:
+                        kits = int(kits)
+                        if kits < 0:
+                            raise ValueError
+                    except ValueError:
+                        print("Please enter a non-negative integer.")
+                        continue
+                    progress += 1
+                    break
+
+            if progress == 3: # check that not all requested resources are 0
+                if food == 0 and water == 0 and kits == 0:
+                    print("You cannot request 0 of all resources. Please enter your request again.")
+                    progress = 0
+                else:
+                    progress += 1
+
+        # collected data
+        data = {
+            'username': [username],
+            'plan_id': [plan_id],
+            'camp_name': [camp_name],
+            'food': [food],
+            'water': [water],
+            'firstaid_kits': [kits],
+            'resolved': 0
+        }
+        df = pd.DataFrame(data)
+
+        try:
+            existing_df = pd.read_csv('resource_requests.csv')
+        except FileNotFoundError:
+            df.to_csv('resource_requests.csv', index=False)
+            logging.info(f"{self.username} requests for more resources while no file found.\nNew csv file is created.")
+            print("Your request is recorded successfully.\n"
+                  "An administrator will respond to your request soon.")
+            return
+        # Append the new data
+        updated_df = pd.concat([existing_df, df], ignore_index=True)
+        updated_df.to_csv('resource_requests.csv', index=False)
+        print("\nYour request is recorded successfully.\n"
+              "An administrator will respond to your request soon.")
+        return

@@ -2,8 +2,8 @@ import pandas as pd, numpy as np
 from datetime import datetime
 from humanitarianplan import HumanitarianPlan
 from coded_vars import convert_gender, convert_medical_condition
-from selection import select_plan, select_camp, select_camp2
-import refugee_profile_funcs
+from selection import select_plan, select_camp, select_camp2, select_plan_camp_vol, select_plan_camp_vol_none
+import refugee_profile_funcs, volunteering_session_funcs
 import verify as v
 import logging
 
@@ -12,15 +12,10 @@ class Admin:
     """Class for the Admin user. Since there can only be 1 admin, this class can only be initialised once"""
 
     def __init__(self, username, password):
-        if username != 'admin' or password != '111':  # Checks if password and username are correct
-            # raise ValueError('Login failed')
-            print('Login failed')
-            self.logged_in = False
-        else:
-            self.username = username  # if login credentials are correct, admin object is initialised
-            self.password = password
-            self.logged_in = True
-            pd.set_option('display.max_columns', None) #all columns of DataFrames will be displayed (nothing is cut off)
+        self.username = username  # if login credentials are correct, admin object is initialised
+        self.password = password
+        self.logged_in = True
+        pd.set_option('display.max_columns', None) #all columns of DataFrames will be displayed (nothing is cut off)
 
     def create_hum_plan(self):
         """This method lets the admin create a new humanitarian plan.
@@ -575,7 +570,7 @@ class Admin:
             while True:
                 print("Choose would you would like to do.")
                 print("Enter [1] to create, display, edit or end a humanitarian plan")
-                print("Enter [2] to manage volunteer accounts")
+                print("Enter [2] to manage volunteer accounts (including camp identification)")
                 print("Enter [3] to display or allocate resources")
                 print("Enter [4] to manage refugee profiles")
                 print("Enter [5] to manage volunteering sessions")
@@ -651,7 +646,7 @@ class Admin:
                 print("Enter [1] to create a volunteer account")
                 print("Enter [2] to view a volunteer's details")
                 print("Enter [3] to edit a volunteer's details")
-                print("Enter [4] to edit a volunteer's camp identification")
+                print("Enter [4] to update a volunteer's camp identification")
                 print("Enter [5] to deactivate or reactivate a volunteer account")
                 print("Enter [6] to delete a volunteer account")
                 print("Enter [0] to return to the admin menu")
@@ -680,8 +675,7 @@ class Admin:
                 self.edit_volunteer()
             if option == 4:
                 logging.debug(f"Admin has chosen to edit a volunteer's camp identification.")
-                # TODO: bring in functions from volunteer
-                self.edit_volunteer_camp()
+                self.update_volunteer_camp()
             if option == 5:
                 logging.debug(f"Admin has chosen to deactivate or reactivate a volunteer account.")
                 self.active_volunteer()
@@ -863,35 +857,11 @@ class Admin:
             print("No volunteer accounts have been created.")
             return
 
-        # first select plan
-        while True:
-            plan_id = select_plan()
-            if plan_id == 0:
-                return
-            # then select volunteer
-            users_plan = users[users['plan_id'] == plan_id]
-            username = None
-            while True:
-                print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-                if username != "1":
-                    print("Enter [1] to view a list of all volunteers for plan", plan_id + ".")
-                username = input("Enter the username of the volunteer whose details you would like to view: ")
-                if username == "0":
-                    return
-                if username == "9":
-                    break
-                if username == "1":
-                    print("\nUsername - Camp Name")
-                    for row in range(len(users_plan.index)):
-                        print(users_plan['username'].iloc[row], users_plan['camp_name'].iloc[row], sep=" - ")
-                    continue
-                if username not in users['username'].values:
-                    print("Username not found. Please try again.")
-                    continue
-                break
-            if username == "9":
-                continue
-            break
+        selected = select_plan_camp_vol() # returns (plan_id, camp_name, username)
+        if selected == 0:
+            return
+        else:
+            username = selected[2]
 
         select_user = users[users['username'] == username]
         gender_str = convert_gender(select_user.iloc[0]['gender'])
@@ -908,6 +878,133 @@ class Admin:
         print("Camp name:", select_user.iloc[0]['camp_name'])
 
         logging.debug(f"{username}'s personal information has been displayed.")
+        return
+
+    def update_volunteer_camp(self):
+        print("\nUpdate a volunteer's camp identification")
+        selected = select_plan_camp_vol_none()  # returns (plan_id, camp_name, username)
+        if selected == 0:
+            return
+        else:
+            plan_id, camp_name, username = selected
+
+        def add_camp(plan_id):
+            camps = pd.read_csv(plan_id + '.csv')
+            while True:
+                print("\nEnter [X] to return to the previous menu.")
+                print("Choose a camp.")
+                print("\nCamp Name - # Volunteers - # Refugees - Capacity")
+                for row in range(len(camps.index)):
+                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
+                          str(camps['refugees'].iloc[row]) + " refugees",
+                          str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
+                camp_num = input("Enter the number of the camp the volunteer will join (e.g. [1] for Camp 1): ")
+                if camp_num == "X":
+                    return None
+                try:
+                    camp_num = int(camp_num)
+                    if camp_num not in range(1, len(camps.index) + 1):
+                        raise ValueError
+                except ValueError:
+                    print("Please enter the number of a camp from the list displayed.")
+                    continue
+                new_camp = "Camp " + str(camp_num)
+                return new_camp
+
+        def edit_camp(plan_id, camp_name):
+            camps = pd.read_csv(plan_id + '.csv')
+            if len(camps.index) == 1:
+                print("There is currently only one camp. It is not possible to change camp identification.")
+                return camp_name
+
+            while True:
+                print("\nEnter [X] to return to the previous menu.")
+                print("Choose a new camp.")
+                print("\nCamp Name - # Volunteers - # Refugees - Capacity")
+                for row in range(len(camps.index)):
+                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
+                          str(camps['refugees'].iloc[row]) + " refugees",
+                          str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
+                camp_num = input("Enter the number of the camp the volunteer will join (e.g. [1] for Camp 1): ")
+                if camp_num == "X":
+                    return camp_name
+                try:
+                    camp_num = int(camp_num)
+                    if camp_num not in range(1, len(camps.index) + 1):
+                        raise ValueError
+                except ValueError:
+                    print("Please enter the number of a camp from the list displayed.")
+                    continue
+                new_camp = "Camp " + str(camp_num)
+                if new_camp == camp_name:
+                    print("New camp is the same as current camp. Please try again or return to the previous menu.")
+                    continue
+                return new_camp
+
+        if not camp_name:
+            new_camp = add_camp(plan_id)
+        else:
+            while True:
+                print("Enter [1] to update camp identification")
+                print("Enter [2] to remove camp identification")
+                print("Enter [0] to return to the previous menu")
+                try:
+                    option = int(input("Select an option: "))
+                    if option not in range(3):
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a number from the options provided.")
+                    continue
+
+                if option == 0:
+                    return
+                if option == 1:
+                    new_camp = edit_camp(plan_id, camp_name)
+                if option == 2:
+                    while True:
+                        print("\nAre you sure you would like to remove the camp identification of", username + "?")
+                        print("All volunteering sessions for this volunteer will be erased.")
+                        print("Enter [1] to proceed")
+                        print("Enter [0] to go back to the previous step")
+                        try:
+                            remove_option = int(input("Select an option: "))
+                            if remove_option not in (0, 1):
+                                raise ValueError
+                        except ValueError:
+                            print("Please enter a number from the options provided.\n")
+                            continue
+                        break
+                    if remove_option == 0:
+                        continue
+                    new_camp = None
+                break
+
+        # update csv files
+        if new_camp != camp_name:
+            users = pd.read_csv('users.csv', dtype={'password': str})
+            cur_user = (users['username'] == username)
+            users.loc[cur_user, 'camp_name'] = new_camp
+            users.to_csv('users.csv', index=False)
+
+            camps = pd.read_csv(plan_id + '.csv')
+            if new_camp:
+                chosen = (camps['camp_name'] == new_camp)
+                camps.loc[chosen, 'volunteers'] = camps.loc[chosen, 'volunteers'] + 1
+            if camp_name:
+                old = (camps['camp_name'] == camp_name)
+                camps.loc[old, 'volunteers'] = camps.loc[old, 'volunteers'] - 1
+            camps.to_csv(plan_id + '.csv', index=False)
+
+            if camp_name and not new_camp: # remove volunteering sessions
+                vol_times = pd.read_csv("volunteering_times.csv")
+                vol_times = vol_times.drop(vol_times[vol_times['username'] == username].index)
+                vol_times.to_csv('volunteering_times.csv', index=False)
+            if camp_name and new_camp: # change camp_name in volunteering_times.csv
+                vol_times = pd.read_csv("volunteering_times.csv")
+                vol_times.loc[vol_times["username"] == username, "camp_name"] = new_camp
+                vol_times.to_csv('volunteering_times.csv', index=False)
+
+            print(username + "'s new camp is:", new_camp)
         return
 
     def create_refugee_profile(self):
@@ -1205,6 +1302,151 @@ class Admin:
             if option == 9:
                 refugee_profile_funcs.remove_refugee(plan_id, camp_name, refugee_id, refugee_name, family)
                 return
+
+    def add_volunteering_session(self):
+        print("\nAdd a volunteering session")
+        print("Select the volunteer for whom you are adding a session.")
+        selected = select_plan_camp_vol()
+        if selected == 0:
+            return
+        else:
+            plan_id, camp_name, username = selected
+
+        print("\nAdding a volunteering session for", username + "...")
+        vol_times = pd.read_csv("volunteering_times.csv")
+        cur_user_times = vol_times[vol_times['username'] == username]
+        # sort existing times by ascending start time (need date in YYYY-MM-DD format)
+        cur_user_times = cur_user_times.sort_values(by=['start_time'])
+
+        progress = 0
+        # loop allowing user to go back
+        while progress < 4:
+            if progress == 0:
+                vol_date = volunteering_session_funcs.select_date()
+                if vol_date == "0":
+                    return
+                else:
+                    progress += 1
+
+            elif progress == 1:
+                start_time = volunteering_session_funcs.select_start_time(vol_date, cur_user_times)
+                if start_time == "0":
+                    return
+                elif start_time == "9":
+                    progress -= 1
+                else:
+                    progress += 1
+
+            elif progress == 2:
+                end_time = volunteering_session_funcs.select_end_time(start_time, cur_user_times)
+                if end_time == "X":
+                    return
+                elif end_time == "B":
+                    progress -= 1
+                else:
+                    progress += 1
+
+            elif progress == 3:
+                confirm = volunteering_session_funcs.confirm_slot(start_time, end_time)
+                if confirm == 0:
+                    return
+                elif confirm == 9:
+                    progress -= 1
+                else:
+                    progress += 1
+
+        # update csv file
+        vol_times = open("volunteering_times.csv", "a")
+        vol_times.write(f'\n{username},{plan_id},{camp_name},{start_time},{end_time}')
+        vol_times.close()
+        print("Volunteering session added successfully!")
+        return
+
+    def view_volunteering_sessions(self):
+        print("\nView volunteering sessions")
+        print("Select the volunteer whose sessions you are viewing.")
+        selected = select_plan_camp_vol()
+        if selected == 0:
+            return
+        else:
+            username = selected[2]
+
+        vol_times = pd.read_csv("volunteering_times.csv")
+        cur_user_times = vol_times[vol_times['username'] == username]
+        if len(cur_user_times.index) == 0:
+            print(username, "does not have any volunteering sessions.")
+            return
+
+        # sort existing times by ascending start time (need date in YYYY-MM-DD format)
+        cur_user_times = cur_user_times.sort_values(by=['start_time'])
+        print(username, "has added the following volunteering sessions:")
+        for row in range(len(cur_user_times.index)):
+            print(str(row+1) + ".", "Start:", datetime.strptime(cur_user_times['start_time'].iloc[row], "%Y-%m-%d %H:%M").strftime("%d-%m-%Y %H:%M"),
+                  "\t", "End:", datetime.strptime(cur_user_times['end_time'].iloc[row], "%Y-%m-%d %H:%M").strftime("%d-%m-%Y %H:%M"))
+        return
+
+    def remove_volunteering_session(self):
+        print("\nRemove a volunteering session")
+        print("Select the volunteer for whom you are removing a session.")
+        selected = select_plan_camp_vol()
+        if selected == 0:
+            return
+        else:
+            username = selected[2]
+
+        vol_times = pd.read_csv("volunteering_times.csv")
+        cur_user_times = vol_times[vol_times['username'] == username]
+        if len(cur_user_times.index) == 0:
+            print(username, "does not have any volunteering sessions.")
+            return
+        # sort existing times by ascending start time (need date in YYYY-MM-DD format)
+        cur_user_times = cur_user_times.sort_values(by=['start_time'])
+
+        while True:
+            print("\nEnter [X] to return to the previous menu.")
+            print(username + "'s volunteering sessions:")
+            for row in range(len(cur_user_times.index)):
+                start = datetime.strptime(cur_user_times['start_time'].iloc[row], '%Y-%m-%d %H:%M').strftime('%d-%m-%Y %H:%M')
+                end = datetime.strptime(cur_user_times['end_time'].iloc[row], '%Y-%m-%d %H:%M').strftime('%d-%m-%Y %H:%M')
+                print("[" + str(row + 1) + "]", "Start:", start, "\t", "End:", end)
+            remove = input("Enter the number of the session you would like to remove: ").strip()
+            if remove == "X":
+                return
+            try:
+                remove = int(remove)
+                if remove not in range(1, len(cur_user_times.index) + 1):
+                    raise ValueError
+            except ValueError:
+                print("Please enter a number corresponding to one of the above volunteering sessions.")
+                continue
+
+            # confirmation
+            start = datetime.strptime(cur_user_times['start_time'].iloc[remove-1], '%Y-%m-%d %H:%M').strftime(
+                '%d-%m-%Y %H:%M')
+            end = datetime.strptime(cur_user_times['end_time'].iloc[remove-1], '%Y-%m-%d %H:%M').strftime(
+                '%d-%m-%Y %H:%M')
+            while True:
+                print("\nAre you sure you would like to remove the following session?")
+                print("Start:", start, "\t", "End:", end)
+                print("Enter [1] to proceed")
+                print("Enter [0] to go back to the previous step")
+                try:
+                    remove_option = int(input("Select an option: "))
+                    if remove_option not in (0, 1):
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a number from the options provided.")
+                    continue
+                break
+            if remove_option == 0:
+                continue
+
+            # update csv file
+            vol_times = vol_times.drop(vol_times[(vol_times['username'] == username) &
+                                                 (vol_times['start_time'] == cur_user_times['start_time'].iloc[remove-1])].index)
+            vol_times.to_csv('volunteering_times.csv', index=False)
+            print("Volunteering session has been removed.")
+            return
 
     # old admin menu
     # def admin_menu(self):
