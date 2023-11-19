@@ -1266,11 +1266,7 @@ class Volunteer:
     def request_resources(self):
         """Store volunteer request in resource_requests.csv"""
         print("\nRequest resources for your camp.")
-        username = self.username
-        plan_id = self.plan_id
-        camp_name = self.camp_name
-
-        print("You are requesting resources for", camp_name, "at plan", plan_id)
+        print("You are requesting resources for", self.camp_name, "at plan", self.plan_id)
         camps = pd.read_csv(self.plan_id + '.csv')
         my_camp = camps[camps['camp_name'] == self.camp_name]
         print("\nYour camp's current resources:")
@@ -1343,9 +1339,9 @@ class Volunteer:
 
         # collected data
         data = {
-            'username': [username],
-            'plan_id': [plan_id],
-            'camp_name': [camp_name],
+            'username': [self.username],
+            'plan_id': [self.plan_id],
+            'camp_name': [self.camp_name],
             'food': [food],
             'water': [water],
             'firstaid_kits': [kits],
@@ -1358,12 +1354,12 @@ class Volunteer:
         except FileNotFoundError:
             df.to_csv('resource_requests.csv', index=False)
             logging.info(f"{self.username} requests for more resources while no file found.\nNew csv file is created.")
-            print("Your request is recorded successfully.\n"
-                  "An administrator will respond to your request soon.")
+            print("\nYour request is recorded successfully.\n"
+                  "An administrator will respond to your request shortly.")
             return
         # Append the new data
         updated_df = pd.concat([existing_df, df], ignore_index=True)
         updated_df.to_csv('resource_requests.csv', index=False)
         print("\nYour request is recorded successfully.\n"
-              "An administrator will respond to your request soon.")
+              "An administrator will respond to your request shortly.")
         return

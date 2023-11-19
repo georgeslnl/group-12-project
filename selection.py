@@ -43,6 +43,30 @@ def select_camp(plan_id):
             continue
         return camps['camp_name'].iloc[camp_num-1]
 
+##############################################
+# select plan allowing user to go back to direct username vs plan->camp->volunteer
+def select_plan2():
+    print("\nSelect a humanitarian plan.")
+    plans = pd.read_csv('humanitarian_plan.csv')
+    plans = plans[plans['end_date'].isna()]
+    print("Number - Location - Start Date")
+    for row in range(len(plans.index)):
+        print(row + 1, plans['location'].iloc[row], plans['start_date'].iloc[row], sep=" - ")
+
+    while True:
+        print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
+        plan_num = input("Enter the number of your chosen plan: ")
+        if plan_num in ("X", "B"):
+            return plan_num
+        try:
+            plan_num = int(plan_num)
+            if plan_num not in range(1, len(plans.index) + 1):
+                raise ValueError
+        except ValueError:
+            print("Please enter a plan number corresponding to a humanitarian plan listed above.")
+            continue
+        return plans['plan_id'].iloc[plan_num-1]
+
 # select camp allowing user to go back to plan selection
 def select_camp2(plan_id):
     print("\nSelect a camp.")
@@ -54,7 +78,7 @@ def select_camp2(plan_id):
               sep=" - ")
 
     while True:
-        print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
+        print("\nEnter [X] to return to the previous menu or [B] to go back to plan selection.")
         camp_num = input("Enter the number of your chosen camp: ")
         if camp_num in ("X", "B"):
             return camp_num
@@ -67,7 +91,7 @@ def select_camp2(plan_id):
             continue
         return camps['camp_name'].iloc[camp_num-1]
 
-# includes volunteers with no camp identification
+# same as above, but includes volunteers with no camp identification
 def select_camp_none(plan_id):
     print("\nSelect a camp.")
     camps = pd.read_csv(plan_id + ".csv")
@@ -78,7 +102,7 @@ def select_camp_none(plan_id):
               sep=" - ")
 
     while True:
-        print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
+        print("\nEnter [X] to return to the previous menu or [B] to go back to plan selection.")
         print("If the volunteer has no camp identification, enter [0].")
         camp_num = input("Enter the number of your chosen camp: ")
         if camp_num in ("X", "B"):
@@ -96,6 +120,7 @@ def select_camp_none(plan_id):
 
 def select_volunteer(plan_id, camp_name):
     users = pd.read_csv('users.csv', dtype={'password': str})
+    users = users[users['account_type'] == "volunteer"]
     users = users.replace({np.nan: None})
     if camp_name:
         users = users[(users['plan_id'] == plan_id) & (users['camp_name'] == camp_name)]
@@ -107,7 +132,7 @@ def select_volunteer(plan_id, camp_name):
 
     print("\nSelect a volunteer.")
     while True:
-        print("Enter [0] to return to the previous menu or [9] to go back to the previous step.")
+        print("Enter [0] to return to the previous menu or [9] to go back to camp selection.")
         print("Enter [1] to list the usernames of all volunteers at the selected camp.")
         username = input("Enter the username of your chosen volunteer: ")
         if username in ("0", "9"):
@@ -126,20 +151,66 @@ def select_volunteer(plan_id, camp_name):
             continue
         return username
 
+# allows user to choose whether to enter username directly or go through plan->camp->volunteer
+def initial_selection():
+    while True:
+        print("\nEnter [1] to select a volunteer by entering the username directly")
+        print("Enter [2] to filter by plan and camp before selecting a volunteer")
+        print("Enter [0] to return to the previous menu")
+        try:
+            option = int(input("Select an option: "))
+            if option not in range(3):
+                raise ValueError
+        except:
+            print("Please enter a number from the options provided.")
+            continue
+        if option in (0, 2):
+            return option
 
-# for admin methods requiring plan, camp and volunteer to be selected at the start (but no further progress loop)
+        # select volunteer directly
+        users = pd.read_csv('users.csv', dtype={'password': str})
+        users = users[users['account_type'] == "volunteer"]
+        while True:
+            print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
+            username = input("Enter the username of your chosen volunteer: ")
+            if username == "0":
+                return 0
+            if username == "9":
+                break
+            if username not in users['username'].values:
+                print("Username not found. Please try again.")
+                continue
+            break
+
+        if username == "9":
+            continue
+        select_user = users[users['username'] == username]
+        return select_user.iloc[0]['plan_id'], select_user.iloc[0]['camp_name'], username
+
+# for admin methods requiring volunteer to be selected at the start (but no further progress loop)
 # returns 0 if user chooses to return to previous memu
 def select_plan_camp_vol():
     progress = 0
-    while progress < 3:
+    while progress < 4:
         if progress == 0:
-            plan_id = select_plan()
-            if plan_id == 0:
+            select_user = initial_selection()
+            if select_user == 0:
                 return 0
+            elif select_user == 2:
+                progress += 1
+            else:
+                return select_user
+
+        if progress == 1:
+            plan_id = select_plan2()
+            if plan_id == "X":
+                return 0
+            elif plan_id == "B":
+                progress -= 1
             else:
                 progress += 1
 
-        if progress == 1:
+        if progress == 2:
             camp_name = select_camp2(plan_id)
             if camp_name == "X":
                 return 0
@@ -148,7 +219,7 @@ def select_plan_camp_vol():
             else:
                 progress += 1
 
-        if progress == 2:
+        if progress == 3:
             username = select_volunteer(plan_id, camp_name)
             if username == "0":
                 return 0
@@ -162,15 +233,26 @@ def select_plan_camp_vol():
 # includes volunteers with no camp identification
 def select_plan_camp_vol_none():
     progress = 0
-    while progress < 3:
+    while progress < 4:
         if progress == 0:
-            plan_id = select_plan()
-            if plan_id == 0:
+            select_user = initial_selection()
+            if select_user == 0:
                 return 0
+            elif select_user == 2:
+                progress += 1
+            else:
+                return select_user
+
+        if progress == 1:
+            plan_id = select_plan2()
+            if plan_id == "X":
+                return 0
+            elif plan_id == "B":
+                progress -= 1
             else:
                 progress += 1
 
-        if progress == 1:
+        if progress == 2:
             camp_name = select_camp_none(plan_id)
             if camp_name == "X":
                 return 0
@@ -179,7 +261,7 @@ def select_plan_camp_vol_none():
             else:
                 progress += 1
 
-        if progress == 2:
+        if progress == 3:
             username = select_volunteer(plan_id, camp_name)
             if username == "0":
                 return 0

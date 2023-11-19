@@ -859,13 +859,14 @@ class Admin:
         return
 
     def view_volunteer(self):
-        print("\nView volunteer account")
+        print("\nView volunteer details")
         users = pd.read_csv('users.csv')
         users = users[users['account_type'] == "volunteer"]
         if len(users.index) == 0:
             print("No volunteer accounts have been created.")
             return
 
+        print("Select the volunteer whose details you are viewing.")
         selected = select_plan_camp_vol() # returns (plan_id, camp_name, username)
         if selected == 0:
             return
@@ -891,6 +892,13 @@ class Admin:
 
     def update_volunteer_camp(self):
         print("\nUpdate a volunteer's camp identification")
+        users = pd.read_csv('users.csv')
+        users = users[users['account_type'] == "volunteer"]
+        if len(users.index) == 0:
+            print("No volunteer accounts have been created.")
+            return
+
+        print("Select the volunteer whose camp identification you are updating.")
         selected = select_plan_camp_vol_none()  # returns (plan_id, camp_name, username)
         if selected == 0:
             return
@@ -954,7 +962,7 @@ class Admin:
             new_camp = add_camp(plan_id)
         else:
             while True:
-                print("Enter [1] to update camp identification")
+                print("\nEnter [1] to update camp identification")
                 print("Enter [2] to remove camp identification")
                 print("Enter [0] to return to the previous menu")
                 try:
@@ -980,7 +988,7 @@ class Admin:
                             if remove_option not in (0, 1):
                                 raise ValueError
                         except ValueError:
-                            print("Please enter a number from the options provided.\n")
+                            print("Please enter a number from the options provided.")
                             continue
                         break
                     if remove_option == 0:
@@ -1314,6 +1322,12 @@ class Admin:
 
     def add_volunteering_session(self):
         print("\nAdd a volunteering session")
+        users = pd.read_csv('users.csv')
+        users = users[users['account_type'] == "volunteer"]
+        if len(users.index) == 0:
+            print("No volunteer accounts have been created.")
+            return
+
         print("Select the volunteer for whom you are adding a session.")
         selected = select_plan_camp_vol()
         if selected == 0:
@@ -1373,6 +1387,12 @@ class Admin:
 
     def view_volunteering_sessions(self):
         print("\nView volunteering sessions")
+        users = pd.read_csv('users.csv')
+        users = users[users['account_type'] == "volunteer"]
+        if len(users.index) == 0:
+            print("No volunteer accounts have been created.")
+            return
+
         print("Select the volunteer whose sessions you are viewing.")
         selected = select_plan_camp_vol()
         if selected == 0:
@@ -1396,6 +1416,12 @@ class Admin:
 
     def remove_volunteering_session(self):
         print("\nRemove a volunteering session")
+        users = pd.read_csv('users.csv')
+        users = users[users['account_type'] == "volunteer"]
+        if len(users.index) == 0:
+            print("No volunteer accounts have been created.")
+            return
+
         print("Select the volunteer for whom you are removing a session.")
         selected = select_plan_camp_vol()
         if selected == 0:
