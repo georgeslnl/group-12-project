@@ -21,3 +21,10 @@ Extras
 12. Remove volunteering sessions
 
 13. Send messages to admin?
+
+- sort output tables, eg volunteers are in order
+- resources
+    - messaging (volunteer makes requests, admin can add to storage)
+    - auto-allocating resources (days of supplies remaining, at camp + plan level)
+- replace medical supplies with first aid kit
+-

@@ -10,10 +10,12 @@ class Admin:
 
     def __init__(self, username, password):
         if username != 'admin' or password != '111':  # Checks if password and username are correct
+            logging.error('Admin unable to login, username or password was entered incorrectly.')
             raise ValueError('Login failed')
         else:
             self.username = username  # if login credentials are correct, admin object is initialised
             self.password = password
+            logging.debug("Admin logged in successfully")
 
     def create_hum_plan(self):
         """This method lets the admin create a new humanitarian plan.
@@ -278,6 +280,7 @@ class Admin:
         nb_of_requests = len(users[users["deactivation_requested"] == 1])
         # prints if there are 0 requests to deactivate account
         if nb_of_requests == 0:
+            logging.debug('No new deactivation requests for admin.')
             print('No new deactivation requests.')
             return
         elif nb_of_requests == 1:
