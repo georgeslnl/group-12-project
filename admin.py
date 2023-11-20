@@ -674,14 +674,13 @@ class Admin:
                 print('This request has been marked as resolved.')
 
 
-
-
     def check_deactivation_requests(self):
         """
         This method tells the Admin if volunteers have requested to deactivate their
         account, and informs the Admin of the steps to take.
         This is done by reading the users.csv file and calling the deactivate_account_request() method
         """
+        print("\nRespond to deactivation requests")
         users = pd.read_csv('users.csv', dtype={'password': str})
         nb_of_requests = len(users[users["deactivation_requested"] == 1])
         # prints if there are 0 requests to deactivate account
@@ -1024,14 +1023,15 @@ class Admin:
             while True:
                 print("Enter [1] to create a humanitarian plan")
                 print("Enter [2] to display a humanitarian plan")
-                print("Enter [3] to edit a humanitarian plan")
-                print("Enter [4] to end a humanitarian plan")
+                print("Enter [3] to edit a humanitarian plan (i.e. description, no. of camps)")
+                print("Enter [4] to update a camp's capacity")
+                print("Enter [5] to end a humanitarian plan")
                 print("Enter [0] to return to the admin menu")
                 try:
                     user_input = input("Select an option: ")
                     option = int(user_input)
                     logging.debug(f'Admin has entered {user_input}.')
-                    if option not in range(5):
+                    if option not in range(6):
                         logging.error(f"Admin has entered {user_input}, raising a ValueError.")
                         raise ValueError
                 except ValueError:
@@ -1051,6 +1051,9 @@ class Admin:
                 logging.debug(f"Admin has chosen to edit a humanitarian plan.")
                 # TODO: add function
             if option == 4:
+                logging.debug(f"Admin has chosen to update a camp's capacity.")
+                self.update_camp_capacity()
+            if option == 5:
                 logging.debug(f"Admin has chosen to end a humanitarian plan.")
                 self.end_event()
 
@@ -1063,7 +1066,8 @@ class Admin:
                 print("Enter [3] to edit a volunteer's details")
                 print("Enter [4] to update a volunteer's camp identification")
                 print("Enter [5] to deactivate or reactivate a volunteer account")
-                print("Enter [6] to delete a volunteer account")
+                print("Enter [6] to respond to deactivation requests from volunteers")
+                print("Enter [7] to delete a volunteer account")
                 print("Enter [0] to return to the admin menu")
                 try:
                     user_input = input("Select an option: ")
@@ -1095,6 +1099,9 @@ class Admin:
                 logging.debug(f"Admin has chosen to deactivate or reactivate a volunteer account.")
                 self.active_volunteer()
             if option == 6:
+                logging.debug(f"Admin has chosen to respond to deactivation requests from volunteers.")
+                self.check_deactivation_requests()
+            if option == 7:
                 logging.debug(f"Admin has chosen to delete a volunteer account.")
                 self.delete_volunteer()
 
@@ -1269,6 +1276,64 @@ class Admin:
                   str(camps['refugees'].iloc[row]) + " refugees", str(camps['capacity'].iloc[row]) + " capacity",
                   sep=" - ")
         return
+
+    def update_camp_capacity(self):
+        print("\nUpdate camp capacity")
+        print("Select the camp whose capacity you would like to update.")
+        progress = 0
+        while progress < 3:
+            if progress == 0:
+                plan_id = select_plan()
+                if plan_id == 0:
+                    return
+                else:
+                    progress += 1
+
+            if progress == 1:
+                camp_name = select_camp2(plan_id)
+                if camp_name == "X":
+                    # return
+                    exit()
+                elif camp_name == "B":
+                    progress -= 1
+                else:
+                    progress += 1
+
+            if progress == 2:
+                camps = pd.read_csv(plan_id + ".csv")
+                cur_camp = camps[camps['camp_name'] == camp_name]
+                print("\nCurrent capacity of " + camp_name + ": " + str(cur_camp.iloc[0]['capacity']))
+                print("The camp currently has " + str(cur_camp.iloc[0]['refugees']) + " refugees.")
+                while True:
+                    print("\nEnter [X] to return to the previous menu or [B] to go back to camp selection.")
+                    new_capacity = input("New capacity: ")
+                    if new_capacity == "X":
+                        return
+                    if new_capacity == "B":
+                        progress -= 1
+                        break
+                    try:
+                        new_capacity = int(new_capacity)
+                        if new_capacity < 1:
+                            raise ValueError
+                    except ValueError:
+                        print("Please enter a positive integer.")
+                        continue
+                    if new_capacity < cur_camp.iloc[0]['refugees']:
+                        print(
+                            "Invalid input: New capacity is less than refugee population. Please try again or return to the previous menu.")
+                        continue
+                    if new_capacity == cur_camp.iloc[0]['capacity']:
+                        print("Capacity is unchanged. Please try again or return to the previous step.")
+                        continue
+                    progress += 1
+                    break
+
+        # update csv file
+        chosen = (camps['camp_name'] == camp_name)
+        camps.loc[chosen, 'capacity'] = new_capacity
+        camps.to_csv(plan_id + '.csv', index=False)
+        print("You have updated the capacity of", plan_id + ",", camp_name, "to", str(new_capacity) + ".")
 
     def view_volunteer(self):
         print("\nView volunteer details")
