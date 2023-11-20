@@ -1,5 +1,7 @@
 import pandas as pd, numpy as np
 from datetime import datetime
+
+import auto_resources
 from humanitarianplan import HumanitarianPlan
 from coded_vars import convert_gender, convert_medical_condition
 from selection import select_plan, select_camp, select_camp2, select_plan_camp_vol, select_plan_camp_vol_none
@@ -568,80 +570,12 @@ class Admin:
         print(f"Currently, the resources in storage as follows:"
               f"\n{humani_plan.loc[humani_plan.location == location,['location','start_date','food_storage','water_storage','firstaid_kits_storage']]}\n")
         print(f"And the resources in {hum_plan[:-4]} are as follows:"
-              f"\n{resources}")
+              f"\n{resources.to_string(index=False)}")
         camp_format = False
         while camp_format == False:
             try:
-                camp_no = input('Enter the camp ID you would like to allocate resources to (only the number).\n'
-                                    'Enter "auto" for auto-allocating resources to all camps for their following 7 days')
-                if camp_no.lower() == "auto":
-                    # first we count how many resources we need
-                    sum_needed = [0, 0, 0]  # food, water, firstaid_kits
-                    for i in resources.index:
-                        refugees = resources.loc[i, "refugees"]
-                        food_needed = refugees * 7 - resources.loc[i, "food"]
-                        if food_needed < 0:  # if we have more than 7 days, no need to top-up
-                            food_needed = 0
-                        sum_needed[0] += food_needed
-                        water_needed = refugees * 7 - resources.loc[i, "water"]
-                        if water_needed < 0:
-                            water_needed = 0
-                        sum_needed[1] += water_needed
-                        # each person consumes 1/3 kit per day (presumably)
-                        firstaid_needed = int((refugees * 7) / 3) - resources.loc[i, "firstaid_kits"]
-                        if firstaid_needed < 0:
-                            firstaid_needed = 0
-                        sum_needed[2] += firstaid_needed
-
-                    # check if we have enough resources in store.
-                    food_in_storage = int(humani_plan.loc[humani_plan.location == location, 'food_storage'].iloc[0])
-                    # add .iloc[0] at the end if needed to get one single value
-                    water_in_storage = int(
-                        humani_plan.loc[humani_plan['location'] == location, 'water_storage'].iloc[0])
-                    firstaid_in_storage = int(
-                        humani_plan.loc[humani_plan['location'] == location, 'firstaid_kits_storage'].iloc[0])
-                    # if storage resources insufficient
-                    if food_in_storage < sum_needed[0] or water_in_storage < sum_needed[1] or firstaid_in_storage < \
-                            sum_needed[2]:
-                        print("Resources insufficient, please enter manually or request new resources.")
-                        camp_format = False
-
-                    # now we add and write one by one, if resources sufficient
-                    else:
-                        while True:
-                            confirm = input(f"{sum_needed[0]} of food, {sum_needed[1]} of water, "
-                                            f"and {sum_needed[2]} of first-aid kits will be added to camps from storage.\n"
-                                            f"Would you like to proceed? (Y/N)").capitalize()
-                            if confirm == "Y":
-                                for i in resources.index:
-                                    refugees = resources.loc[i, "refugees"]
-                                    # food
-                                    food_needed = refugees * 7 - resources.loc[i, "food"]
-                                    humani_plan.loc[humani_plan['location'] == location, 'food_storage'] -= food_needed
-                                    resources.loc[i, "food"] += food_needed
-                                    # water
-                                    water_needed = refugees * 7 - resources.loc[i, "water"]
-                                    humani_plan.loc[
-                                        humani_plan['location'] == location, 'water_storage'] -= water_needed
-                                    resources.loc[i, "water"] += water_needed
-                                    # first-aid
-                                    firstaid_needed = int((refugees * 7) / 3) - resources.loc[i, "firstaid_kits"]
-                                    humani_plan.loc[
-                                        humani_plan['location'] == location, 'firstaid_kits_storage'] -= firstaid_needed
-                                    resources.loc[i, "firstaid_kits"] += firstaid_needed
-                                    # write each iterate into two .csv
-                                    resources.to_csv(hum_plan, index=False)
-                                    humani_plan.to_csv("humanitarian_plan.csv", index=False)
-                                print(f"\nAllocation complete. Currently, the resources in {hum_plan[:-4]} are as follows:"
-                                        f"\n{resources}")
-                                print(f"\nAnd the remaining resources in storage: "
-                                      f"\n{humani_plan.loc[humani_plan.location == location, ['location', 'start_date', 'food_storage', 'water_storage', 'firstaid_kits_storage']]}\n")
-                                exit()  # TODO use something else
-                            elif confirm == "N":
-                                ...  # TODO sort out later
-                            else:
-                                print("Please enter the correct input (Y/N)")
-                elif any(resources['camp_name'].str.contains(f"Camp {camp_no}")):
+                camp_no = v.integer('Enter the camp ID you would like to allocate resources to (only the number).\n')
+                if any(resources['camp_name'].str.contains(f"Camp {camp_no}")):
                     camp_format = True
                 else:
                     print('The camp ID you entered does not belong to any existing camp in this humanitarian plan.')
@@ -833,13 +767,14 @@ class Admin:
             print("\nManage Resources")
             while True:
                 print("Enter [1] to display resources for a humanitarian plan")
-                print("Enter [2] to allocate resources to camps in a humanitarian plan")
+                print("Enter [2] to manually allocate resources to camps in a humanitarian plan")
+                print("Enter [3] to use auto-allocating feature")
                 print("Enter [0] to return to the admin menu")
                 try:
                     user_input = input("Select an option: ")
                     option = int(user_input)
                     logging.debug(f'Admin has entered {user_input}.')
-                    if option not in range(3):
+                    if option not in range(4):
                         logging.error(f"Admin has entered {user_input}, raising a ValueError.")
                         raise ValueError
                 except ValueError:
@@ -881,6 +816,30 @@ class Admin:
                     except KeyError:
                         print("Please enter a correct index.")
                 self.allocate_resources(hum_plan, location)
+            if option == 3: # auto-allocate
+                logging.debug(f"Admin has chosen auto-allocating resources.")
+                humani_plan = pd.read_csv('humanitarian_plan.csv')
+                while True:
+                    print(humani_plan)
+                    index = v.integer(
+                        "Please enter the index of the humanitarian plan which you would like to allocate resources to.")
+                    if index not in humani_plan.index:
+                        print("Please enter a correct index.")
+                    else:
+                        location = humani_plan.loc[index, 'location'].replace(' ', '_')
+                        year = humani_plan.loc[index, 'start_date'].split('-')[2]
+                        hum_plan = f"{location}_{year}.csv"
+                        print(f"\nopening {hum_plan}...\n")
+                        break
+                print("Would you like to auto-allocate resources to all camps or select a camp?")
+                option = v.integer("Enter [1] to allocate resources to all camps\n"
+                          "Enter [2] to select a camp to allocate resources to\n"
+                          "Auto-alloating feature will top up resources to the camp(s) for the following 7 days.")
+                if option == 1:
+                    auto_resources.auto_all(hum_plan, location)
+                if option == 2:
+                    auto_resources.auto_one(hum_plan, location)
+
 
     def refugee_menu(self):
         while True:
