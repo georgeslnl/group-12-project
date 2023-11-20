@@ -280,7 +280,7 @@ class Volunteer:
             print("\nYour current username is:", self.username)
             logging.debug(f"{self.username} has been shown their current username.")
             while True:
-                print("Enter [0] to return to previous step.")
+                print("Enter [0] to return to the previous step.")
                 new_username = input("Enter new username: ").strip()
                 if new_username == "0":
                     return

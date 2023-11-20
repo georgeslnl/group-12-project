@@ -3,7 +3,7 @@ from datetime import datetime
 from humanitarianplan import HumanitarianPlan
 from coded_vars import convert_gender, convert_medical_condition
 from selection import select_plan, select_camp, select_camp2, select_plan_camp_vol, select_plan_camp_vol_none
-import refugee_profile_funcs, volunteering_session_funcs
+import volunteer_funcs, refugee_profile_funcs, volunteering_session_funcs
 import verify as v
 import logging
 
@@ -125,75 +125,261 @@ class Admin:
     #     print('Camp ID of camps involved: \n', hu_pl['camp_name'])
     #     print('Number of volunteers working at each camp: \n', hu_pl[['camp_name', 'volunteers']])
 
-    def edit_volunteer(self):
-        df = pd.read_csv('users.csv')
-        # uses pandas to print a table first for selection. So admin doesn't have to type it themselves
-        print(df.iloc[1:, 0])
-        while True:
-            user = v.string('Please enter the username of the volunteer whose account details you would like to modify.')
-            if any(df['username'].str.contains(user)) == True: #testing if volunteer account already exists
-                break
-            else:
-                print('Username entered does not match with any volunteer.')
-                continue
-        while True:
-            # a list for admin to choose from, edited to work for the merged 'users' file
-            print("Please choose one of the following details you would like to modify."
-                  "\n 0 for username"
-                  "\n 1 for password"
-                  "\n 2 for active status"
-                  "\n 3 for first name"
-                  "\n 4 for last name"
-                  "\n 5 for email address"
-                  "\n 6 for phone number"
-                  "\n 7 for gender"
-                  "\n 8 for date of birth"
-                  "\n 9 for plan ID"
-                  "\n 10 for camp name")
-            index = int(v.integer(""))
-            if index not in range(0, 11):
-                print('Please enter an integer from 0-10.')
-                continue
-            else:
-                #This is code to fix the index problem due to using the new 'users' file
-                if index==2:
-                    index=3
-                elif index==0 or index==1:
-                    pass
-                else:
-                    index+=2
-                break
-        temp_list = ['username', 'password', 'account_type', 'active_status', 'deactivation_requested',
-                     'first_name', 'last_name', 'email', 'phone_number', 'gender', 'date_of_birth', 'plan_id', 'camp_name']
-        new = input("Please enter a new value: ")  # will be used to input into csv as status
-        # and then enter a new value
-        # create a dataform without that specific row where username is...
-        df.loc[df['username'] == user, temp_list[index]] = new  # modify the dataform
-        df.to_csv('users.csv', index=False)  # write it into the .csv file
-        updated = df['username'] == user
-        print("The updated account details of " + user + "is:\n", df[updated])
+    # def edit_volunteer(self):
+    #     df = pd.read_csv('users.csv')
+    #     # uses pandas to print a table first for selection. So admin doesn't have to type it themselves
+    #     print(df.iloc[1:, 0])
+    #     while True:
+    #         user = v.string('Please enter the username of the volunteer whose account details you would like to modify.')
+    #         if any(df['username'].str.contains(user)) == True: #testing if volunteer account already exists
+    #             break
+    #         else:
+    #             print('Username entered does not match with any volunteer.')
+    #             continue
+    #     while True:
+    #         # a list for admin to choose from, edited to work for the merged 'users' file
+    #         print("Please choose one of the following details you would like to modify."
+    #               "\n 0 for username"
+    #               "\n 1 for password"
+    #               "\n 2 for active status"
+    #               "\n 3 for first name"
+    #               "\n 4 for last name"
+    #               "\n 5 for email address"
+    #               "\n 6 for phone number"
+    #               "\n 7 for gender"
+    #               "\n 8 for date of birth"
+    #               "\n 9 for plan ID"
+    #               "\n 10 for camp name")
+    #         index = int(v.integer(""))
+    #         if index not in range(0, 11):
+    #             print('Please enter an integer from 0-10.')
+    #             continue
+    #         else:
+    #             #This is code to fix the index problem due to using the new 'users' file
+    #             if index==2:
+    #                 index=3
+    #             elif index==0 or index==1:
+    #                 pass
+    #             else:
+    #                 index+=2
+    #             break
+    #     temp_list = ['username', 'password', 'account_type', 'active_status', 'deactivation_requested',
+    #                  'first_name', 'last_name', 'email', 'phone_number', 'gender', 'date_of_birth', 'plan_id', 'camp_name']
+    #     new = input("Please enter a new value: ")  # will be used to input into csv as status
+    #     # and then enter a new value
+    #     # create a dataform without that specific row where username is...
+    #     df.loc[df['username'] == user, temp_list[index]] = new  # modify the dataform
+    #     df.to_csv('users.csv', index=False)  # write it into the .csv file
+    #     updated = df['username'] == user
+    #     print("The updated account details of " + user + "is:\n", df[updated])
+
+    # def create_volunteer(self):
+    #     new = open("users.csv", "a")
+    #
+    #     username = v.string("Please enter an user name: ")
+    #     pw = input("Please enter the password: ") #password should be just '111'
+    #     first_name = v.name("Please enter the first name: ")
+    #     last_name = v.name("Please enter the last name: ")
+    #     email = v.email("PLease enter the email address: ")
+    #     phone = v.integer("Please enter the phone number: ")
+    #     gender = v.integer("Please enter the gender: ")
+    #     DOB = v.date("Please enter the date of birth (DD-MM-YYYY): ")
+    #     plan_id = v.string("Please enter the plan ID: ")
+    #     camp_name = v.string("Please enter the camp name: ")
+    #
+    #     new.write(f'\n{username},{pw},volunteer,1,0,{first_name},{last_name},{email},{phone},{gender},{DOB},{plan_id},{camp_name}')
+    #     new.close()
+    #     print("New user added successfully.")
+    #
+    #     users = pd.read_csv('users.csv')
+    #     new_account = users['username'] == username
+    #     print("The new account details of", username, "is:\n", users[new_account])
 
     def create_volunteer(self):
-        new = open("users.csv", "a")
+        print("\nCreate volunteer account")
+        print("You will be prompted to enter the volunteer's details.")
 
-        username = v.string("Please enter an user name: ")
-        pw = input("Please enter the password: ") #password should be just '111'
-        first_name = v.name("Please enter the first name: ")
-        last_name = v.name("Please enter the last name: ")
-        email = v.email("PLease enter the email address: ")
-        phone = v.integer("Please enter the phone number: ")
-        gender = v.integer("Please enter the gender: ")
-        DOB = v.date("Please enter the date of birth (DD-MM-YYYY): ")
-        plan_id = v.string("Please enter the plan ID: ")
-        camp_name = v.string("Please enter the camp name: ")
+        progress = 0
+        # loop allowing user to go back
+        while progress < 10:
+            if progress == 0:
+                plan_id = volunteer_funcs.add_plan()
+                if plan_id == "B":
+                    return
+                else:
+                    progress += 1
 
-        new.write(f'\n{username},{pw},volunteer,1,0,{first_name},{last_name},{email},{phone},{gender},{DOB},{plan_id},{camp_name}')
-        new.close()
-        print("New user added successfully.")
+            elif progress == 1:
+                camp_name = volunteer_funcs.add_camp(plan_id)
+                if camp_name == "X":
+                    return
+                elif camp_name == "B":
+                    progress -= 1
+                else:
+                    progress += 1
 
-        users = pd.read_csv('users.csv')
-        new_account = users['username'] == username
-        print("The new account details of", username, "is:\n", users[new_account])
+            elif progress == 2:
+                username = volunteer_funcs.add_username()
+                if username == "0":
+                    return
+                elif username == "9":
+                    progress -= 1
+                else:
+                    progress += 1
+
+            elif progress == 3:
+                password = volunteer_funcs.add_password()
+                if password == "0":
+                    return
+                elif password == "9":
+                    progress -= 1
+                else:
+                    progress += 1
+
+            elif progress == 4:
+                first_name = volunteer_funcs.add_first_name()
+                if first_name == "0":
+                    return
+                elif first_name == "9":
+                    progress -= 1
+                else:
+                    progress += 1
+
+            elif progress == 5:
+                last_name = volunteer_funcs.add_last_name()
+                if last_name == "0":
+                    return
+                elif last_name == "9":
+                    progress -= 1
+                else:
+                    progress += 1
+
+            elif progress == 6:
+                gender = volunteer_funcs.add_gender()
+                if gender == 0:
+                    return
+                elif gender == 9:
+                    progress -= 1
+                else:
+                    progress += 1
+
+            elif progress == 7:
+                date_of_birth = volunteer_funcs.add_dob()
+                if date_of_birth == "0":
+                    return
+                elif date_of_birth == "9":
+                    progress -= 1
+                else:
+                    progress += 1
+
+            elif progress == 8:
+                email = volunteer_funcs.add_email()
+                if email == "0":
+                    return
+                elif email == "9":
+                    progress -= 1
+                else:
+                    progress += 1
+
+            elif progress == 9:
+                phone_number = volunteer_funcs.add_phone_num()
+                if phone_number == "0":
+                    return
+                elif phone_number == "9":
+                    progress -= 1
+                else:
+                    progress += 1
+
+        # Update csv tables
+        users = open("users.csv", "a")
+        if camp_name:
+            users.write(
+                f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},{camp_name}')
+        else:
+            users.write(
+                f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},')
+        users.close()
+
+        if camp_name:
+            camps = pd.read_csv(plan_id + '.csv')
+            chosen = (camps['camp_name'] == camp_name)
+            camps.loc[chosen, 'volunteers'] = camps.loc[chosen, 'volunteers'] + 1
+            camps.to_csv(plan_id + '.csv', index=False)
+
+        # Print details provided in registration
+        gender_str = convert_gender(gender)
+
+        print("\n" + username, "has been registered as a volunteer.")
+        print("You have entered the following details:")
+        print("Plan:", plan_id)
+        print("Camp:", camp_name)
+        print("Username:", username)
+        print("Email:", email)
+        print("Phone number:", phone_number)
+        print("Gender:", gender_str)
+        print("Date of birth (DD-MM-YYYY):", date_of_birth)
+        return
+
+    def edit_volunteer(self):
+        print("\nEdit volunteer details")
+        print("Select the volunteer whose details you are updating.")
+        selected = select_plan_camp_vol_none()  # returns (plan_id, camp_name, username)
+        if selected == 0:
+            return
+        else:
+            username = selected[2]
+
+        users = pd.read_csv('users.csv', dtype={'password': str})
+        select_user = users[users['username'] == username]
+        password = select_user.iloc[0]['password']
+        first_name = select_user.iloc[0]['first_name']
+        last_name = select_user.iloc[0]['last_name']
+        gender = select_user.iloc[0]['gender']
+        date_of_birth = select_user.iloc[0]['date_of_birth']
+        email = select_user.iloc[0]['email']
+        phone_number = select_user.iloc[0]['phone_number']
+
+        # outer loop to edit multiple attributes, exit if 0 is entered
+        while True:
+            # inner loop to catch invalid input
+            while True:
+                print("\nEdit details of", username)
+                print("Enter [1] for username")
+                print("Enter [2] for password")
+                print("Enter [3] for first name")
+                print("Enter [4] for last name")
+                print("Enter [5] for gender")
+                print("Enter [6] for date of birth")
+                print("Enter [7] for email")
+                print("Enter [8] for phone number")
+                print("Enter [0] to return to the previous menu")
+                try:
+                    option = int(input("Select an option: "))
+                    if option not in range(9):
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a number from the options provided.")
+                    continue
+                break
+
+            if option == 0:
+                return
+            if option == 1:
+                volunteer_funcs.edit_username(username)
+            if option == 2:
+                volunteer_funcs.edit_password(username, password)
+            if option == 3:
+                volunteer_funcs.edit_first_name(username, first_name)
+            if option == 4:
+                volunteer_funcs.edit_last_name(username, last_name)
+            if option == 5:
+                volunteer_funcs.edit_gender(username, gender)
+            if option == 6:
+                volunteer_funcs.edit_dob(username, date_of_birth)
+            if option == 7:
+                volunteer_funcs.edit_email(username, email)
+            if option == 8:
+                volunteer_funcs.edit_phone_num(username, phone_number)
 
     def delete_volunteer(self):
         df = pd.read_csv('users.csv')
@@ -914,7 +1100,13 @@ class Admin:
 
     def volunteering_session_menu(self):
         while True:
-            print("\nManage Volunteering Times")
+            print("\nManage Volunteering Sessions")
+            users = pd.read_csv('users.csv')
+            users = users[users['account_type'] == "volunteer"]
+            if len(users.index) == 0:
+                print("No volunteer accounts have been created.")
+                return
+
             while True:
                 print("Enter [1] to add a volunteering session")
                 print("Enter [2] to view a volunteer's volunteering sessions")
@@ -1458,12 +1650,6 @@ class Admin:
 
     def add_volunteering_session(self):
         print("\nAdd a volunteering session")
-        users = pd.read_csv('users.csv')
-        users = users[users['account_type'] == "volunteer"]
-        if len(users.index) == 0:
-            print("No volunteer accounts have been created.")
-            return
-
         print("Select the volunteer for whom you are adding a session.")
         selected = select_plan_camp_vol()
         if selected == 0:
@@ -1523,12 +1709,6 @@ class Admin:
 
     def view_volunteering_sessions(self):
         print("\nView volunteering sessions")
-        users = pd.read_csv('users.csv')
-        users = users[users['account_type'] == "volunteer"]
-        if len(users.index) == 0:
-            print("No volunteer accounts have been created.")
-            return
-
         print("Select the volunteer whose sessions you are viewing.")
         selected = select_plan_camp_vol()
         if selected == 0:
@@ -1552,12 +1732,6 @@ class Admin:
 
     def remove_volunteering_session(self):
         print("\nRemove a volunteering session")
-        users = pd.read_csv('users.csv')
-        users = users[users['account_type'] == "volunteer"]
-        if len(users.index) == 0:
-            print("No volunteer accounts have been created.")
-            return
-
         print("Select the volunteer for whom you are removing a session.")
         selected = select_plan_camp_vol()
         if selected == 0:
