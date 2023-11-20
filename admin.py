@@ -323,7 +323,7 @@ class Admin:
     def edit_volunteer(self):
         print("\nEdit volunteer details")
         print("Select the volunteer whose details you are updating.")
-        selected = select_plan_camp_vol_none()  # returns (plan_id, camp_name, username)
+        selected = select_plan_camp_vol_none(active=0)  # returns (plan_id, camp_name, username)
         if selected == 0:
             return
         else:
@@ -382,61 +382,93 @@ class Admin:
                 volunteer_funcs.edit_phone_num(username, phone_number)
 
     def delete_volunteer(self):
-        df = pd.read_csv('users.csv')
-        # uses pandas to print a table first for selection. So admin doesn't have to type it themselves
-        print(df.iloc[1:, 0])
+        print("\nDelete volunteer account")
+        print("Select the volunteer whose account you would like to delete.")
+        selected = select_plan_camp_vol_none(active=0)  # returns (plan_id, camp_name, username)
+        if selected == 0:
+            return
+        else:
+            plan_id, camp_name, username = selected
+
         while True:
-            delete_user = v.string('Please enter the username you would like to delete. ')
-            if any(df['username'].str.contains(delete_user)) == False:  # testing if volunteer account already exists
-                print("Username not found. Please enter again.")
-            else:
-                break
-        # create a dataform without that specific row where username is...
-        df = df[df.username != delete_user]
-        df.to_csv('users.csv', index=False)
-        print(f"{delete_user} is now deleted.")
-        logging.info(f'{delete_user} deleted by Admin')
-        print(df)
+            print("\nAre you sure you would like to delete the account of", username + "?")
+            print("Enter [1] to proceed")
+            print("Enter [0] to return to the previous menu")
+            try:
+                user_input = input("Select an option: ")
+                option = int(user_input)
+                if option not in (0, 1):
+                    logging.error(f"Admin has entered {user_input} when trying to delete {username}'s account. ValueError raised.")
+                    raise ValueError
+            except ValueError:
+                print("Please enter a number from the options provided.")
+                continue
+            break
+        if option == 0:
+            return
+
+        # update csv files
+        users = pd.read_csv('users.csv', dtype={'password': str})
+        users = users.drop(users[users['username'] == username].index)
+        users.to_csv('users.csv', index=False)
+
+        vol_times = pd.read_csv("volunteering_times.csv")
+        vol_times = vol_times.drop(vol_times[vol_times['username'] == username].index)
+        vol_times.to_csv('volunteering_times.csv', index=False)
+
+        if camp_name:
+            camps = pd.read_csv(plan_id + '.csv')
+            user_camp = (camps['camp_name'] == camp_name)
+            camps.loc[user_camp, 'volunteers'] = camps.loc[user_camp, 'volunteers'] - 1
+            camps.to_csv(plan_id + '.csv', index=False)
+
+        logging.info(f'{username} has been deleted by admin.')
+        print(username + "'s account has been deleted successfully.")
 
     def active_volunteer(self):
+        print("\nDeactivate or reactivate volunteer account")
+        print("Select the volunteer whose account you would like to deactivate or reactivate.")
+        selected = select_plan_camp_vol_none(active=0)  # returns (plan_id, camp_name, username)
+        if selected == 0:
+            return
+        else:
+            plan_id, camp_name, username = selected
+
+        users = pd.read_csv('users.csv', dtype={'password': str})
+        select_user = users[users['username'] == username]
+        active = select_user.iloc[0]['active']
+
         while True:
-            status = v.string("Would you like to deactivate or reactivate an user? (D/R)"
-                              "\n D for deactivate"
-                              "\n R for reactivate")
-            if status != "R" and status != "D":
-                print("Please enter only D or R.")
-            elif status == "R":
-                status = 1    #input this into the csv
-                request = 0
-                _str = "reactivate"
-                break
-            elif status == "D":
+            if active:
                 status = 0
-                _str = "deactivate"
-                request = 0
-                break
-
-        df = pd.read_csv('users.csv', dtype={'password': str})
-        # uses pandas to print a table first for selection. So admin doesn't have to type it themselves
-        print(df.iloc[1:, 0])
-        while True:
-            user = v.string(f'Please enter the username you would like to {_str}. ')
-            if any(df['username'].str.contains(user)) == False:  # testing if volunteer account already exists
-                print("Username not found. Please enter again.")
+                change = "deactivate"
+                print("\n" + username + "'s account is currently active.")
             else:
-                break
-        df.loc[df['username'] == user, 'deactivation_requested'] = request  # modify the dataform
-        df.loc[df['username'] == user, 'active'] = status
-        df.to_csv('users.csv', index=False)  # write it into the .csv file
+                status = 1
+                change = "reactivate"
+                print("\n" + username + "'s account has been deactivated.")
+            print("Proceed to", change, "account?")
+            print("Enter [1] to proceed")
+            print("Enter [0] to return to the previous menu")
+            try:
+                user_input = input("Select an option: ")
+                option = int(user_input)
+                if option not in (0, 1):
+                    raise ValueError
+            except ValueError:
+                print("Please enter a number from the options provided.")
+                continue
+            break
+        if option == 0:
+            return
 
-        # update files for camps and volunteering sessions
-        # users = pd.read_csv('users.csv', dtype={'password': str})
-        cur_user = df[df['username'] == user]
-        cur_user = cur_user.replace({np.nan: None})
-        camp_name = cur_user.iloc[0]['camp_name']
+        # update csv files
+        users.loc[users['username'] == username, 'deactivation_requested'] = 0
+        users.loc[users['username'] == username, 'active'] = status
+        users.to_csv('users.csv', index=False)
+
         # increment or decrement number of volunteers if user has a camp
         if camp_name:
-            plan_id = cur_user.iloc[0]['plan_id']
             camps = pd.read_csv(plan_id + '.csv')
             user_camp = (camps['camp_name'] == camp_name)
             if status == 1:
@@ -447,14 +479,66 @@ class Admin:
                 camps.to_csv(plan_id + '.csv', index=False)
                 # if deactivated: delete the user's volunteering sessions
                 vol_times = pd.read_csv("volunteering_times.csv")
-                vol_times = vol_times.drop(vol_times[vol_times['username'] == user].index)
+                vol_times = vol_times.drop(vol_times[vol_times['username'] == username].index)
                 vol_times.to_csv('volunteering_times.csv', index=False)
 
+        print(username + "'s account has been " + change + "d successfully.")
 
-        print(f'Complete. {user} is now modified.'
-              "All status below:")
-        print(df)
-        logging.info({f'Admin has {_str}d {user}'})
+        # while True:
+        #     status = v.string("Would you like to deactivate or reactivate an user? (D/R)"
+        #                       "\n D for deactivate"
+        #                       "\n R for reactivate")
+        #     if status != "R" and status != "D":
+        #         print("Please enter only D or R.")
+        #     elif status == "R":
+        #         status = 1    #input this into the csv
+        #         request = 0
+        #         _str = "reactivate"
+        #         break
+        #     elif status == "D":
+        #         status = 0
+        #         _str = "deactivate"
+        #         request = 0
+        #         break
+        #
+        # df = pd.read_csv('users.csv', dtype={'password': str})
+        # # uses pandas to print a table first for selection. So admin doesn't have to type it themselves
+        # print(df.iloc[1:, 0])
+        # while True:
+        #     user = v.string(f'Please enter the username you would like to {_str}. ')
+        #     if any(df['username'].str.contains(user)) == False:  # testing if volunteer account already exists
+        #         print("Username not found. Please enter again.")
+        #     else:
+        #         break
+        # df.loc[df['username'] == user, 'deactivation_requested'] = request  # modify the dataform
+        # df.loc[df['username'] == user, 'active'] = status
+        # df.to_csv('users.csv', index=False)  # write it into the .csv file
+        #
+        # # update files for camps and volunteering sessions
+        # # users = pd.read_csv('users.csv', dtype={'password': str})
+        # cur_user = df[df['username'] == user]
+        # cur_user = cur_user.replace({np.nan: None})
+        # camp_name = cur_user.iloc[0]['camp_name']
+        # # increment or decrement number of volunteers if user has a camp
+        # if camp_name:
+        #     plan_id = cur_user.iloc[0]['plan_id']
+        #     camps = pd.read_csv(plan_id + '.csv')
+        #     user_camp = (camps['camp_name'] == camp_name)
+        #     if status == 1:
+        #         camps.loc[user_camp, 'volunteers'] = camps.loc[user_camp, 'volunteers'] + 1
+        #         camps.to_csv(plan_id + '.csv', index=False)
+        #     if status == 0:
+        #         camps.loc[user_camp, 'volunteers'] = camps.loc[user_camp, 'volunteers'] - 1
+        #         camps.to_csv(plan_id + '.csv', index=False)
+        #         # if deactivated: delete the user's volunteering sessions
+        #         vol_times = pd.read_csv("volunteering_times.csv")
+        #         vol_times = vol_times.drop(vol_times[vol_times['username'] == user].index)
+        #         vol_times.to_csv('volunteering_times.csv', index=False)
+        #
+        # print(f'Complete. {user} is now modified.'
+        #       "All status below:")
+        # print(df)
+        # logging.info({f'Admin has {_str}d {user}'})
 
 
     def check_resource_request(self):
@@ -1102,9 +1186,9 @@ class Admin:
         while True:
             print("\nManage Volunteering Sessions")
             users = pd.read_csv('users.csv')
-            users = users[users['account_type'] == "volunteer"]
+            users = users[(users['account_type'] == "volunteer") & (users['active'] == 1)]
             if len(users.index) == 0:
-                print("No volunteer accounts have been created.")
+                print("There are no active volunteer accounts.")
                 return
 
             while True:
@@ -1195,7 +1279,7 @@ class Admin:
             return
 
         print("Select the volunteer whose details you are viewing.")
-        selected = select_plan_camp_vol() # returns (plan_id, camp_name, username)
+        selected = select_plan_camp_vol(active=0) # returns (plan_id, camp_name, username)
         if selected == 0:
             return
         else:
@@ -1227,7 +1311,7 @@ class Admin:
             return
 
         print("Select the volunteer whose camp identification you are updating.")
-        selected = select_plan_camp_vol_none()  # returns (plan_id, camp_name, username)
+        selected = select_plan_camp_vol_none(active=1)  # returns (plan_id, camp_name, username)
         if selected == 0:
             return
         else:
@@ -1651,7 +1735,7 @@ class Admin:
     def add_volunteering_session(self):
         print("\nAdd a volunteering session")
         print("Select the volunteer for whom you are adding a session.")
-        selected = select_plan_camp_vol()
+        selected = select_plan_camp_vol(active=1)
         if selected == 0:
             return
         else:
@@ -1710,7 +1794,7 @@ class Admin:
     def view_volunteering_sessions(self):
         print("\nView volunteering sessions")
         print("Select the volunteer whose sessions you are viewing.")
-        selected = select_plan_camp_vol()
+        selected = select_plan_camp_vol(active=1)
         if selected == 0:
             return
         else:
@@ -1733,7 +1817,7 @@ class Admin:
     def remove_volunteering_session(self):
         print("\nRemove a volunteering session")
         print("Select the volunteer for whom you are removing a session.")
-        selected = select_plan_camp_vol()
+        selected = select_plan_camp_vol(active=1)
         if selected == 0:
             return
         else:

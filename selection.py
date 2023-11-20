@@ -118,22 +118,32 @@ def select_camp_none(plan_id):
             continue
         return camps['camp_name'].iloc[camp_num-1]
 
-def select_volunteer(plan_id, camp_name):
+# active = 1 means only active volunteers can be selected
+def select_volunteer(plan_id, camp_name, active):
     users = pd.read_csv('users.csv', dtype={'password': str})
-    users = users[users['account_type'] == "volunteer"]
+    if active:
+        users = users[(users['account_type'] == "volunteer") & (users['active'] == 1)]
+    else:
+        users = users[users['account_type'] == "volunteer"]
     users = users.replace({np.nan: None})
     if camp_name:
         users = users[(users['plan_id'] == plan_id) & (users['camp_name'] == camp_name)]
     else:
         users = users[(users['plan_id'] == plan_id) & (users['camp_name'].isna())]
     if len(users.index) == 0:
-        print("There are no volunteers at the selected camp. Please try again.")
+        if active:
+            print("There are no active volunteers at the selected camp. Please try again.")
+        else:
+            print("There are no volunteers at the selected camp. Please try again.")
         return "9"
 
     print("\nSelect a volunteer.")
     while True:
         print("Enter [0] to return to the previous menu or [9] to go back to camp selection.")
-        print("Enter [1] to list the usernames of all volunteers at the selected camp.")
+        if active:
+            print("Enter [1] to list the usernames of all active volunteers at the selected camp.")
+        else:
+            print("Enter [1] to list the usernames of all volunteers at the selected camp.")
         username = input("Enter the username of your chosen volunteer: ")
         if username in ("0", "9"):
             return username
@@ -142,8 +152,17 @@ def select_volunteer(plan_id, camp_name):
                 print("Volunteers at plan", plan_id + ",", camp_name + ":")
             else:
                 print("Volunteers at plan", plan_id, "with no camp identification:")
-            for row in range(len(users.index)):
-                print(users['username'].iloc[row])
+
+            if active:
+                for row in range(len(users.index)):
+                    print(users['username'].iloc[row])
+            else:
+                print("Username - Status")
+                for row in range(len(users.index)):
+                    if users['active'].iloc[row] == 1:
+                        print(users['username'].iloc[row], "Active", sep=" - ")
+                    else:
+                        print(users['username'].iloc[row], "Deactivated", sep=" - ")
             print("")
             continue
         if username not in users['username'].values:
@@ -152,8 +171,20 @@ def select_volunteer(plan_id, camp_name):
         return username
 
 # allows user to choose whether to enter username directly or go through plan->camp->volunteer
-def initial_selection():
+def initial_selection(active):
     while True:
+        users = pd.read_csv('users.csv', dtype={'password': str})
+        if active:
+            users = users[(users['account_type'] == "volunteer") & (users['active'] == 1)]
+        else:
+            users = users[users['account_type'] == "volunteer"]
+        if len(users.index) == 0:
+            if active:
+                print("There are no active volunteer accounts.")
+            else:
+                print("There are no volunteer accounts.")
+            return 0
+
         print("\nEnter [1] to select a volunteer by entering the username directly")
         print("Enter [2] to filter by plan and camp before selecting a volunteer")
         print("Enter [0] to return to the previous menu")
@@ -168,8 +199,6 @@ def initial_selection():
             return option
 
         # select volunteer directly
-        users = pd.read_csv('users.csv', dtype={'password': str})
-        users = users[users['account_type'] == "volunteer"]
         while True:
             print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
             username = input("Enter the username of your chosen volunteer: ")
@@ -189,11 +218,11 @@ def initial_selection():
 
 # for admin methods requiring volunteer to be selected at the start (but no further progress loop)
 # returns 0 if user chooses to return to previous memu
-def select_plan_camp_vol():
+def select_plan_camp_vol(active):
     progress = 0
     while progress < 4:
         if progress == 0:
-            select_user = initial_selection()
+            select_user = initial_selection(active)
             if select_user == 0:
                 return 0
             elif select_user == 2:
@@ -220,7 +249,7 @@ def select_plan_camp_vol():
                 progress += 1
 
         if progress == 3:
-            username = select_volunteer(plan_id, camp_name)
+            username = select_volunteer(plan_id, camp_name, active)
             if username == "0":
                 return 0
             elif username == "9":
@@ -231,11 +260,11 @@ def select_plan_camp_vol():
     return plan_id, camp_name, username
 
 # includes volunteers with no camp identification
-def select_plan_camp_vol_none():
+def select_plan_camp_vol_none(active):
     progress = 0
     while progress < 4:
         if progress == 0:
-            select_user = initial_selection()
+            select_user = initial_selection(active)
             if select_user == 0:
                 return 0
             elif select_user == 2:
@@ -262,7 +291,7 @@ def select_plan_camp_vol_none():
                 progress += 1
 
         if progress == 3:
-            username = select_volunteer(plan_id, camp_name)
+            username = select_volunteer(plan_id, camp_name, active)
             if username == "0":
                 return 0
             elif username == "9":
