@@ -4,7 +4,7 @@ from humanitarianplan import HumanitarianPlan
 from coded_vars import convert_gender, convert_medical_condition
 from selection import select_plan, select_camp, select_plan_camp_vol, select_plan_camp_vol_none
 from selection_refugees import select_plan_camp_refugee
-import volunteer_funcs, refugee_profile_funcs, volunteering_session_funcs
+import hum_plan_funcs, volunteer_funcs, refugee_profile_funcs, volunteering_session_funcs
 import verify as v
 import logging
 
@@ -25,74 +25,42 @@ class Admin:
            The method then creates a new HumanitarianPlan object and returns it.
            It also adds the Humanitarian Plan to the csv file 'humanitarian_plan.csv'
            """
+        print("\nCreate humanitarian plan")
+        progress = 0
+        while progress < 4:
+            if progress == 0:
+                desc = hum_plan_funcs.add_description()
+                if desc == "0":
+                    return
+                else:
+                    progress += 1
 
-        # Asking for user input, using while loops and exception handling to ensure correct format.
-        # (ensures input is not empty and is of the correct data type)
-        # future aim: code to avoid duplicate plans (if description, location and date are all the same then a new plan
-        # should not be created).
-        while True:
-            try:
-                desc = input("Please enter a description of the event: ")
-                desc[0]
-                try:
-                    float(desc)
-                    print('Please make sure description is of correct data type.')
-                except ValueError:
-                    break
-            except IndexError:
-                print('No data was entered.')
-            except Exception as e:
-                print(e)
+            if progress == 1:
+                loc = hum_plan_funcs.add_location()
+                if loc == "0":
+                    return
+                elif loc == "9":
+                    progress -= 1
+                else:
+                    progress += 1
 
-        while True:
-            try:
-                loc = input("Please enter the location of the event: ")
-                loc[0]
-                try:
-                    float(loc)
-                    print('Please make sure description is of correct data type.')
-                except ValueError:
-                    logging.error('ValueError raised from user input')
-                    break
-            except IndexError:
-                logging.error('IndexError raised from user input')
-                print('No data was entered.')
-            except Exception as e:
-                logging.error(f'Error raised from user input: {e}')
-                print(e)
+            if progress == 2:
+                start_date = hum_plan_funcs.add_start_date()
+                if start_date == "0":
+                    return
+                elif start_date == "9":
+                    progress -= 1
+                else:
+                    progress += 1
 
-        while True:
-            try:
-                start_date = input("Please enter the start date of the event (DD-MM-YYYY): ").strip()
-                # remind of the format DD-MM-YYYY
-                if not start_date:
-                    raise ValueError("No data was entered.")
-                try:
-                    datetime.strptime(start_date, "%d-%m-%Y")  # no need for check variable
-                    break
-                except ValueError:
-                    logging.error('ValueError raised from user input')
-                    print("Date must be in (DD-MM-YYYY) format. Please try again.")
-                    continue  # added continue because print doesn't continue the loop
-            except Exception as e:
-                logging.error(f'Error raised from user input: {e}')
-                print(e)
-                continue
-
-        while True:
-            try:
-                nb_of_camps = input("Please enter the number of camps to set up: ").strip()
-                if not nb_of_camps:
-                    logging.error('ValueError raised from user input')
-                    raise ValueError("Please enter a data.")
-                if not nb_of_camps.isdigit():  # check if it is an integer
-                    logging.error('ValueError raised from user input')
-                    raise ValueError('Please enter an integer.')
-            except Exception as e:
-                logging.error(f'Error raised from user input: {e}')
-                print(e)
-                continue
-            break
+            if progress == 3:
+                nb_of_camps = hum_plan_funcs.add_num_camps()
+                if nb_of_camps == "X":
+                    return
+                elif nb_of_camps == "B":
+                    progress -= 1
+                else:
+                    progress += 1
 
         # Creating humanitarian plan object
         hu_pl = HumanitarianPlan(desc, loc, start_date, nb_of_camps)
@@ -108,23 +76,9 @@ class Admin:
         print(f'A new humanitarian plan has been created with the following information:'
               f'\n\t Description: {desc}'
               f'\n\t Location affected: {loc}'
-              f'\n\t Start of the event: {start_date}'
+              f'\n\t Start date of the event: {start_date}'
               f'\n\t Number of camps: {nb_of_camps}')
-
-        return hu_pl
-
-    # def display_hum_plan(self, hum_plan):
-    #     """
-    #     This method displays summary information about the humanitarian plan.
-    #     Information to display:
-    #         - Number of refugees
-    #         - Their camp identification
-    #         - Number of volunteers working at each camp
-    #     """
-    #     hu_pl = pd.read_csv('%s.csv' %(hum_plan))
-    #     print('Total number of refugees: ', sum(hu_pl['refugees']))
-    #     print('Camp ID of camps involved: \n', hu_pl['camp_name'])
-    #     print('Number of volunteers working at each camp: \n', hu_pl[['camp_name', 'volunteers']])
+        return
 
     # def edit_volunteer(self):
     #     df = pd.read_csv('users.csv')
@@ -753,7 +707,6 @@ class Admin:
     def end_event(self):
         """
         The method adds the end_date of the selected humanitarian plan.
-
         The while loop is used to ensure the user inputs a date in the correct format
         """
         plans = pd.read_csv('humanitarian_plan.csv')
@@ -1044,10 +997,10 @@ class Admin:
                 return
             if option == 1:
                 logging.debug(f"Admin has chosen to create a humanitarian plan.")
-                humanitarian_plan = self.create_hum_plan()
+                self.create_hum_plan()
             if option == 2:
                 logging.debug(f"Admin has chosen to display a humanitarian plan.")
-                self.display_plan()
+                self.display_hum_plan()
             if option == 3:
                 logging.debug(f"Admin has chosen to edit a humanitarian plan.")
                 # TODO: add function
@@ -1232,7 +1185,7 @@ class Admin:
         self.logged_in = False
         print("You are now logged out. See you again!")
 
-    def display_plan(self):
+    def display_hum_plan(self):
         print("\nDisplay humanitarian plan")
         plans = pd.read_csv('humanitarian_plan.csv')
         if len(plans.index) == 0:

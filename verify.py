@@ -10,7 +10,7 @@ You can simply use them to replace the input() functions."""
 # The file contains data for about 43 thousand cities.
 valid_cities_csv = pd.read_csv('worldcities.csv')
 valid_cities = valid_cities_csv['city'].tolist()
-
+valid_cities = [city.lower() for city in valid_cities]
 
 def integer(line):
     while True:
