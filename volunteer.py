@@ -1,5 +1,6 @@
 import pandas as pd, numpy as np, re, datetime
 from coded_vars import convert_gender, convert_medical_condition
+import refugee_profile_funcs, volunteering_session_funcs
 import logging
 
 class Volunteer:
@@ -27,7 +28,7 @@ class Volunteer:
                 print("What would you like to do,", self.first_name, self.last_name + "?")
                 print("Enter [1] for personal information and camp identification")
                 print("Enter [2] to create, view, edit or remove a refugee profile")
-                print("Enter [3] to display or update your camp's information")
+                print("Enter [3] to display or update your camp's information (including resource requests)")
                 print("Enter [4] to request account deactivation")
                 print("Enter [5] to add, view or remove volunteering sessions")
                 print("Enter [0] to logout")
@@ -95,7 +96,7 @@ class Volunteer:
         while True:
             print("\nManage Refugee Profiles")
             if not self.camp_name:
-                logging.debug(f"{self.username} has not entered the correct camp details for their profile.")
+                logging.debug(f"{self.username} does not have a camp on their profile.")
                 print("\nVolunteers can only manage refugee profiles for their current camp. Please add your camp identification.")
                 return
 
@@ -129,13 +130,18 @@ class Volunteer:
     def camp_info_menu(self):
         while True:
             print("\nCamp Information")
+            if not self.camp_name:
+                print("\nPlease add your camp identification in order to display or update camp information.")
+                return
+
             while True:
                 print("Enter [1] to display your camp's information")
                 print("Enter [2] to update your camp's information")
+                print("Enter [3] to request resources for your camp")
                 print("Enter [0] to return to the volunteer menu")
                 try:
                     option = int(input("Select an option: "))
-                    if option not in range(3):
+                    if option not in range(4):
                         logging.error(f'{self.username} has entered {option} which is not an option on the camp information menu.')
                         raise ValueError
                 except ValueError:
@@ -151,6 +157,9 @@ class Volunteer:
             if option == 2:
                 logging.debug(f'{self.username} has chosen to update camp information.')
                 self.update_camp_info()
+            if option == 3:
+                logging.debug(f'{self.username} has chosen to request resources.')
+                self.request_resources()
 
     def volunteering_session_menu(self):
         while True:
@@ -163,7 +172,7 @@ class Volunteer:
             while True:
                 print("Enter [1] to add a volunteering session")
                 print("Enter [2] to view your volunteering sessions")
-                print("Enter [3] to remove volunteering sessions")
+                print("Enter [3] to remove a volunteering session")
                 print("Enter [0] to return to the volunteer menu")
                 try:
                     user_input = input("Select an option: ")
@@ -561,48 +570,52 @@ class Volunteer:
         def add_camp(plan_id):
             camps = pd.read_csv(plan_id + '.csv')
             while True:
-                print("Enter [0] to return to the previous menu.")
+                print("Enter [X] to return to the previous menu.")
                 print("Choose a camp.")
                 print("\nCamp Name - # Volunteers - # Refugees - Capacity")
                 for row in range(len(camps.index)):
                     print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
                           str(camps['refugees'].iloc[row]) + " refugees",
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
-                logging.debug(f'{self.username} has been shown the information for {self.camp_name} in {self.plan_id}.')
-                new_camp = input("Enter the name of the camp you would like to join: ")
-                logging.debug(f'{self.username} has been prompted to provide the name of the camp they wish to join.')
-                if new_camp == "0":
-                    logging.debug(f'{self.username} has been taken back to the Personal Information and Camp Identification menu.')
+                camp_num = input("Enter the number of the camp you would like to join (e.g. [1] for Camp 1): ")
+                if camp_num == "X":
                     return None
-                if new_camp not in camps['camp_name'].values:
-                    print("Please enter the name of a camp from the list displayed.\n")
-                    logging.debug(f'{self.username} has entered {new_camp}, which is not a valid camp in the {self.plan_id} plan.')
+                try:
+                    camp_num = int(camp_num)
+                    if camp_num not in range(1, len(camps.index) + 1):
+                        raise ValueError
+                except ValueError:
+                    print("Please enter the number of a camp from the list displayed.")
                     continue
+                new_camp = "Camp " + str(camp_num)
                 return new_camp
 
         def edit_camp(plan_id):
             camps = pd.read_csv(plan_id + '.csv')
-            if len(camps.index) == 2: # storage and current camp
+            if len(camps.index) == 1:
                 print("There is currently only one camp. It is not possible to change camp identification.")
                 logging.debug(f'{self.username} is unable to change camps as there is currently only one active camp.')
                 return self.camp_name
 
             while True:
-                print("Enter [0] to return to the previous menu.")
+                print("Enter [X] to return to the previous menu.")
                 print("Choose a new camp.")
                 print("\nCamp Name - # Volunteers - # Refugees - Capacity")
                 for row in range(len(camps.index)):
                     print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
                           str(camps['refugees'].iloc[row]) + " refugees",
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
-                new_camp = input("Enter the name of the camp you would like to join: ")
-                if new_camp == "0":
-                    logging.debug(f'{self.username} has been returned to the Personal Information and Camp Identification menu.')
+                camp_num = input("Enter the number of the camp you would like to join (e.g. [1] for Camp 1): ")
+                if camp_num == "X":
                     return self.camp_name
-                if new_camp not in camps['camp_name'].values:
-                    logging.debug(f'{self.username} has entered {new_camp}, which is not a valid camp in the {self.plan_id} plan.')
-                    print("Please enter the name of a camp from the list displayed.\n")
+                try:
+                    camp_num = int(camp_num)
+                    if camp_num not in range(1, len(camps.index) + 1):
+                        raise ValueError
+                except ValueError:
+                    print("Please enter the number of a camp from the list displayed.")
                     continue
+                new_camp = "Camp " + str(camp_num)
                 if new_camp == self.camp_name:
                     print("New camp is the same as current camp. Please try again or return to the previous menu.\n")
                     logging.debug(f'{self.username} has entered {new_camp}, which is the current camp their are registered to.')
@@ -667,9 +680,13 @@ class Volunteer:
                 camps.loc[old, 'volunteers'] = camps.loc[old, 'volunteers'] - 1
             camps.to_csv(self.plan_id + '.csv', index=False)
 
-            if not new_camp:
+            if self.camp_name and not new_camp: # remove volunteering sessions
                 vol_times = pd.read_csv("volunteering_times.csv")
                 vol_times = vol_times.drop(vol_times[vol_times['username'] == self.username].index)
+                vol_times.to_csv('volunteering_times.csv', index=False)
+            if self.camp_name and new_camp: # change camp_name in volunteering_times.csv
+                vol_times = pd.read_csv("volunteering_times.csv")
+                vol_times.loc[vol_times["username"] == self.username, "camp_name"] = new_camp
                 vol_times.to_csv('volunteering_times.csv', index=False)
 
             print("Your new camp is:", new_camp)
@@ -699,132 +716,8 @@ class Volunteer:
                     continue
                 return refugee_name
 
-        def add_gender():
-            while True:
-                print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-                print("Gender:")
-                print("Enter [1] for male")
-                print("Enter [2] for female")
-                print("Enter [3] for non-binary")
-                try:
-                    gender = int(input("Select an option: "))
-                    if gender not in (0, 1, 2, 3, 9):
-                        raise ValueError
-                except ValueError:
-                    print("Please enter a number from the options provided.")
-                    continue
-                return gender
-
-        def add_dob():
-            while True:
-                print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-                date_of_birth = input("Enter refugee's date of birth in the format DD-MM-YYYY: ").strip()
-                if date_of_birth in ("0", "9"):
-                    return date_of_birth
-                try:
-                    dob = datetime.datetime.strptime(date_of_birth, "%d-%m-%Y").date()
-                    # dob = datetime.date.fromisoformat(date_of_birth)
-                except ValueError:
-                    print("Incorrect date format. Please use the format DD-MM-YYYY (e.g. 23-07-1999).")
-                    continue
-                t = datetime.date.today()
-                if dob > t:
-                    print("Date of birth cannot be in the future. Please try again.")
-                    continue
-                if t.year - dob.year > 121 or (t.year - dob.year == 121 and t.month > dob.month) or (
-                        t.year - dob.year == 121 and t.month == dob.month and t.day >= dob.day):
-                    while True:
-                        print("\nWarning: Refugee is over 120 years old based on date of birth.")
-                        print("Do you wish to proceed?")
-                        print("Enter [1] to proceed")
-                        print("Enter [9] to re-enter date of birth")
-                        try:
-                            overage_option = int(input("Select an option: "))
-                            if overage_option not in (1, 9):
-                                raise ValueError
-                        except ValueError:
-                            print("Please enter a number from the options provided.")
-                            continue
-                        break
-                    if overage_option == 9:
-                        continue
-                return date_of_birth
-
-        def add_medical_cond():
-            while True:
-                print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-                print("Medical condition:")
-                print("Enter [1] for Healthy")
-                print("Enter [2] for Minor illness with no injuries")
-                print("Enter [3] for Major illness with no injuries")
-                print("Enter [4] for Minor injury with no illness")
-                print("Enter [5] for Major injury with no illness")
-                print("Enter [6] for Illness and injury (non-critical)")
-                print("Enter [7] for Critical condition (illness and/or injury)")
-                try:
-                    medical_cond = int(input("Select an option: "))
-                    if medical_cond not in (0, 1, 2, 3, 4, 5, 6, 7, 9):
-                        raise ValueError
-                except ValueError:
-                    print("Please enter a number from the options provided.")
-                    continue
-                return medical_cond
-
-        def add_family():
-            while True:
-                print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
-                family = input("Number of family members: ")
-                if family in ("X", "B"):
-                    return family
-                try:
-                    family = int(family)
-                    if family < 1:
-                        raise ValueError
-                except ValueError:
-                    print("Please enter a positive integer.")
-                    continue
-                if family > remaining_cap:
-                    print("Number of family members exceeds camp's capacity. Please re-enter or return to the previous menu.")
-                    continue
-                if family > 12:
-                    while True:
-                        print("\nWarning: Refugee's family has more than 12 members based on input.")
-                        print("Do you wish to proceed?")
-                        print("Enter [1] to proceed")
-                        print("Enter [9] to re-enter number of family members")
-                        try:
-                            largefam_option = int(input("Select an option: "))
-                            if largefam_option not in (1, 9):
-                                raise ValueError
-                        except ValueError:
-                            print("Please enter a number from the options provided.")
-                            continue
-                        break
-                    if largefam_option == 9:
-                        continue
-                return family
-
-        def add_remarks():
-            while True:
-                print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-                try:
-                    remarks = input("Enter additional remarks (optional, max 200 characters): ").strip()
-                    if remarks in ("0", "9"):
-                        return remarks
-                    s = re.search("[a-zA-Z]", remarks)
-                    if remarks != "" and not s:
-                        raise ValueError
-                except ValueError:
-                    print("Please ensure remarks contain text.")
-                    continue
-                if len(remarks) > 200:
-                    print("Remarks cannot exceed 200 characters.")
-                    continue
-                return remarks
-
-
         print("\nAdd refugee profile")
-        camps = pd.read_csv('camps.csv')
+        camps = pd.read_csv(self.plan_id + '.csv')
         cur_camp = camps[camps['camp_name'] == self.camp_name]
         remaining_cap = cur_camp.iloc[0]['capacity'] - cur_camp.iloc[0]['refugees']
 
@@ -845,7 +738,7 @@ class Volunteer:
                     progress += 1
 
             elif progress == 1:
-                gender = add_gender()
+                gender = refugee_profile_funcs.add_gender()
                 if gender == 0:
                     return
                 elif gender == 9:
@@ -854,7 +747,7 @@ class Volunteer:
                     progress += 1
 
             elif progress == 2:
-                date_of_birth = add_dob()
+                date_of_birth = refugee_profile_funcs.add_dob()
                 if date_of_birth == "0":
                     return
                 elif date_of_birth == "9":
@@ -863,7 +756,7 @@ class Volunteer:
                     progress += 1
 
             elif progress == 3:
-                medical_cond = add_medical_cond()
+                medical_cond = refugee_profile_funcs.add_medical_cond()
                 if medical_cond == 0:
                     return
                 elif medical_cond == 9:
@@ -872,7 +765,7 @@ class Volunteer:
                     progress += 1
 
             elif progress == 4:
-                family = add_family()
+                family = refugee_profile_funcs.add_family(remaining_cap)
                 if family == "X":
                     return
                 elif family == "B":
@@ -881,7 +774,7 @@ class Volunteer:
                     progress += 1
 
             elif progress == 5:
-                remarks = add_remarks()
+                remarks = refugee_profile_funcs.add_remarks()
                 if remarks == "0":
                     return
                 elif remarks == "9":
@@ -992,217 +885,6 @@ class Volunteer:
         return
 
     def edit_refugee_profile(self):
-        def edit_refugee_name(refugee_id, refugee_name):
-            print("\nRefugee's current name is:", refugee_name)
-            while True:
-                print("Enter [0] to return to the previous step.")
-                new_name = input("Enter refugee's new name: ").strip()
-                if new_name == "0":
-                    return
-                if new_name == refugee_name:
-                    print("New name is the same as current name. Please enter a different name.")
-                    continue
-                if new_name == "":
-                    print("Please enter a name.")
-                    continue
-                s = re.search("^[A-Z][a-zA-Z-' ]*$", refugee_name)
-                if not s:
-                    print("Name can only contain letters, hyphen (-) and apostrophe ('), and must start with a capital letter.")
-                    continue
-                break
-            # update csv file
-            refugees = pd.read_csv('refugees.csv')
-            cur = (refugees['refugee_id'] == refugee_id)
-            refugees.loc[cur, 'refugee_name'] = new_name
-            refugees.to_csv('refugees.csv', index=False)
-            print("Refugee's name has been changed to:", new_name)
-            return
-
-        def edit_gender(refugee_id, gender):
-            gender_str = convert_gender(gender)
-
-            print("\nRefugee's current gender is:", gender_str)
-            while True:
-                print("Enter [0] to return to the previous step.")
-                print("New gender:")
-                print("Enter [1] for male")
-                print("Enter [2] for female")
-                print("Enter [3] for non-binary")
-                try:
-                    new_gender = int(input("Select an option: "))
-                    if new_gender not in range(4):
-                        raise ValueError
-                except ValueError:
-                    print("Please enter a number from the options provided.\n")
-                    continue
-                if new_gender == 0:
-                    return
-                if new_gender == gender:
-                    print("New gender is the same as current gender. Please try again or return to the previous step.")
-                    continue
-                break
-            # update csv file
-            refugees = pd.read_csv('refugees.csv')
-            cur = (refugees['refugee_id'] == refugee_id)
-            refugees.loc[cur, 'gender'] = new_gender
-            refugees.to_csv('refugees.csv', index=False)
-            new_gender_str = convert_gender(new_gender)
-            print("Refugee's gender has been changed to:", new_gender_str)
-            return
-
-        def edit_medical_cond(refugee_id, medical_cond):
-            medical_str = convert_medical_condition(medical_cond)
-
-            print("\nRefugee's current medical condition is:", medical_str)
-            while True:
-                print("Enter [0] to return to the previous step.")
-                print("New medical condition:")
-                print("Enter [1] for Healthy")
-                print("Enter [2] for Minor illness with no injuries")
-                print("Enter [3] for Major illness with no injuries")
-                print("Enter [4] for Minor injury with no illness")
-                print("Enter [5] for Major injury with no illness")
-                print("Enter [6] for Illness and injury (non-critical)")
-                print("Enter [7] for Critical condition (illness and/or injury)")
-                try:
-                    new_medical_cond = int(input("Select an option: "))
-                    if new_medical_cond not in range(8):
-                        raise ValueError
-                except ValueError:
-                    print("Please enter a number from the options provided.\n")
-                    continue
-                if new_medical_cond == 0:
-                    return
-                if new_medical_cond == medical_cond:
-                    print("Medical condition is unchanged. Please try again or return to the previous step.")
-                    continue
-                break
-            # update csv file
-            refugees = pd.read_csv('refugees.csv')
-            cur = (refugees['refugee_id'] == refugee_id)
-            refugees.loc[cur, 'medical_condition'] = new_medical_cond
-            refugees.to_csv('refugees.csv', index=False)
-            new_medical_str = convert_medical_condition(new_medical_cond)
-            print("Refugee's medical condition has been changed to:", new_medical_str)
-            return
-
-        def edit_family(refugee_id, family):
-            print("\nCurrent no. of members in refugee's family:", family)
-            camps = pd.read_csv(self.plan_id + '.csv')
-            cur_camp = camps[camps['camp_name'] == self.camp_name]
-            remaining_cap = cur_camp.iloc[0]['capacity'] - cur_camp.iloc[0]['refugees']
-            print("Your camp's remaining capacity is " + str(remaining_cap) + ".")
-            print("Please return to the previous step if the update would cause the camp's capacity to be exceeded.")
-
-            while True:
-                print("\nEnter [X] to return to the previous step.")
-                new_family = input("New number of family members: ")
-                if new_family == "X":
-                    return
-                try:
-                    new_family = int(new_family)
-                    if new_family < 1:
-                        raise ValueError
-                except ValueError:
-                    print("Please enter a positive integer.")
-                    continue
-                if new_family-family > remaining_cap:
-                    print("Addition of family members causes camp's capacity to be exceeded. Please re-enter or return to the previous step.")
-                    continue
-                if new_family == family:
-                    print("Number of family members is unchanged. Please try again or return to the previous step.")
-                    continue
-                if new_family > 12:
-                    while True:
-                        print("\nWarning: Refugee's family has more than 12 members based on input.")
-                        print("Do you wish to proceed?")
-                        print("Enter [1] to proceed")
-                        print("Enter [9] to re-enter number of family members")
-                        try:
-                            largefam_option = int(input("Select an option: "))
-                            if largefam_option not in (1, 9):
-                                raise ValueError
-                        except ValueError:
-                            print("Please enter a number from the options provided.")
-                            continue
-                        break
-                    if largefam_option == 9:
-                        continue
-                break
-            # update csv files
-            refugees = pd.read_csv('refugees.csv')
-            cur = (refugees['refugee_id'] == refugee_id)
-            refugees.loc[cur, 'family_members'] = new_family
-            refugees.to_csv('refugees.csv', index=False)
-            print("New no. of members in refugee's family:", new_family)
-
-            chosen = (camps['camp_name'] == self.camp_name)
-            camps.loc[chosen, 'refugees'] = camps.loc[chosen, 'refugees'] - family + new_family
-            camps.to_csv(self.plan_id + '.csv', index=False)
-            return
-
-        def edit_remarks(refugee_id, remarks):
-            print("\nCurrent remarks on refugee:", remarks)
-            while True:
-                print("Enter [0] to return to the previous step.")
-                try:
-                    new_remarks = input("Enter updated remarks (optional, max 200 characters): ").strip()
-                    if new_remarks == "0":
-                        return
-                    s = re.search("[a-zA-Z]", new_remarks)
-                    if new_remarks != "" and not s:
-                        raise ValueError
-                except ValueError:
-                    print("Please ensure remarks contain text.")
-                    continue
-                if len(new_remarks) > 200:
-                    print("Remarks cannot exceed 200 characters.")
-                    continue
-                if new_remarks == remarks or (not new_remarks and not remarks):
-                    print("Remarks are unchanged. Please try again or return to the previous step.")
-                    continue
-                break
-            # update csv file
-            refugees = pd.read_csv('refugees.csv')
-            cur = (refugees['refugee_id'] == refugee_id)
-            refugees.loc[cur, 'remarks'] = new_remarks
-            refugees.to_csv('refugees.csv', index=False)
-            print("Remarks on refugee have been changed to:", new_remarks)
-            return
-
-        def remove_refugee(refugee_id, refugee_name, family):
-            while True:
-                print("\nAre you sure you would like to remove the profile of " + refugee_name + "?")
-                print("Enter [1] to proceed")
-                print("Enter [0] to return to the previous menu")
-                try:
-                    remove_option = int(input("Select an option: "))
-                    if remove_option not in (0, 1):
-                        raise ValueError
-                except ValueError:
-                    print("Please enter a number from the options provided.")
-                    continue
-                break
-            if remove_option == 0:
-                return
-
-            # update csv files
-            refugees = pd.read_csv('refugees.csv')
-            refugees = refugees.drop(refugees[refugees['refugee_id'] == refugee_id].index)
-            refugees.to_csv('refugees.csv', index=False)
-
-            camps = pd.read_csv(self.plan_id + '.csv')
-            chosen = (camps['camp_name'] == self.camp_name)
-            camps.loc[chosen, 'refugees'] = camps.loc[chosen, 'refugees'] - family
-            camps.to_csv(self.plan_id + '.csv', index=False)
-
-            print("Refugee's profile has been removed.")
-            return
-
-        if not self.camp_name:
-            print("\nVolunteers can only edit refugee profiles for their current camp. Please add your camp identification.")
-            return
-
         print("\nEdit or remove refugee profile")
         refugees = pd.read_csv('refugees.csv')
         refugees = refugees[(refugees['plan_id'] == self.plan_id) & (refugees['camp_name'] == self.camp_name)]
@@ -1279,17 +961,17 @@ class Volunteer:
             if option == 0:
                 return
             if option == 1:
-                edit_refugee_name(refugee_id, refugee_name)
+                refugee_profile_funcs.edit_refugee_name(refugee_id, refugee_name)
             if option == 2:
-                edit_gender(refugee_id, gender)
+                refugee_profile_funcs.edit_gender(refugee_id, gender)
             if option == 3:
-                edit_medical_cond(refugee_id, medical_cond)
+                refugee_profile_funcs.edit_medical_cond(refugee_id, medical_cond)
             if option == 4:
-                edit_family(refugee_id, family)
+                refugee_profile_funcs.edit_family(self.plan_id, self.camp_name, refugee_id, family)
             if option == 5:
-                edit_remarks(refugee_id, remarks)
+                refugee_profile_funcs.edit_remarks(refugee_id, remarks)
             if option == 9:
-                remove_refugee(refugee_id, refugee_name, family)
+                refugee_profile_funcs.remove_refugee(self.plan_id, self.camp_name, refugee_id, refugee_name, family)
                 return
 
     def display_camp_info(self):
@@ -1307,7 +989,7 @@ class Volunteer:
         print("\nResources available")
         print("Food packets:", my_camp.iloc[0]['food'])
         print("Water portions:", my_camp.iloc[0]['water'])
-        print("First-aid kits:", my_camp.iloc[0]['medical_supplies'])
+        print("First-aid kits:", my_camp.iloc[0]['firstaid_kits'])
         return
 
     def update_camp_info(self):
@@ -1438,7 +1120,7 @@ class Volunteer:
         def edit_medical_supplies():
             camps = pd.read_csv(self.plan_id + '.csv')
             my_camp = camps[camps['camp_name'] == self.camp_name]
-            cur_medical = my_camp.iloc[0]['medical_supplies']
+            cur_medical = my_camp.iloc[0]['firstaid_kits']
             print("\nCurrent supply of first-aid kits at " + self.camp_name + ": " + str(cur_medical))
 
             while True:
@@ -1476,7 +1158,7 @@ class Volunteer:
                 break
             # update csv file
             chosen = (camps['camp_name'] == self.camp_name)
-            camps.loc[chosen, 'medical_supplies'] = cur_medical - medical_used
+            camps.loc[chosen, 'firstaid_kits'] = cur_medical - medical_used
             camps.to_csv(self.plan_id + '.csv', index=False)
             print("Updated supply of first-aid kits:", cur_medical - medical_used)
             return
@@ -1513,158 +1195,6 @@ class Volunteer:
                 edit_medical_supplies()
 
     def add_volunteering_session(self):
-        def select_date():
-            while True:
-                print("You can add volunteering sessions within the next 2 weeks, starting from tomorrow.")
-                start_date = datetime.date.today() + datetime.timedelta(days=1)
-                end_date = start_date + datetime.timedelta(days=13)
-                print("Available dates: " + start_date.strftime('%d-%m-%Y') + " to " + end_date.strftime('%d-%m-%Y'))
-
-                print("\nEnter [0] to return to the previous menu.")
-                vol_date = input(
-                    "Enter the date of the volunteering session in the format DD-MM-YYYY: ").strip()
-                if vol_date == "0":
-                    return vol_date
-                try:
-                    vol_dt = datetime.datetime.strptime(vol_date, "%d-%m-%Y").date()
-                except ValueError:
-                    print("Incorrect date format. Please use the format DD-MM-YYYY (e.g. 18-11-2023).")
-                    continue
-                if vol_dt < start_date or vol_dt > end_date:
-                    print("Please enter a date from " + start_date.strftime('%d-%m-%Y') + " to " + end_date.strftime(
-                        '%d-%m-%Y') + " (inclusive).")
-                    continue
-                return datetime.datetime.strftime(vol_dt, '%Y-%m-%d')  # e.g. 2023-11-18
-
-        def select_start_time(vol_date):
-            vol_date2 = datetime.datetime.strptime(vol_date, '%Y-%m-%d').date().strftime('%d-%m-%Y')
-
-            prev_day = datetime.datetime.strptime(vol_date, '%Y-%m-%d').date() - datetime.timedelta(days=1)
-            prev_day1 = prev_day.strftime('%Y-%m-%d') + " 23:30"
-            next_day = datetime.datetime.strptime(vol_date, '%Y-%m-%d').date() + datetime.timedelta(days=1)
-            next_day1 = next_day.strftime('%Y-%m-%d') + " 00:00"
-            next_day2 = next_day.strftime('%Y-%m-%d') + " 00:30"
-
-            booked_slots = cur_user_times[(cur_user_times['start_time'].str.startswith(vol_date)) |
-                                          (cur_user_times['start_time'] == next_day1) |
-                                          (cur_user_times['start_time'] == next_day2) |
-                                          (cur_user_times['end_time'].str.startswith(vol_date)) |
-                                          (cur_user_times['end_time'] == prev_day1)]
-
-            if len(booked_slots.index) == 0:
-                print("\nYou have not added any volunteering sessions on or affecting", vol_date2 + " yet.")
-            else:
-                print("\nYou have added the following volunteering sessions:")
-                # print existing times affecting the selected date, switching from YYYY-MM-DD to DD-MM-YYYY
-                for row in range(len(booked_slots.index)):
-                    print("Start:",
-                          datetime.datetime.strptime(booked_slots['start_time'].iloc[row], "%Y-%m-%d %H:%M").strftime(
-                              "%d-%m-%Y %H:%M"), "\t", "End:",
-                          datetime.datetime.strptime(booked_slots['end_time'].iloc[row], "%Y-%m-%d %H:%M").strftime(
-                              "%d-%m-%Y %H:%M"))
-
-            print("\nYou are welcome to volunteer at any time of the day.")
-            print("Note that all volunteering sessions must start on the hour or half past (e.g. 09:00, 15:30).")
-            print("Each volunteering session must be a multiple of 30 minutes, up to a maximum of 5 hours.")
-            print(
-                "There must be at least 1 hour between volunteering sessions. Please cancel your existing sessions first if necessary.")
-
-            available = []
-            # generate list of available start times based on conditions above
-            for time in [datetime.time(h, m).strftime('%H:%M') for h in range(0, 24) for m in (0, 30)]:
-                time_str = vol_date + " " + time  # e.g. 2023-11-18 00:30
-                time_d = datetime.datetime.strptime(time_str, "%Y-%m-%d %H:%M")
-                for row in range(len(booked_slots.index)):
-                    if (time_d >= datetime.datetime.strptime(booked_slots['start_time'].iloc[row], "%Y-%m-%d %H:%M") - datetime.timedelta(hours=1)
-                            and time_d < datetime.datetime.strptime(booked_slots['end_time'].iloc[row], "%Y-%m-%d %H:%M") + datetime.timedelta(hours=1)):
-                        break
-                else:
-                    available.append(time)
-
-            start = None
-            while True:
-                print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-                if start != "1":
-                    print("Enter [1] to show all available start times.")
-                start = input(
-                    "Enter the start time of the volunteering session in the format HH:mm (e.g. 14:00): ").strip()
-                if start in ("0", "9"):
-                    return start
-                if start == "1":
-                    print("\nThe following start times are available on", vol_date2 + ":")
-                    print(", ".join(available))
-                    continue
-                if start not in available:
-                    print("Please enter an available start time in the format HH:mm.")
-                    continue
-                return vol_date + " " + start  # e.g. 2023-11-18 00:30
-
-        def select_end_time(start_time):
-            # find next slot booked after start time
-            next_slot = cur_user_times[cur_user_times['start_time'] > start_time].head(1)
-            available_end = []
-            # generate list of available end times
-            st = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M')
-            for step in range(1, 11):
-                time_d = st + datetime.timedelta(minutes=30 * step)
-                if len(next_slot.index) > 0:
-                    if time_d > datetime.datetime.strptime(next_slot['start_time'].iloc[0],
-                                                           "%Y-%m-%d %H:%M") - datetime.timedelta(hours=1):
-                        break
-                time = time_d.strftime('%d-%m-%Y %H:%M')
-                available_end.append(time)
-            print(available_end)
-
-            while True:
-                print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
-                print("Choose the end time of your volunteering session.")
-                for i, time in enumerate(available_end):
-                    print("[" + str(i + 1) + "] " + time)
-                end = input("Enter the number of your chosen end time: ").strip()
-                if end in ("X", "B"):
-                    return end
-                try:
-                    end = int(end)
-                    if end not in range(1, len(available_end) + 1):
-                        raise ValueError
-                except ValueError:
-                    print("Please enter a number corresponding to one of the available end times.")
-                    continue
-                end_time = available_end[end - 1]
-                return datetime.datetime.strptime(end_time, '%d-%m-%Y %H:%M').strftime('%Y-%m-%d %H:%M')
-
-        def confirm_slot(start_time, end_time):
-            start_time2 = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M').strftime('%d-%m-%Y %H:%M')
-            end_time2 = datetime.datetime.strptime(end_time, '%Y-%m-%d %H:%M').strftime('%d-%m-%Y %H:%M')
-            print("\nYou are adding the following volunteering sessions:")
-            print("Start:", start_time2)
-            print("End:", end_time2)
-            duration = str(
-                datetime.datetime.strptime(end_time, "%Y-%m-%d %H:%M") - datetime.datetime.strptime(start_time,
-                                                                                                    "%Y-%m-%d %H:%M"))
-            if duration[0] == 0:
-                dur_str = ""
-            elif duration[0] == "1":
-                dur_str = duration[0] + " hour"
-            else:
-                dur_str = duration[0] + " hours"
-            if duration[2:4] == "30":
-                dur_str += " 30 minutes"
-            print("Duration:", dur_str)
-
-            while True:
-                print("\nEnter [1] to confirm")
-                print("Enter [9] to go back to the previous step")
-                print("Enter [0] to cancel and return to the previous menu")
-                try:
-                    option = int(input("Select an option: "))
-                    if option not in (0, 1, 9):
-                        raise ValueError
-                except ValueError:
-                    print("Please enter a number from the options provided.")
-                    continue
-                return option
-
         print("\nAdd a volunteering session")
         vol_times = pd.read_csv("volunteering_times.csv")
         cur_user_times = vol_times[vol_times['username'] == self.username]
@@ -1675,14 +1205,14 @@ class Volunteer:
         # loop allowing user to go back
         while progress < 4:
             if progress == 0:
-                vol_date = select_date()
+                vol_date = volunteering_session_funcs.select_date()
                 if vol_date == "0":
                     return
                 else:
                     progress += 1
 
             elif progress == 1:
-                start_time = select_start_time(vol_date)
+                start_time = volunteering_session_funcs.select_start_time(vol_date, cur_user_times)
                 if start_time == "0":
                     return
                 elif start_time == "9":
@@ -1691,7 +1221,7 @@ class Volunteer:
                     progress += 1
 
             elif progress == 2:
-                end_time = select_end_time(start_time)
+                end_time = volunteering_session_funcs.select_end_time(start_time, cur_user_times)
                 if end_time == "X":
                     return
                 elif end_time == "B":
@@ -1700,7 +1230,7 @@ class Volunteer:
                     progress += 1
 
             elif progress == 3:
-                confirm = confirm_slot(start_time, end_time)
+                confirm = volunteering_session_funcs.confirm_slot(start_time, end_time)
                 if confirm == 0:
                     return
                 elif confirm == 9:
@@ -1713,6 +1243,7 @@ class Volunteer:
         vol_times.write(f'\n{self.username},{self.plan_id},{self.camp_name},{start_time},{end_time}')
         vol_times.close()
         print("Volunteering session added successfully!")
+        return
 
     def view_volunteering_sessions(self):
         print("\nView volunteering sessions")
@@ -1785,3 +1316,104 @@ class Volunteer:
             vol_times.to_csv('volunteering_times.csv', index=False)
             print("Volunteering session has been removed.")
             return
+
+    def request_resources(self):
+        """Store volunteer request in resource_requests.csv"""
+        print("\nRequest resources for your camp.")
+        print("You are requesting resources for", self.camp_name, "at plan", self.plan_id)
+        camps = pd.read_csv(self.plan_id + '.csv')
+        my_camp = camps[camps['camp_name'] == self.camp_name]
+        print("\nYour camp's current resources:")
+        print("Food packets:", my_camp.iloc[0]['food'])
+        print("Water portions:", my_camp.iloc[0]['water'])
+        print("First-aid kits:", my_camp.iloc[0]['firstaid_kits'])
+
+        progress = 0
+        while progress <= 3:
+            if progress == 0:
+                while True:
+                    print("\nEnter [X] to return to the previous menu.")
+                    food = input("Enter the number of food packets you are requesting: ")
+                    if food == "X":
+                        return
+                    try:
+                        food = int(food)
+                        if food < 0:
+                            raise ValueError
+                    except ValueError:
+                        print("Please enter a non-negative integer.")
+                        continue
+                    progress += 1
+                    break
+
+            if progress == 1:
+                while True:
+                    print("\nEnter [X] to return to the previous menu or [B] to return to the previous step.")
+                    water = input("Enter the number of water portions you are requesting: ")
+                    if water == "X":
+                        return
+                    if water == "B":
+                        progress -= 1
+                        break
+                    try:
+                        water = int(water)
+                        if water < 0:
+                            raise ValueError
+                    except ValueError:
+                        print("Please enter a non-negative integer.")
+                        continue
+                    progress += 1
+                    break
+
+            if progress == 2:
+                while True:
+                    print("\nEnter [X] to return to the previous menu or [B] to return to the previous step.")
+                    kits = input("Enter the number of first-aid kits you are requesting: ")
+                    if kits == "X":
+                        return
+                    if kits == "B":
+                        progress -= 1
+                        break
+                    try:
+                        kits = int(kits)
+                        if kits < 0:
+                            raise ValueError
+                    except ValueError:
+                        print("Please enter a non-negative integer.")
+                        continue
+                    progress += 1
+                    break
+
+            if progress == 3: # check that not all requested resources are 0
+                if food == 0 and water == 0 and kits == 0:
+                    print("You cannot request 0 of all resources. Please enter your request again.")
+                    progress = 0
+                else:
+                    progress += 1
+
+        # collected data
+        data = {
+            'username': [self.username],
+            'plan_id': [self.plan_id],
+            'camp_name': [self.camp_name],
+            'food': [food],
+            'water': [water],
+            'firstaid_kits': [kits],
+            'resolved': 0
+        }
+        df = pd.DataFrame(data)
+
+        try:
+            existing_df = pd.read_csv('resource_requests.csv')
+        except FileNotFoundError:
+            df.to_csv('resource_requests.csv', index=False)
+            logging.info(f"{self.username} requests for more resources while no file found.\nNew csv file is created.")
+            print("\nYour request is recorded successfully.\n"
+                  "An administrator will respond to your request shortly.")
+            return
+        # Append the new data
+        updated_df = pd.concat([existing_df, df], ignore_index=True)
+        updated_df.to_csv('resource_requests.csv', index=False)
+        print("\nYour request is recorded successfully.\n"
+              "An administrator will respond to your request shortly.")
+        return

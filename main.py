@@ -67,8 +67,8 @@ def admin_login():
         print("Login successful!")
         logging.info("User logged in as: Admin")
         # create admin object
-        admin = Admin(username, password)
-        admin.admin_menu()
+        a = Admin(username, password)
+        a.admin_menu()
         return
 
 
@@ -169,32 +169,36 @@ def volunteer_registration():
                 continue
             break
 
-        plan_id = plans['location'].iloc[plan_num - 1] + "_" + plans['start_date'].iloc[plan_num - 1][6:]
+        plan_id = plans['plan_id'].iloc[plan_num - 1]
         print("Your plan ID is:", plan_id)
-        return plan_id  # e.g. Australia_2023
+        return plan_id  # e.g. London_2023
 
     def add_camp(plan_id):
         camps = pd.read_csv(plan_id + '.csv')
 
         while True:
             print(
-                "\nEnter [0] to return to the previous menu, [9] to go back to the previous step or [X] to proceed without camp identification.")
+                "\nEnter [X] to return to the previous menu, [B] to go back to the previous step or [N] to proceed without camp identification.")
             print("Choose a camp.")
             print("\nCamp Name - # Volunteers - # Refugees - Capacity")
-            for row in range(1, len(camps.index)):
+            for row in range(len(camps.index)):
                 print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
                       str(camps['refugees'].iloc[row]) + " refugees",
                       str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
-            camp_name = input("Enter the name of the camp you would like to join: ")
-            if camp_name in ("0", "9"):
-                return camp_name
-            elif camp_name == "X":
+            camp_num = input("Enter the number of the camp you would like to join (e.g. [1] for Camp 1): ")
+            if camp_num in ("X", "B"):
+                return camp_num
+            elif camp_num == "N":
                 return None
-
-            if camp_name not in camps['camp_name'].values:
-                print("Please enter the name of a camp from the list displayed.")
+            try:
+                camp_num = int(camp_num)
+                if camp_num not in range(1, len(camps.index) + 1):
+                    raise ValueError
+            except ValueError:
+                print("Please enter the number of a camp from the list displayed.")
                 continue
 
+            camp_name = "Camp " + str(camp_num)
             print("You have chosen", camp_name + ".")
             return camp_name
 
@@ -378,9 +382,9 @@ def volunteer_registration():
 
         elif progress == 1:
             camp_name = add_camp(plan_id)
-            if camp_name == "0":
+            if camp_name == "X":
                 break
-            elif camp_name == "9":
+            elif camp_name == "B":
                 progress -= 1
             else:
                 progress += 1

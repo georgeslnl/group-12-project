@@ -1,8 +1,15 @@
 import datetime
 import logging
+import pandas as pd
 
 """Hi, This is a function set that verify all the inputs.
 You can simply use them to replace the input() functions."""
+
+# Creating list of valid cities in the world.
+# The csv file comes from the World Cities Database by SimpleMaps.com, last updated: March 31, 2023.
+# The file contains data for about 43 thousand cities.
+valid_cities_csv = pd.read_csv('worldcities.csv')
+valid_cities = valid_cities_csv['city'].tolist()
 
 
 def integer(line):
@@ -13,7 +20,7 @@ def integer(line):
                 raise ValueError('No data was entered.')
             if not _int.isdigit():  # if int is not a number
                 raise ValueError('Please enter an integer.')
-            return _int
+            return int(_int)
         except ValueError as e:
             logging.error('ValueError raised from user input')
             print(e)
@@ -51,6 +58,39 @@ def date(line):
         except ValueError:
             logging.error('ValueError raised from user input')
             print("Date must be in (DD-MM-YYYY) format. Please try again.")
+
+
+def location(line):
+    while True:
+        # first checks that location is a string
+        _location = string(line)
+        if _location in valid_cities:
+            return _location
+        else:
+            logging.error(f'Location {_location} input by user is not a valid city in the database.')
+            print("Location needs to be a valid city. Please try again.")
+
+
+def name(line):
+    while True:
+        # first checks that name is a string
+        _name = string(line)
+        if all(character.isalpha() or character == '-' for character in _name):
+            return _name
+        else:
+            logging.error(f'Name {_name} input by user is not in the correct format.')
+            print("Please make sure you only input letters.")
+
+
+def email(line):
+    while True:
+        # first checks that email is a string
+        _email = string(line)
+        if '@' in _email and all(_email.split('@')):
+            return _email
+        else:
+            logging.error(f'Email {_email} input by user is not in the correct format.')
+            print("Please make sure email is in this format: example@email.com.")
 
 
 def main():
