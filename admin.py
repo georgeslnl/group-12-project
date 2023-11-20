@@ -2,7 +2,8 @@ import pandas as pd, numpy as np
 from datetime import datetime
 from humanitarianplan import HumanitarianPlan
 from coded_vars import convert_gender, convert_medical_condition
-from selection import select_plan, select_camp, select_camp2, select_plan_camp_vol, select_plan_camp_vol_none
+from selection import select_plan, select_camp, select_plan_camp_vol, select_plan_camp_vol_none
+from selection_refugees import select_plan_camp_refugee
 import volunteer_funcs, refugee_profile_funcs, volunteering_session_funcs
 import verify as v
 import logging
@@ -1290,7 +1291,7 @@ class Admin:
                     progress += 1
 
             if progress == 1:
-                camp_name = select_camp2(plan_id)
+                camp_name = select_camp(plan_id)
                 if camp_name == "X":
                     # return
                     exit()
@@ -1337,12 +1338,6 @@ class Admin:
 
     def view_volunteer(self):
         print("\nView volunteer details")
-        users = pd.read_csv('users.csv')
-        users = users[users['account_type'] == "volunteer"]
-        if len(users.index) == 0:
-            print("No volunteer accounts have been created.")
-            return
-
         print("Select the volunteer whose details you are viewing.")
         selected = select_plan_camp_vol(active=0) # returns (plan_id, camp_name, username)
         if selected == 0:
@@ -1350,6 +1345,7 @@ class Admin:
         else:
             username = selected[2]
 
+        users = pd.read_csv('users.csv', dtype={'password': str})
         select_user = users[users['username'] == username]
         gender_str = convert_gender(select_user.iloc[0]['gender'])
         print("\nDetails of", username, "are as follows:")
@@ -1369,12 +1365,6 @@ class Admin:
 
     def update_volunteer_camp(self):
         print("\nUpdate a volunteer's camp identification")
-        users = pd.read_csv('users.csv')
-        users = users[users['account_type'] == "volunteer"]
-        if len(users.index) == 0:
-            print("No volunteer accounts have been created.")
-            return
-
         print("Select the volunteer whose camp identification you are updating.")
         selected = select_plan_camp_vol_none(active=1)  # returns (plan_id, camp_name, username)
         if selected == 0:
@@ -1515,7 +1505,7 @@ class Admin:
                     progress += 1
 
             if progress == -1:
-                camp_name = select_camp2(plan_id)
+                camp_name = select_camp(plan_id)
                 if camp_name == "X":
                     return
                 elif camp_name == "B":
@@ -1623,56 +1613,14 @@ class Admin:
 
     def view_refugee_profile(self):
         print("\nView refugee profile")
-        plan_id = select_plan()
-        if plan_id == 0:
+        print("Select the refugee whose profile you are viewing.")
+        selected = select_plan_camp_refugee()  # returns (plan_id, camp_name, refugee_id)
+        if selected == 0:
             return
-        camp_name = select_camp(plan_id)
-        if camp_name == 0:
-            return
+        else:
+            plan_id, camp_name, refugee_id = selected
 
         refugees = pd.read_csv('refugees.csv')
-        refugees = refugees[(refugees['plan_id'] == plan_id) & (refugees['camp_name'] == camp_name)]
-        if len(refugees.index) == 0:
-            print("There are no refugees at the selected camp.")
-            return
-
-        refugees = refugees.replace({np.nan: None})
-        print("You will be prompted for the refugee ID of the refugee whose profile you would like to view.")
-        while True:
-            print("Enter [1] to proceed")
-            print("Enter [2] to list all refugees at the selected camp")
-            print("Enter [0] to return to the previous menu")
-            try:
-                option = int(input("Select an option: "))
-                if option not in (0, 1, 2):
-                    raise ValueError
-            except ValueError:
-                print("Please enter a number from the options provided.")
-                continue
-            break
-        if option == 0:
-            return
-        if option == 2: # list refugees at volunteer's camp
-            print("\nRefugee ID - Refugee Name - Date of Birth - # Family Members")
-            for row in range(len(refugees.index)):
-                print(refugees['refugee_id'].iloc[row], refugees['refugee_name'].iloc[row],
-                      refugees['date_of_birth'].iloc[row],
-                      str(refugees['family_members'].iloc[row]) + " family members", sep=" - ")
-
-        # Obtain refugee ID
-        while True:
-            print("\nEnter [0] to return to the previous menu.")
-            try:
-                refugee_id = int(input("Enter refugee ID: "))
-                if refugee_id == 0:
-                    return
-                if refugee_id not in refugees['refugee_id'].values:
-                    raise ValueError
-            except ValueError:
-                print("Please enter a refugee ID corresponding to a refugee in your camp.")
-                continue
-            break
-
         selected = refugees[refugees['refugee_id'] == refugee_id]
         selected = selected.replace({np.nan: None})
         refugee_name = selected.iloc[0]['refugee_name']
@@ -1685,7 +1633,7 @@ class Admin:
         gender_str = convert_gender(gender)
         medical_str = convert_medical_condition(medical_cond)
 
-        print("Details of refugee ID:", refugee_id)
+        print("\nDetails of refugee ID:", refugee_id)
         print("Plan ID:", plan_id)
         print("Camp name:", camp_name)
         print("Refugee name:", refugee_name)
@@ -1698,55 +1646,12 @@ class Admin:
 
     def edit_refugee_profile(self):
         print("\nEdit or remove refugee profile")
-        plan_id = select_plan()
-        if plan_id == 0:
+        print("Select the refugee whose profile you would like to edit.")
+        selected = select_plan_camp_refugee()  # returns (plan_id, camp_name, refugee_id)
+        if selected == 0:
             return
-        camp_name = select_camp(plan_id)
-        if camp_name == 0:
-            return
-
-        refugees = pd.read_csv('refugees.csv')
-        refugees = refugees[(refugees['plan_id'] == plan_id) & (refugees['camp_name'] == camp_name)]
-        if len(refugees.index) == 0:
-            print("There are no refugees at the selected camp.")
-            return
-
-        refugees = refugees.replace({np.nan: None})
-        print("You will be prompted for the refugee ID of the refugee whose profile you would like to edit.")
-        while True:
-            print("Enter [1] to proceed")
-            print("Enter [2] to list all refugees at the selected camp")
-            print("Enter [0] to return to the previous menu")
-            try:
-                option = int(input("Select an option: "))
-                if option not in (0, 1, 2):
-                    raise ValueError
-            except ValueError:
-                print("Please enter a number from the options provided.")
-                continue
-            break
-        if option == 0:
-            return
-        if option == 2: # list refugees at volunteer's camp
-            print("\nRefugee ID - Refugee Name - Date of Birth - # Family Members")
-            for row in range(len(refugees.index)):
-                print(refugees['refugee_id'].iloc[row], refugees['refugee_name'].iloc[row],
-                      refugees['date_of_birth'].iloc[row],
-                      str(refugees['family_members'].iloc[row]) + " family members", sep=" - ")
-
-        # Obtain refugee ID
-        while True:
-            print("\nEnter [0] to return to the previous menu.")
-            try:
-                refugee_id = int(input("Enter refugee ID: "))
-                if refugee_id == 0:
-                    return
-                if refugee_id not in refugees['refugee_id'].values:
-                    raise ValueError
-            except ValueError:
-                print("Please enter a refugee ID corresponding to a refugee in your camp.")
-                continue
-            break
+        else:
+            plan_id, camp_name, refugee_id = selected
 
         # outer loop to edit multiple attributes, exit if 0 is entered
         while True:
