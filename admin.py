@@ -1046,7 +1046,7 @@ class Admin:
                 if plan_id == 0:
                     continue
                 hum_plan = plan_id + ".csv"
-                location = hum_plan[:-5]
+                location = plan_id[:-5]
                 # humani_plan = pd.read_csv('humanitarian_plan.csv')
                 # while True:
                 #     try:
@@ -1063,12 +1063,12 @@ class Admin:
                 self.allocate_resources(hum_plan, location)
             if option == 3: # auto-allocate
                 logging.debug(f"Admin has chosen to auto-allocate resources.")
-                print("\n Auto-allocate resources")
+                print("\nAuto-allocate resources")
                 plan_id = select_plan()
                 if plan_id == 0:
                     continue
                 hum_plan = plan_id + ".csv"
-                location = hum_plan[:-5]
+                location = plan_id[:-5]
                 # humani_plan = pd.read_csv('humanitarian_plan.csv')
                 # while True:
                 #     print(humani_plan)
@@ -1085,7 +1085,7 @@ class Admin:
                 print("\nWould you like to auto-allocate resources to all camps or select a camp?")
                 print("Auto-allocating feature will top up resources to the all camp(s) for the following 7 days.")
                 print("Enter [1] to allocate resources to all camps")
-                print("Enter [2] to select a camp to allocate resources to")
+                print("Enter [2] to allocate resources to a specific camp")
                 print("Enter [0] to return to the previous menu")
                 while True:
                     option = v.integer("Select an option: ")

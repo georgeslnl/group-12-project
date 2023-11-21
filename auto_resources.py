@@ -40,7 +40,7 @@ def auto_all(hum_plan, location):
 
     # now we add and write one by one, if resources sufficient
     while True:
-        print(f"A total of {sum_needed[0]} food packets, {sum_needed[1]} water portions "
+        print(f"\nA total of {sum_needed[0]} food packets, {sum_needed[1]} water portions "
             f"and {sum_needed[2]} first-aid kits will be added to camps from storage.")
         print("Would you like to proceed?")
         confirm = input("Enter [Y] or [N]: ").capitalize()
@@ -143,7 +143,7 @@ def auto_one(hum_plan, location):
                       f"\n{resources}")
                 print(f"\nAnd the remaining resources in storage: "
                       f"\n{humani_plan.loc[humani_plan.location == location, ['location', 'start_date', 'food_storage', 'water_storage', 'firstaid_kits_storage']]}\n")
-                print("Now returning to main menu.\n")
+                print("Now returning to admin resources menu.")
                 return
             else:
                 print("Please enter the correct input (Y/N).")
