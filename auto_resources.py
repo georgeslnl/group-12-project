@@ -4,7 +4,6 @@ from datetime import datetime
 import admin
 from humanitarianplan import HumanitarianPlan
 from coded_vars import convert_gender, convert_medical_condition
-from selection import select_plan, select_camp, select_camp2, select_plan_camp_vol, select_plan_camp_vol_none
 import refugee_profile_funcs, volunteering_session_funcs
 import verify as v
 import logging
@@ -114,7 +113,6 @@ def auto_one(hum_plan, location):
             if food_in_storage < food_needed or water_in_storage < water_needed or firstaid_in_storage < firstaid_needed:
                 print("Resources insufficient, please request new resources.\n"
                       "Now returning to camp selection.")
-                auto_one()
 
             # now we add and write one by one, if resources sufficient
             else:
@@ -124,7 +122,7 @@ def auto_one(hum_plan, location):
                                     f"Would you like to proceed? (Y/N)\n").capitalize()
                     if confirm == "N":
                         print("Now returning to resources menu.")
-                        admin.resources_menu()
+                        return
                     elif confirm == "Y":
                         # food
                         humani_plan.loc[humani_plan['location'] == location, 'food_storage'] -= food_needed
@@ -144,7 +142,7 @@ def auto_one(hum_plan, location):
                               f"\n{resources}")
                         print(f"\nAnd the remaining resources in storage: "
                               f"\n{humani_plan.loc[humani_plan.location == location, ['location', 'start_date', 'food_storage', 'water_storage', 'firstaid_kits_storage']]}\n")
-                        print("Now returning to main menu.\n")
-                        exit()
+                        print("Now returning to resources menu.\n")
+                        return
                     else:
                         print("Please enter the correct input (Y/N)")
