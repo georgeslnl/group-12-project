@@ -24,6 +24,12 @@ def select_plan():
 
 # select camp allowing user to go back to plan selection
 def select_camp(plan_id):
+    refugees = pd.read_csv('refugees.csv')
+    refugees = refugees[refugees['plan_id'] == plan_id]
+    if len(refugees.index) == 0:
+        print("There are no refugees at the selected plan. Please try again.")
+        return "B"
+
     print("\nSelect a camp.")
     camps = pd.read_csv(plan_id + ".csv")
     print("Camp Name - # Volunteers - # Refugees - Refugee Capacity")
@@ -55,11 +61,11 @@ def select_refugee(plan_id, camp_name):
     print("\nSelect a refugee.")
     while True:
         print("Enter [X] to return to the previous menu or [B] to go back to camp selection.")
-        print("Enter [1] to list all refugees at the selected camp.")
+        print("Enter [S] to list all refugees at the selected camp.")
         refugee_id = input("Enter refugee ID: ")
         if refugee_id in ("X", "B"):
             return refugee_id
-        if refugee_id == "1":
+        if refugee_id == "S":
             print("Refugees at plan", plan_id + ",", camp_name + ":")
             print("Refugee ID - Refugee Name - Date of Birth - # Family Members")
             for row in range(len(refugees.index)):
