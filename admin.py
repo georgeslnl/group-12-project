@@ -628,55 +628,86 @@ class Admin:
                 print('Request declined: no resource has been reallocated.')
                 print('This request has been marked as resolved.')
 
+    def deactivation_request_notification(self):
+        """
+        This method is used to notify the Admin if any new requests for deactivation have been made.
+        If no new requests made, the method returns False.
+        If one or more request has been made, the users dataframe is returned.
+        The users dataframe is created from the users.csv file.
+        """
+
+        users = pd.read_csv('users.csv', dtype={'password': str})
+        nb_of_requests = len(users[users["deactivation_requested"] == 1])
+        if nb_of_requests == 0:
+            return False  # returns nothing if no new requests
+        elif nb_of_requests == 1:
+            print(f'\n* You have received {nb_of_requests} new deactivation request. *')
+            return users
+        else:
+            print(f'\n* You have received {nb_of_requests} new deactivation request. *')
+            return users
+
     def check_deactivation_requests(self):
         """
         This method tells the Admin if volunteers have requested to deactivate their
         account, and informs the Admin of the steps to take.
         This is done by reading the users.csv file and calling the deactivate_account_request() method
         """
-        print("\nRespond to deactivation requests")
-        users = pd.read_csv('users.csv', dtype={'password': str})
-        nb_of_requests = len(users[users["deactivation_requested"] == 1])
-        # prints if there are 0 requests to deactivate account
-        if nb_of_requests == 0:
-            print('No new deactivation requests.')
+        users = self.deactivation_request_notification()
+        if users is False:
+            print("\nYou have not received no deactivation requests.")
+            print("Returning to previous menu\n")
             return
-        elif nb_of_requests == 1:
-            print('You have received a deactivation request')
+        print("\nRespond to deactivation requests")
+        nb_of_requests = len(users[users["deactivation_requested"] == 1])
+
+        if nb_of_requests == 1:
+
             # extracts the username of the user who requested deactivation
             user_deactivating = users.loc[users['deactivation_requested'] == 1, 'username'].item()
+
             # calls method to deactivate the account
             self.deactivate_account_request(df=users, user=user_deactivating)
+
             # saves changes to the users.csv file
             users.to_csv('users.csv', index=False)
             print('The deactivation request has been processed!')
+            return
+
         else:
-            print(f'You have received {nb_of_requests} deactivation requests')
+
             # extracts the usernames of users that requested deactivation into a list
             users_deactivating = users.loc[users['deactivation_requested'] == 1, 'username'].tolist()
+
             # calls the deactivation method for each username in the list
             for username in users_deactivating:
                 self.deactivate_account_request(df=users, user=username)
+
             # saves the changes to the list
             users.to_csv('users.csv', index=False)
             print('All deactivation requests have been processed!')
+            return
 
     def deactivate_account_request(self, df, user):
         """This method is called when an Admin wants to deactivate a volunteer's account following a request"""
         while True:
-            print(f'User {user} has requested to deactivate their account.')
-            print('Enter [1] to deactivate the account')
-            print('Enter [2] to keep the account active')
+            print(f'\nUser {user} has requested to deactivate their account.\n')
+            print('Enter [1] to deactivate {user}')
+            print('Enter [2] to keep {user} active')
+            print('Enter [0] to ignore this request for now.')
             try:
                 option = int(input("Select an option: "))
-                if option not in (1, 2):
+                if option not in (0, 1, 2):
                     raise ValueError
             except ValueError:
                 print("Please enter a number from the options provided.")
                 continue
             break
-        # admin chose to deactivate account
-        if option == 1:
+
+        if option == 0:  # admin chose to ignore this request
+            return
+
+        elif option == 1: # admin chose to deactivate account
             df.loc[df['username'] == user, ['deactivation_requested', 'active']] = 0
             print(f'You have deactivated {user}')
             logging.info(f'Admin has deactivated {user}')
@@ -697,10 +728,9 @@ class Admin:
                 vol_times = vol_times.drop(vol_times[vol_times['username'] == user].index)
                 vol_times.to_csv('volunteering_times.csv', index=False)
 
-        # admin chose to keep account active
-        else:
+        else: # admin chose to keep account active
             df.loc[df['username'] == user, 'deactivation_requested'] = 0
-            print(f'Request processed for {user}')
+            print(f'You have declined this request. {user} will remain active.')
             logging.info(f'Admin has declined deactivation request from {user}')
 
     def end_event(self):
@@ -903,6 +933,7 @@ class Admin:
             print("\n---------------")
             print("Admin Menu")
             print("---------------")
+            self.deactivation_request_notification()
             self.resource_request_notification()
             while True:
                 print("Choose would you would like to do.")
