@@ -16,15 +16,8 @@ Add methods for the following:
 9. Request account deactivation - added
 
 Extras
-10. Add volunteering sessions
-11. View volunteering sessions
-12. Remove volunteering sessions
+10. Add volunteering sessions - added
+11. View volunteering sessions - added
+12. Remove volunteering sessions - added
 
-13. Send messages to admin?
-
-- sort output tables, eg volunteers are in order
-- resources
-    - messaging (volunteer makes requests, admin can add to storage)
-    - auto-allocating resources (days of supplies remaining, at camp + plan level)
-- replace medical supplies with first aid kit
--
+13. Send resource requests to admin - added

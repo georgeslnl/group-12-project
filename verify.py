@@ -10,7 +10,7 @@ You can simply use them to replace the input() functions."""
 # The file contains data for about 43 thousand cities.
 valid_cities_csv = pd.read_csv('worldcities.csv')
 valid_cities = valid_cities_csv['city'].tolist()
-
+valid_cities = [city.lower() for city in valid_cities]
 
 def integer(line):
     while True:
@@ -64,7 +64,7 @@ def location(line):
     while True:
         # first checks that location is a string
         _location = string(line)
-        if _location in valid_cities:
+        if _location.lower() in valid_cities:
             return _location
         else:
             logging.error(f'Location {_location} input by user is not a valid city in the database.')

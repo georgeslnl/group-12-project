@@ -200,7 +200,7 @@ class Volunteer:
     def logout(self):
         logging.info(f'{self.username} has logged out of their session.')
         self.logged_in = False
-        print("You are now logged out. See you again!")
+        print("You are now logged out. See you again!\n")
 
     def request_deactivation(self):
         print("\nRequest account deactivation")
@@ -280,7 +280,7 @@ class Volunteer:
             print("\nYour current username is:", self.username)
             logging.debug(f"{self.username} has chosen to change their username. They have been shown their current username.")
             while True:
-                print("Enter [0] to return to previous step.")
+                print("Enter [0] to return to the previous step.")
                 new_username = input("Enter new username: ").strip()
                 if new_username == "0":
                     logging.debug(f'{self.username} has chosen to return to the "Edit Personal Information" menu.')
@@ -570,9 +570,9 @@ class Volunteer:
         def add_camp(plan_id):
             camps = pd.read_csv(plan_id + '.csv')
             while True:
-                print("Enter [X] to return to the previous menu.")
+                print("\nEnter [X] to return to the previous menu.")
                 print("Choose a camp.")
-                print("\nCamp Name - # Volunteers - # Refugees - Capacity")
+                print("Camp Name - # Volunteers - # Refugees - Capacity")
                 for row in range(len(camps.index)):
                     print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
                           str(camps['refugees'].iloc[row]) + " refugees",
@@ -598,9 +598,9 @@ class Volunteer:
                 return self.camp_name
 
             while True:
-                print("Enter [X] to return to the previous menu.")
+                print("\nEnter [X] to return to the previous menu.")
                 print("Choose a new camp.")
-                print("\nCamp Name - # Volunteers - # Refugees - Capacity")
+                print("Camp Name - # Volunteers - # Refugees - Capacity")
                 for row in range(len(camps.index)):
                     print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
                           str(camps['refugees'].iloc[row]) + " refugees",
@@ -976,10 +976,6 @@ class Volunteer:
 
     def display_camp_info(self):
         print("\nDisplay camp information")
-        if not self.camp_name:
-            print("You currently do not belong to a camp. Please add your camp identification.")
-            return
-
         camps = pd.read_csv(self.plan_id + '.csv')
         my_camp = camps[camps['camp_name'] == self.camp_name]
         print("Your camp is " + self.camp_name + " for plan ID " + self.plan_id + ".")
