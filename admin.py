@@ -519,7 +519,7 @@ class Admin:
     def resource_request_menu(self):
         """
         This method is called to check requests made by volunteers to allocate resources to their camps.
-        The method will itirate through every resource request that isn't resolved.
+        The method will iterate through every resource request that isn't resolved.
         This method uses the resource_requests.csv file to check for requests and amount requested.
         """
 
@@ -595,7 +595,7 @@ class Admin:
             print(f'\n{user} has requested {requested_nb} {resource} for {camp} of {plan}\n')
             storage_units = humani_plan_df.loc[humani_plan_df.plan_id == plan, f'{resource}_storage'].item()
             camp_units = resources_df.loc[resources_df.camp_name == camp, resource].item()
-            print(f'{plan}\'s {resources} storage units: {storage_units}')
+            print(f'{plan}\'s {resource} storage units: {storage_units}')
             print(f'{camp}\'s {resource} units: {camp_units}\n')
 
             if requested_nb > storage_units:
@@ -622,7 +622,6 @@ class Admin:
                 resources_df.loc[resources_df.camp_name == camp, resource] += requested_nb
                 resources_df.to_csv(f'{plan}.csv', index=False)
                 print(f'The {resource} units for {camp} have increased by: {requested_nb}')
-
                 print('This request has been marked as resolved.')
             elif option == 2:
                 print('Request declined: no resource has been reallocated.')
@@ -939,7 +938,7 @@ class Admin:
                 print("Choose would you would like to do.")
                 print("Enter [1] to create, display, edit or end a humanitarian plan")
                 print("Enter [2] to manage volunteer accounts (including camp identification)")
-                print("Enter [3] to display, allocate resources, or answer new requests for resources")
+                print("Enter [3] to display, allocate or respond to requests for resources")
                 print("Enter [4] to manage refugee profiles")
                 print("Enter [5] to manage volunteering sessions")
                 print("Enter [0] to logout")
@@ -1027,7 +1026,7 @@ class Admin:
                     user_input = input("Select an option: ")
                     option = int(user_input)
                     logging.debug(f'Admin has entered {user_input}.')
-                    if option not in range(7):
+                    if option not in range(8):
                         logging.error(f"Admin has entered {user_input}, raising a ValueError.")
                         raise ValueError
                 except ValueError:
@@ -1066,13 +1065,13 @@ class Admin:
                 print("Enter [1] to display resources for a humanitarian plan")
                 print("Enter [2] to manually allocate resources to camps in a humanitarian plan")
                 print("Enter [3] to use auto-allocating feature")
-                print("Enter [4] to accept or decline requests for resources")
+                print("Enter [4] to respond to resource requests from volunteers")
                 print("Enter [0] to return to the admin menu")
                 try:
                     user_input = input("Select an option: ")
                     option = int(user_input)
                     logging.debug(f'Admin has entered {user_input}.')
-                    if option not in range(4):
+                    if option not in range(5):
                         logging.error(f"Admin has entered {user_input}, raising a ValueError.")
                         raise ValueError
                 except ValueError:
@@ -1149,7 +1148,7 @@ class Admin:
                 #         print(f"\nopening {hum_plan}...\n")
                 #         break
                 print("\nWould you like to auto-allocate resources to all camps or select a camp?")
-                print("Auto-allocating feature will top up resources to the all camp(s) for the following 7 days.")
+                print("Auto-allocating feature will top up resources to all camps for the following 7 days.")
                 print("Enter [1] to allocate resources to all camps")
                 print("Enter [2] to allocate resources to a specific camp")
                 print("Enter [0] to return to the previous menu")
