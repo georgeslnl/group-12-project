@@ -81,7 +81,7 @@ def auto_one(hum_plan, location):
     print(resources.to_string(index=False))
     while True:
         camp_no = v.integer("\nEnter [0] to return to the previous menu."
-                            "\nPlease enter the number of the camp to which you would like to allocate resources: ")
+                            "\nEnter the number of the camp to which you would like to allocate resources: ")
         if camp_no == 0:
             return
         camp_name = f"Camp {camp_no}"
@@ -117,7 +117,7 @@ def auto_one(hum_plan, location):
 
         # now we add and write one by one, if resources sufficient
         while True:
-            print(f"{food_needed} food packets, {water_needed} water portions "
+            print(f"\n{food_needed} food packets, {water_needed} water portions "
                   f"and {firstaid_needed} first-aid kits will be added to {camp_name} from storage.")
             print("Would you like to proceed?")
             confirm = input("Enter [Y] or [N]: ").capitalize()

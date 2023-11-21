@@ -791,41 +791,54 @@ class Admin:
         """
         resources = pd.read_csv(hum_plan)
         humani_plan = pd.read_csv("humanitarian_plan.csv")
-        print(f"Currently, the resources in storage are as follows:"
+        print(f"\nCurrently, the resources in storage are as follows:"
               f"\n{humani_plan.loc[humani_plan.location == location,['location','start_date','food_storage','water_storage','firstaid_kits_storage']]}\n")
         print(f"And the resources in {hum_plan[:-4]} are as follows:"
               f"\n{resources.to_string(index=False)}")
         camp_format = False
         while camp_format == False:
-            try:
-                camp_no = v.integer('Enter the camp ID you would like to allocate resources to (only the number).\n')
-                if any(resources['camp_name'].str.contains(f"Camp {camp_no}")):
-                    camp_format = True
-                else:
-                    print('The camp ID you entered does not belong to any existing camp in this humanitarian plan.')
-            except ValueError:
-                logging.error('ValueError raised from user input')
-                print('Please enter an integer.')
+            camp_no = v.integer("\nEnter [0] to return to the previous menu."
+                            "\nEnter the number of the camp to which you would like to allocate resources: ")
+            if camp_no == 0:
+                return
+            if any(resources['camp_name'].str.contains(f"Camp {camp_no}")):
+                camp_format = True
+            else:
+                print('Please enter the number of an existing camp in this humanitarian plan.')
 
-        camp_index = resources.index[resources['camp_name'] == f"Camp {camp_no}"]
         choice_format = False
         while choice_format == False:
+            print("\nChoose the resource you would like to allocate.")
+            print("Enter [1] for food packets")
+            print("Enter [2] for water portions")
+            print("Enter [3] for first-aid kits")
+            print("Enter [0] to return to the previous menu")
             try:
-                resource_choice = int(input('Enter what resource you would like to allocate.'
-                                      '\n 1 for food packs.'
-                                      '\n 2 for water.'
-                                      '\n 3 for first-aid kits.'))
-                if resource_choice in range(1,4):
+                resource_choice = int(input('Select an option: '))
+                if resource_choice in range(4):
                     choice_format = True
                 else:
-                    print('Please enter an integer from 1-3.')
+                    raise ValueError
             except ValueError:
                 logging.error('ValueError raised from user input')
-                print('Please enter an integer from 1-3.')
+                print('Please enter a number from the options provided.')
+                continue
+            if resource_choice == 0:
+                return
 
         if resource_choice == 1:
             while True:
-                amount = v.integer(f'Enter the number of food packs you would like to allocate to Camp {camp_no}.')
+                print("\nEnter [X] to return to the previous menu.")
+                amount = input(f'Enter the number of food packets you would like to allocate to Camp {camp_no}: ')
+                if amount == "X":
+                    return
+                try:
+                    amount = int(amount)
+                    if amount <= 0:
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a positive integer.")
+                    continue
                 # making sure number of {resource} entered does not exceed number in storage
                 in_storage = humani_plan.loc[humani_plan['location'] == location, 'food_storage']
                 if any(in_storage - amount <= 0):
@@ -837,7 +850,17 @@ class Admin:
                     break
         elif resource_choice == 2:
             while True:
-                amount = v.integer(f'Enter the number of boxes of water you would like to allocate to Camp {camp_no}.')
+                print("\nEnter [X] to return to the previous menu.")
+                amount = input(f'Enter the number of food packets you would like to allocate to Camp {camp_no}: ')
+                if amount == "X":
+                    return
+                try:
+                    amount = int(amount)
+                    if amount <= 0:
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a positive integer.")
+                    continue
                 in_storage = humani_plan.loc[humani_plan['location'] == location, 'water_storage']
                 if any(in_storage - amount <= 0):
                     print('The amount entered exceeds the amount available in storage.'
@@ -848,7 +871,17 @@ class Admin:
                     break
         elif resource_choice == 3:
             while True:
-                amount = v.integer(f'Enter the number of first-aid kits you would like to allocate to Camp {camp_no}.')
+                print("\nEnter [X] to return to the previous menu.")
+                amount = input(f'Enter the number of food packets you would like to allocate to Camp {camp_no}: ')
+                if amount == "X":
+                    return
+                try:
+                    amount = int(amount)
+                    if amount <= 0:
+                        raise ValueError
+                except ValueError:
+                    print("Please enter a positive integer.")
+                    continue
                 in_storage = humani_plan.loc[humani_plan['location'] == location, 'firstaid_kits_storage']
                 if any(in_storage - amount <= 0):
                     print('The amount entered exceeds the amount available in storage.'
@@ -860,10 +893,11 @@ class Admin:
 
         resources.to_csv(hum_plan, index=False)
         humani_plan.to_csv("humanitarian_plan.csv", index=False)
-        print(f"Allocation complete. Currently, the resources in {hum_plan[:-4]} are as follows:"
+        print(f"\nAllocation complete. Currently, the resources in {hum_plan[:-4]} are as follows:"
               f"\n{resources}")
-        print(f"And the remaining resources in storage: "
-              f"\n{humani_plan}")
+        print(f"\nAnd the remaining resources in storage: "
+              f"\n{humani_plan.loc[humani_plan.location == location, ['location', 'start_date', 'food_storage', 'water_storage', 'firstaid_kits_storage']]}")
+        return
 
     def admin_menu(self):
         while self.logged_in:
@@ -1041,7 +1075,7 @@ class Admin:
                 #          print("Please enter a correct index.")
             if option == 2:
                 logging.debug(f"Admin has chosen to allocate resources manually.")
-                print("\n Manually allocate resources")
+                print("\nManually allocate resources")
                 plan_id = select_plan()
                 if plan_id == 0:
                     continue
