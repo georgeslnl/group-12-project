@@ -2,5 +2,4 @@
 /.idea
 /__pycache__
 output.log
-test.py
 exceptions.py
