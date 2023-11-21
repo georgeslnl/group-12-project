@@ -81,7 +81,100 @@ class Admin:
               f'\n\t Location affected: {loc}'
               f'\n\t Start date of the event: {start_date}'
               f'\n\t Number of camps: {nb_of_camps}')
-        return
+
+        return hu_pl
+
+    def edit_hum_plan(self):
+        hum_plan_df = pd.read_csv('humanitarian_plan.csv')
+        progress = 0
+        print(f"Currently, the details of humanitarian plans are as follows:"
+              f"\n {hum_plan_df}")
+        while progress < 3:
+            # if progress < 0:
+            #     print('You have decided to return to the previous menu.')
+            #     return
+            if progress == 0:
+                while True:
+                    plan_index = v.integer('Please select the index of the humanitarian plan you wish to edit.'
+                                           '(please note only the description or number of camps of the plan can be changed)')
+                    plan_id = str(hum_plan_df.loc[hum_plan_df.index == plan_index,'plan_id'])
+                    plan_id = plan_id.split('\n')[0]
+                    plan_id = plan_id[5:]
+                    if plan_index in range(0,len(hum_plan_df.plan_id)):
+                        while True:
+                            edit_choice = v.integer('Please choose what you would like to edit:'
+                                                f'\nEnter [1] to change the description of {plan_id}.'
+                                                f'\nEnter [2] to change the number of camps of {plan_id}.'
+                                                f'\nEnter [0] to return to the previous menu. ')
+                            if edit_choice in range(0,3):
+                                break
+                            else:
+                                print('Number entered not in range [0-2].')
+                        if edit_choice == 0:
+                            return
+                        elif edit_choice == 1 or edit_choice == 2:
+                            progress += 1
+                        break
+                    else:
+                        print('The index you entered is outside the range of humanitarian plans.')
+            elif progress == 1:
+                if edit_choice == 1:
+                    cur_desc = str(hum_plan_df.loc[hum_plan_df.index == plan_index,"description"])
+                    cur_desc = cur_desc.split('\n')[0]
+                    cur_desc = cur_desc[5:]
+                    print(f'You have chosen to edit the description of {plan_id}.'
+                          f'\n The current description is:'
+                          f'\n {cur_desc}')
+                    while True:
+                        edit_desc = v.integer("Enter [1] to edit the description."
+                                              "\nEnter [0] to return to the previous step: ")
+                        if edit_desc in range(0,2):
+                            if edit_desc == 0:
+                                progress -= 1
+                                break
+                            elif edit_desc == 1:
+                                desc = hum_plan_funcs.edit_description(plan_id,plan_index,hum_plan_df)
+                                if any(desc) == 'X':
+                                    progress -= 1
+                                else:
+                                    progress += 1
+                                break
+                        else:
+                            print('Number entered not in range [0-1].')
+                elif edit_choice == 2:
+                    num_camps = hum_plan_df.loc[hum_plan_df.index == plan_index, "number_of_camps"]
+                    num_camps = num_camps[5:]
+                    print(f'You have chosen to edit the number of camps of {plan_id}.'
+                          f'\n The current number of camps is:'
+                          f'\n {num_camps}')
+                    progress += 1
+            elif progress == 2:
+                while True:
+                    next = v.integer("Enter [1] to edit other details of humanitarian plans."
+                                     "\nEnter [0] to exit the edit humanitarian plan function and return to the previous menu: ")
+                    if next in range(0,2):
+                        if next == 0:
+                            return
+                        elif next == 1:
+                            progress = 0
+                        break
+                    else:
+                        print('Number entered not in range [0-1].')
+
+
+
+    # def display_hum_plan(self, hum_plan):
+    #     """
+    #     This method displays summary information about the humanitarian plan.
+    #     Information to display:
+    #         - Number of refugees
+    #         - Their camp identification
+    #         - Number of volunteers working at each camp
+    #     """
+    #     hu_pl = pd.read_csv('%s.csv' %(hum_plan))
+    #     print('Total number of refugees: ', sum(hu_pl['refugees']))
+    #     print('Camp ID of camps involved: \n', hu_pl['camp_name'])
+    #     print('Number of volunteers working at each camp: \n', hu_pl[['camp_name', 'volunteers']])
 
     # def edit_volunteer(self):
     #     df = pd.read_csv('users.csv')
@@ -1002,7 +1095,7 @@ class Admin:
                 self.display_hum_plan()
             if option == 3:
                 logging.debug(f"Admin has chosen to edit a humanitarian plan.")
-                # TODO: add function
+                self.edit_hum_plan()
             if option == 4:
                 logging.debug(f"Admin has chosen to update a camp's capacity.")
                 self.update_camp_capacity()
