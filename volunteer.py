@@ -200,7 +200,7 @@ class Volunteer:
     def logout(self):
         logging.info(f'{self.username} has logged out of their session.')
         self.logged_in = False
-        print("You are now logged out. See you again!")
+        print("You are now logged out. See you again!\n")
 
     def request_deactivation(self):
         print("\nRequest account deactivation")
@@ -524,9 +524,9 @@ class Volunteer:
         def add_camp(plan_id):
             camps = pd.read_csv(plan_id + '.csv')
             while True:
-                print("Enter [X] to return to the previous menu.")
+                print("\nEnter [X] to return to the previous menu.")
                 print("Choose a camp.")
-                print("\nCamp Name - # Volunteers - # Refugees - Capacity")
+                print("Camp Name - # Volunteers - # Refugees - Capacity")
                 for row in range(len(camps.index)):
                     print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
                           str(camps['refugees'].iloc[row]) + " refugees",
@@ -551,9 +551,9 @@ class Volunteer:
                 return self.camp_name
 
             while True:
-                print("Enter [X] to return to the previous menu.")
+                print("\nEnter [X] to return to the previous menu.")
                 print("Choose a new camp.")
-                print("\nCamp Name - # Volunteers - # Refugees - Capacity")
+                print("Camp Name - # Volunteers - # Refugees - Capacity")
                 for row in range(len(camps.index)):
                     print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
                           str(camps['refugees'].iloc[row]) + " refugees",
@@ -570,7 +570,7 @@ class Volunteer:
                     continue
                 new_camp = "Camp " + str(camp_num)
                 if new_camp == self.camp_name:
-                    print("New camp is the same as current camp. Please try again or return to the previous menu.\n")
+                    print("New camp is the same as current camp. Please try again or return to the previous menu.")
                     continue
                 return new_camp
 

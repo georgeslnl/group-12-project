@@ -4,7 +4,8 @@ from datetime import datetime
 import auto_resources
 from humanitarianplan import HumanitarianPlan
 from coded_vars import convert_gender, convert_medical_condition
-from selection import select_plan, select_camp, select_plan_camp_vol, select_plan_camp_vol_none
+from selection import select_plan, select_camp
+from selection_volunteer import select_plan_camp_vol
 from selection_refugees import select_plan_camp_refugee
 import hum_plan_funcs, volunteer_funcs, refugee_profile_funcs, volunteering_session_funcs
 import verify as v
@@ -47,7 +48,7 @@ class Admin:
                     progress += 1
 
             if progress == 2:
-                start_date = hum_plan_funcs.add_start_date()
+                start_date = hum_plan_funcs.add_start_date(loc)
                 if start_date == "0":
                     return
                 elif start_date == "9":
@@ -280,7 +281,7 @@ class Admin:
     def edit_volunteer(self):
         print("\nEdit volunteer details")
         print("Select the volunteer whose details you are updating.")
-        selected = select_plan_camp_vol_none(active=0)  # returns (plan_id, camp_name, username)
+        selected = select_plan_camp_vol(active=0, none=1)  # returns (plan_id, camp_name, username)
         if selected == 0:
             return
         else:
@@ -341,7 +342,7 @@ class Admin:
     def delete_volunteer(self):
         print("\nDelete volunteer account")
         print("Select the volunteer whose account you would like to delete.")
-        selected = select_plan_camp_vol_none(active=0)  # returns (plan_id, camp_name, username)
+        selected = select_plan_camp_vol(active=0, none=1)  # returns (plan_id, camp_name, username)
         if selected == 0:
             return
         else:
@@ -385,7 +386,7 @@ class Admin:
     def active_volunteer(self):
         print("\nDeactivate or reactivate volunteer account")
         print("Select the volunteer whose account you would like to deactivate or reactivate.")
-        selected = select_plan_camp_vol_none(active=0)  # returns (plan_id, camp_name, username)
+        selected = select_plan_camp_vol(active=0, none=1)  # returns (plan_id, camp_name, username)
         if selected == 0:
             return
         else:
@@ -1142,7 +1143,7 @@ class Admin:
     def logout(self):
         logging.info(f'Admin has logged out of their session.')
         self.logged_in = False
-        print("You are now logged out. See you again!")
+        print("You are now logged out. See you again!\n")
 
     def display_hum_plan(self):
         print("\nDisplay humanitarian plan")
@@ -1251,7 +1252,7 @@ class Admin:
     def view_volunteer(self):
         print("\nView volunteer details")
         print("Select the volunteer whose details you are viewing.")
-        selected = select_plan_camp_vol(active=0) # returns (plan_id, camp_name, username)
+        selected = select_plan_camp_vol(active=0, none=1) # returns (plan_id, camp_name, username)
         if selected == 0:
             return
         else:
@@ -1278,7 +1279,7 @@ class Admin:
     def update_volunteer_camp(self):
         print("\nUpdate a volunteer's camp identification")
         print("Select the volunteer whose camp identification you are updating.")
-        selected = select_plan_camp_vol_none(active=1)  # returns (plan_id, camp_name, username)
+        selected = select_plan_camp_vol(active=1, none=1)  # returns (plan_id, camp_name, username)
         if selected == 0:
             return
         else:
@@ -1286,6 +1287,7 @@ class Admin:
 
         def add_camp(plan_id):
             camps = pd.read_csv(plan_id + '.csv')
+            print(username, "currently has no camp identification.")
             while True:
                 print("\nEnter [X] to return to the previous menu.")
                 print("Choose a camp.")
@@ -1309,6 +1311,7 @@ class Admin:
 
         def edit_camp(plan_id, camp_name):
             camps = pd.read_csv(plan_id + '.csv')
+            print(username + "'s current camp is:", camp_name)
             if len(camps.index) == 1:
                 print("There is currently only one camp. It is not possible to change camp identification.")
                 return camp_name
@@ -1316,7 +1319,7 @@ class Admin:
             while True:
                 print("\nEnter [X] to return to the previous menu.")
                 print("Choose a new camp.")
-                print("\nCamp Name - # Volunteers - # Refugees - Capacity")
+                print("Camp Name - # Volunteers - # Refugees - Capacity")
                 for row in range(len(camps.index)):
                     print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
                           str(camps['refugees'].iloc[row]) + " refugees",
@@ -1617,7 +1620,7 @@ class Admin:
     def add_volunteering_session(self):
         print("\nAdd a volunteering session")
         print("Select the volunteer for whom you are adding a session.")
-        selected = select_plan_camp_vol(active=1)
+        selected = select_plan_camp_vol(active=1, none=0)
         if selected == 0:
             return
         else:
@@ -1676,7 +1679,7 @@ class Admin:
     def view_volunteering_sessions(self):
         print("\nView volunteering sessions")
         print("Select the volunteer whose sessions you are viewing.")
-        selected = select_plan_camp_vol(active=1)
+        selected = select_plan_camp_vol(active=1, none=0)
         if selected == 0:
             return
         else:
@@ -1699,7 +1702,7 @@ class Admin:
     def remove_volunteering_session(self):
         print("\nRemove a volunteering session")
         print("Select the volunteer for whom you are removing a session.")
-        selected = select_plan_camp_vol(active=1)
+        selected = select_plan_camp_vol(active=1, none=0)
         if selected == 0:
             return
         else:

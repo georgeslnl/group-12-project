@@ -1,4 +1,4 @@
-import re, logging, datetime
+import re, logging, datetime, pandas as pd
 import verify as v
 
 def add_description():
@@ -37,7 +37,7 @@ def add_location():
             continue
         return loc
 
-def add_start_date():
+def add_start_date(location):
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
         start_date = input("Please enter the start date of the event (DD-MM-YYYY): ").strip()
@@ -52,6 +52,13 @@ def add_start_date():
         if start > t:
             print("Start date cannot be in the future. Please try again.")
             continue
+        new_id = location + "_" + start_date[6:]
+        plans = pd.read_csv("humanitarian_plan.csv")
+        if new_id in plans['plan_id'].values:
+            print("There is already a humanitarian plan with plan ID", new_id + ",",
+                  "i.e. location in", location, "and start date in", start_date[6:] + ".",
+                  "\nYou will be prompted to re-enter the location.")
+            return "9"
         if start < t - datetime.timedelta(days=30):
             while True:
                 print("\nWarning: More than 30 days have elapsed since the start date.")
