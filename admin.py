@@ -591,6 +591,44 @@ class Admin:
         # print(df)
         # logging.info({f'Admin has {_str}d {user}'})
 
+    def low_resources_notification(self):
+
+        # Getting the plan_id of all the plans created
+        humani_plan = pd.read_csv('humanitarian_plan.csv')
+        plans = []
+        for index, row in humani_plan.iterrows():
+            plans.append(row["plan_id"])
+        # print(plans)
+
+        for plan_id in plans:  # iterate through each humanitarian plan created
+            current_plan = pd.read_csv(f'{plan_id}.csv')
+            nb_of_camps = 0  # number of camps with low resources
+
+            for i in current_plan.index:  # iterate through each camp of the current humanitarian plan
+                refugees = current_plan.loc[i, "refugees"]
+                camp = current_plan.loc[i, "camp_name"]
+                food_left = refugees * 2 - current_plan.loc[i, "food"]
+                water_left = refugees * 2 - current_plan.loc[i, "water"]
+                firstaid_left = int((refugees * 2) / 3) - current_plan.loc[i, "firstaid_kits"]
+
+                # if food_left > 0:  # if there is less than two days' worth of food
+                #     print(f'* Warning: {plan_id}\'s {camp} is running low on food. Please navigate to the '
+                #           f'resource allocation menu *')
+                # if water_left > 0:
+                #     print(f'* Warning: {plan_id}\'s {camp} is running low on water. Please navigate to the '
+                #           f'resource allocation menu *')
+                # if firstaid_left > 0:
+                #     print(f'* Warning: {plan_id}\'s {camp} is running low on first-aid kits. Please navigate to the '
+                #           f'resource allocation menu *')
+
+                if food_left > 0 or water_left > 0 or firstaid_left > 0:  # if there is less than two days' worth of food
+                    nb_of_camps += 1
+
+            if nb_of_camps == 1:
+                print(f'* Warning: {plan_id} has {nb_of_camps} camp with low resources. *')
+            elif nb_of_camps > 1:
+                print(f'* Warning: {plan_id} has {nb_of_camps} camps with low resources. *')
+
     def resource_request_notification(self):
         try:
             requests = pd.read_csv('resource_requests.csv')
@@ -1026,8 +1064,9 @@ class Admin:
             print("---------------")
             self.deactivation_request_notification()
             self.resource_request_notification()
+            self.low_resources_notification()
             while True:
-                print("Choose would you would like to do.")
+                print("\nChoose would you would like to do.")
                 print("Enter [1] to create, display, edit or end a humanitarian plan")
                 print("Enter [2] to manage volunteer accounts (including camp identification)")
                 print("Enter [3] to display, allocate or respond to requests for resources")
