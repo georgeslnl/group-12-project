@@ -64,7 +64,7 @@ def location(line):
     while True:
         # first checks that location is a string
         _location = string(line)
-        if _location in valid_cities:
+        if _location.lower() in valid_cities:
             return _location
         else:
             logging.error(f'Location {_location} input by user is not a valid city in the database.')

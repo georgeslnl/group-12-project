@@ -30,7 +30,7 @@ def main_menu():
         if login_option == 0:
             print("\nExiting the application.")
             print("Thank you for using the Humanitarian Management System.\n")
-            logging.info("User logged out.")
+            logging.info("User exited the application.")
             exit()
         elif login_option == 1:
             admin_login()
