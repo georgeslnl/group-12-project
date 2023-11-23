@@ -259,7 +259,7 @@ class Admin:
         while progress < 10:
             if progress == 0:
                 plan_id = volunteer_funcs.add_plan()
-                if plan_id == "B":
+                if plan_id == "X":
                     return
                 else:
                     progress += 1
@@ -1004,7 +1004,7 @@ class Admin:
                 while True:
                     print("\nEnter [B] to go back to the previous step.")
                     amount = input(f'Enter the number of food packets you would like to allocate to Camp {camp_no}: ')
-                    if amount == "B":
+                    if amount.upper() == "B":
                         break
                     try:
                         amount = int(amount)
@@ -1028,7 +1028,7 @@ class Admin:
                 while True:
                     print("\nEnter [B] to go back to the previous step.")
                     amount = input(f'Enter the number of water portions you would like to allocate to Camp {camp_no}: ')
-                    if amount == "B":
+                    if amount.upper() == "B":
                         break
                     try:
                         amount = int(amount)
@@ -1051,7 +1051,7 @@ class Admin:
                 while True:
                     print("\nEnter [B] to go back to the previous step.")
                     amount = input(f'Enter the number of first-aid kits you would like to allocate to Camp {camp_no}: ')
-                    if amount == "B":
+                    if amount.upper() == "B":
                         break
                     try:
                         amount = int(amount)
@@ -1461,9 +1461,9 @@ class Admin:
                 while True:
                     print("\nEnter [X] to return to the previous menu or [B] to go back to camp selection.")
                     new_capacity = input("New capacity: ")
-                    if new_capacity == "X":
+                    if new_capacity.upper() == "X":
                         return
-                    if new_capacity == "B":
+                    if new_capacity.upper() == "B":
                         progress -= 1
                         break
                     try:
@@ -1538,7 +1538,7 @@ class Admin:
                           str(camps['refugees'].iloc[row]) + " refugees",
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 camp_num = input("Enter the number of the camp the volunteer will join (e.g. [1] for Camp 1): ")
-                if camp_num == "X":
+                if camp_num.upper() == "X":
                     return None
                 try:
                     camp_num = int(camp_num)
@@ -1566,8 +1566,8 @@ class Admin:
                           str(camps['refugees'].iloc[row]) + " refugees",
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 camp_num = input("Enter the number of the camp the volunteer will join (e.g. [1] for Camp 1): ")
-                if camp_num == "X":
-                    return camp_name
+                if camp_num.upper() == "X":
+                    return camp_name.upper()
                 try:
                     camp_num = int(camp_num)
                     if camp_num not in range(1, len(camps.index) + 1):
@@ -1970,7 +1970,7 @@ class Admin:
                     '%d-%m-%Y %H:%M')
                 print("[" + str(row + 1) + "]", "Start:", start, "\t", "End:", end)
             remove = input("Enter the number of the session you would like to remove: ").strip()
-            if remove == "X":
+            if remove.upper() == "X":
                 return
             try:
                 remove = int(remove)

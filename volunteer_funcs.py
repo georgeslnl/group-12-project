@@ -7,18 +7,18 @@ def add_plan():
 
     if len(plans.index) == 0:
         print("\nThere are no ongoing humanitarian plans. Please check back later.")
-        return "B"
+        return "X"
 
     while True:
-        print("\nEnter [B] to return to the previous menu.")
+        print("\nEnter [X] to return to the previous menu.")
         print("Choose a plan.")
         print("\nNumber - Location - Event Description - Start Date - # Camps")
         for row in range(len(plans.index)):
             print(row + 1, plans['location'].iloc[row], plans['description'].iloc[row],
                   plans['start_date'].iloc[row], str(plans['number_of_camps'].iloc[row]) + " camps", sep=" - ")
         plan_num = input("Enter the number of the plan you would like to join: ")
-        if plan_num == "B":
-            return plan_num
+        if plan_num.upper() == "X":
+            return plan_num.upper()
         try:
             plan_num = int(plan_num)
             if plan_num not in range(1, len(plans.index) + 1):
@@ -46,9 +46,9 @@ def add_camp(plan_id):
                   str(camps['refugees'].iloc[row]) + " refugees",
                   str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
         camp_num = input("Enter the number of the camp you would like to join (e.g. [1] for Camp 1): ")
-        if camp_num in ("X", "B"):
-            return camp_num
-        elif camp_num == "N":
+        if camp_num.upper() in ("X", "B"):
+            return camp_num.upper()
+        elif camp_num.upper() == "N":
             return None
         try:
             camp_num = int(camp_num)

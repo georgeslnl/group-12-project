@@ -97,8 +97,8 @@ def add_family(remaining_cap):
     while True:
         print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
         family = input("Number of family members: ")
-        if family in ("X", "B"):
-            return family
+        if family.upper() in ("X", "B"):
+            return family.upper()
         try:
             family = int(family)
             if family < 1:
@@ -296,7 +296,7 @@ def edit_family(plan_id, camp_name, refugee_id, family):
     while True:
         print("\nEnter [X] to return to the previous step.")
         new_family = input("New number of family members: ")
-        if new_family == "X":
+        if new_family.upper() == "X":
             return
         try:
             new_family = int(new_family)

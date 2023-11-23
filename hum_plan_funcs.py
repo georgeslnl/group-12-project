@@ -79,9 +79,9 @@ def add_start_date(location):
 
 def add_num_camps():
     while True:
-        print("\nEnter [X] to return to the previous menu or B] to go back to the previous step.")
+        print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
         nb_of_camps = input("Please enter the number of camps to set up: ").strip()
-        if nb_of_camps in ("X", "B"):
+        if nb_of_camps.upper() in ("X", "B"):
             return nb_of_camps
         try:
             nb_of_camps = int(nb_of_camps)
@@ -96,8 +96,8 @@ def edit_description(plan_id,plan_index,hum_plan_df):
     while True:
         print("\nEnter [X] to return to the previous menu.")
         new_desc = v.string(f'Enter the new description of {plan_id}: ').strip()
-        if new_desc == "X":
-            return new_desc
+        if new_desc.upper() == "X":
+            return new_desc.upper()
         elif len(new_desc) > 200:
             print("Description cannot exceed 200 characters.")
             continue

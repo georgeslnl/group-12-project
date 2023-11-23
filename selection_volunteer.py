@@ -12,8 +12,8 @@ def select_plan():
     while True:
         print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
         plan_num = input("Enter the number of your chosen plan: ")
-        if plan_num in ("X", "B"):
-            return plan_num
+        if plan_num.upper() in ("X", "B"):
+            return plan_num.upper()
         try:
             plan_num = int(plan_num)
             if plan_num not in range(1, len(plans.index) + 1):
@@ -50,8 +50,8 @@ def select_camp(plan_id, active):
     while True:
         print("\nEnter [X] to return to the previous menu or [B] to go back to plan selection.")
         camp_num = input("Enter the number of your chosen camp: ")
-        if camp_num in ("X", "B"):
-            return camp_num
+        if camp_num.upper() in ("X", "B"):
+            return camp_num.upper()
         try:
             camp_num = int(camp_num)
             if camp_num not in range(1, len(camps.index) + 1):
@@ -87,9 +87,9 @@ def select_camp_none(plan_id, active):
         print("\nEnter [X] to return to the previous menu or [B] to go back to plan selection.")
         print("If the volunteer has no camp identification, enter [N].")
         camp_num = input("Enter the number of your chosen camp: ")
-        if camp_num in ("X", "B"):
-            return camp_num
-        if camp_num == "N":
+        if camp_num.upper() in ("X", "B"):
+            return camp_num.upper()
+        if camp_num.upper() == "N":
             return None
         try:
             camp_num = int(camp_num)

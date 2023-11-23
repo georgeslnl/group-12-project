@@ -112,8 +112,8 @@ def select_end_time(start_time, cur_user_times):
         for i, time in enumerate(available_end):
             print("[" + str(i + 1) + "] " + time)
         end = input("Enter the number of your chosen end time: ").strip()
-        if end in ("X", "B"):
-            return end
+        if end.upper() in ("X", "B"):
+            return end.upper()
         try:
             end = int(end)
             if end not in range(1, len(available_end) + 1):

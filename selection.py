@@ -33,8 +33,8 @@ def select_camp(plan_id):
     while True:
         print("\nEnter [X] to return to the previous menu or [B] to go back to plan selection.")
         camp_num = input("Enter the number of your chosen camp: ")
-        if camp_num in ("X", "B"):
-            return camp_num
+        if camp_num.upper() in ("X", "B"):
+            return camp_num.upper()
         try:
             camp_num = int(camp_num)
             if camp_num not in range(1, len(camps.index) + 1):

@@ -11,8 +11,8 @@ def select_plan():
     while True:
         print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
         plan_num = input("Enter the number of your chosen plan: ")
-        if plan_num in ("X", "B"):
-            return plan_num
+        if plan_num.upper() in ("X", "B"):
+            return plan_num.upper()
         try:
             plan_num = int(plan_num)
             if plan_num not in range(1, len(plans.index) + 1):
@@ -40,8 +40,8 @@ def select_camp(plan_id):
     while True:
         print("\nEnter [X] to return to the previous menu or [B] to go back to plan selection.")
         camp_num = input("Enter the number of your chosen camp: ")
-        if camp_num in ("X", "B"):
-            return camp_num
+        if camp_num.upper() in ("X", "B"):
+            return camp_num.upper()
         try:
             camp_num = int(camp_num)
             if camp_num not in range(1, len(camps.index) + 1):
@@ -63,9 +63,9 @@ def select_refugee(plan_id, camp_name):
         print("Enter [X] to return to the previous menu or [B] to go back to camp selection.")
         print("Enter [S] to list all refugees at the selected camp.")
         refugee_id = input("Enter refugee ID: ")
-        if refugee_id in ("X", "B"):
-            return refugee_id
-        if refugee_id == "S":
+        if refugee_id.upper() in ("X", "B"):
+            return refugee_id.upper()
+        if refugee_id.upper() == "S":
             print("Refugees at plan", plan_id + ",", camp_name + ":")
             print("Refugee ID - Refugee Name - Date of Birth - # Family Members")
             for row in range(len(refugees.index)):
@@ -108,9 +108,9 @@ def initial_selection():
         while True:
             print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
             refugee_id = input("Enter the refugee ID of your chosen refugee: ")
-            if refugee_id == "X":
+            if refugee_id.upper() == "X":
                 return 0
-            if refugee_id == "B":
+            if refugee_id.upper() == "B":
                 break
             try:
                 refugee_id = int(refugee_id)
@@ -121,7 +121,7 @@ def initial_selection():
                 continue
             break
 
-        if refugee_id == "B":
+        if refugee_id.upper() == "B":
             continue
         selected = refugees[refugees['refugee_id'] == refugee_id]
         return selected.iloc[0]['plan_id'], selected.iloc[0]['camp_name'], refugee_id
