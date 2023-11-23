@@ -1219,7 +1219,7 @@ class Admin:
                 if plan_id == 0:
                     continue
                 plan_csv = plan_id + ".csv"
-                print(f"opening {plan_csv}...\n")
+                print(f"\nopening {plan_csv}...\n")
                 self.display_resources(plan_csv)
                 # humani_plan = pd.read_csv('humanitarian_plan.csv')
                 # while True:
@@ -1278,6 +1278,7 @@ class Admin:
                 #         hum_plan = f"{location}_{year}.csv"
                 #         print(f"\nopening {hum_plan}...\n")
                 #         break
+                print(f"\nYou have selected {plan_id}.\n")
                 print("\nWould you like to auto-allocate resources to all camps or select a camp?")
                 print("Auto-allocating feature will top up resources to all camps for the following 7 days.")
                 print("Enter [1] to allocate resources to all camps")
