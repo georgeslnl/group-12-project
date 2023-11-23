@@ -1088,31 +1088,35 @@ class Admin:
 
     def admin_menu(self):
         while self.logged_in:
+            logging.debug("Admin has entered the admin menu.")
             print("\n---------------")
             print("Admin Menu")
             print("---------------")
+            logging.debug("Checking for deactivation requests.")
             self.deactivation_request_notification()
+            logging.debug("Checking for resource requests.")
             self.resource_request_notification()
+            logging.debug("Checking if any camps are low on resources.")
             self.low_resources_notification()
             while True:
                 print("\nChoose would you would like to do.")
                 print("Enter [1] to create, display, edit or end a humanitarian plan")
                 print("Enter [2] to manage volunteer accounts (including camp identification)")
-                print("Enter [3] to display, allocate or respond to requests for resources")
+                print("Enter [3] to manage resources at humanitarian plans")
                 print("Enter [4] to manage refugee profiles")
                 print("Enter [5] to manage volunteering sessions")
                 print("Enter [0] to logout")
                 try:
                     option = int(input("Select an option: "))
                     if option not in range(6):
-                        logging.error(f"Value error raised - Admin entered {option}")
                         raise ValueError
                 except ValueError:
                     print("Please enter a number from the options provided.\n")
+                    logging.error("Invalid user input.")
                     continue
                 break
             if option == 0:
-                logging.debug(f"Admin has chosen to logout.")
+                logging.debug(f"Admin has logged out of their session.")
                 self.logout()
             if option == 1:
                 logging.debug(f"Admin has selected the humanitarian plan menu.")
@@ -1124,14 +1128,15 @@ class Admin:
                 logging.debug(f"Admin has selected the resources menu.")
                 self.resources_menu()
             if option == 4:
-                logging.debug(f"Admin has selected the refugee menu.")
+                logging.debug(f"Admin has selected the refugee profile menu.")
                 self.refugee_menu()
             if option == 5:
-                logging.debug(f"{self.username} has selected the volunteering session menu.")
+                logging.debug(f"Admin has selected the volunteering session menu.")
                 self.volunteering_session_menu()
 
     def hum_plan_menu(self):
         while True:
+            logging.debug("Admin has entered the humanitarian plan menu.")
             print("\nHumanitarian Plans")
             while True:
                 print("Enter [1] to create a humanitarian plan")
@@ -1141,14 +1146,12 @@ class Admin:
                 print("Enter [5] to end a humanitarian plan")
                 print("Enter [0] to return to the admin menu")
                 try:
-                    user_input = input("Select an option: ")
-                    option = int(user_input)
-                    logging.debug(f'Admin has entered {user_input}.')
+                    option = int(input("Select an option: "))
                     if option not in range(6):
-                        logging.error(f"Admin has entered {user_input}, raising a ValueError.")
                         raise ValueError
                 except ValueError:
                     print("Please enter a number from the options provided.\n")
+                    logging.error("Invalid user input.")
                     continue
                 break
             if option == 0:
@@ -1172,6 +1175,7 @@ class Admin:
 
     def vol_accounts_menu(self):
         while True:
+            logging.debug("Admin has entered the volunteer accounts menu.")
             print("\nManage Volunteer Accounts")
             while True:
                 print("Enter [1] to create a volunteer account")
@@ -1183,14 +1187,12 @@ class Admin:
                 print("Enter [7] to delete a volunteer account")
                 print("Enter [0] to return to the admin menu")
                 try:
-                    user_input = input("Select an option: ")
-                    option = int(user_input)
-                    logging.debug(f'Admin has entered {user_input}.')
+                    option = int(input("Select an option: "))
                     if option not in range(8):
-                        logging.error(f"Admin has entered {user_input}, raising a ValueError.")
                         raise ValueError
                 except ValueError:
                     print("Please enter a number from the options provided.\n")
+                    logging.error("Invalid user input.")
                     continue
                 break
             if option == 0:
@@ -1220,6 +1222,7 @@ class Admin:
 
     def resources_menu(self):
         while True:
+            logging.debug("Admin has entered the resources menu.")
             print("\nManage Resources")
             while True:
                 print("Enter [1] to display resources for a humanitarian plan")
@@ -1228,14 +1231,12 @@ class Admin:
                 print("Enter [4] to respond to resource requests from volunteers")
                 print("Enter [0] to return to the admin menu")
                 try:
-                    user_input = input("Select an option: ")
-                    option = int(user_input)
-                    logging.debug(f'Admin has entered {user_input}.')
+                    option = int(input("Select an option: "))
                     if option not in range(5):
-                        logging.error(f"Admin has entered {user_input}, raising a ValueError.")
                         raise ValueError
                 except ValueError:
                     print("Please enter a number from the options provided.\n")
+                    logging.error("Invalid user input.")
                     continue
                 break
             if option == 0:
@@ -1250,20 +1251,6 @@ class Admin:
                 plan_csv = plan_id + ".csv"
                 print(f"\nopening {plan_csv}...\n")
                 self.display_resources(plan_csv)
-                # humani_plan = pd.read_csv('humanitarian_plan.csv')
-                # while True:
-                #      try:
-                #          print(humani_plan)
-                #          index = v.integer(
-                #              "Please enter the index of the humanitarian plan of which you would like to display resources.")
-                #          location = humani_plan.loc[index, 'location'].replace(' ', '_')
-                #          year = humani_plan.loc[index,'start_date'].split('-')[2]
-                #          plan_csv = f"{location}_{year}.csv"
-                #          print(f"\nopening {plan_csv}...\n")
-                #          self.display_resources(plan_csv)
-                #          break
-                #      except KeyError:
-                #          print("Please enter a correct index.")
             if option == 2:
                 logging.debug(f"Admin has chosen to allocate resources manually.")
                 print("\nManually allocate resources")
@@ -1272,19 +1259,6 @@ class Admin:
                     continue
                 hum_plan = plan_id + ".csv"
                 location = plan_id[:-5]
-                # humani_plan = pd.read_csv('humanitarian_plan.csv')
-                # while True:
-                #     try:
-                #         print(humani_plan)
-                #         index = v.integer(
-                #             "Please enter the index of the humanitarian plan which you would like to allocate resources to.")
-                #         location = humani_plan.loc[index, 'location'].replace(' ', '_')
-                #         year = humani_plan.loc[index, 'start_date'].split('-')[2]
-                #         hum_plan = f"{location}_{year}.csv"
-                #         print(f"\nopening {hum_plan}...\n")
-                #         break
-                #     except KeyError:
-                #         print("Please enter a correct index.")
                 self.allocate_resources(hum_plan, location)
             if option == 3:  # auto-allocate
                 logging.debug(f"Admin has chosen to auto-allocate resources.")
@@ -1294,20 +1268,9 @@ class Admin:
                     continue
                 hum_plan = plan_id + ".csv"
                 location = plan_id[:-5]
-                # humani_plan = pd.read_csv('humanitarian_plan.csv')
-                # while True:
-                #     print(humani_plan)
-                #     index = v.integer(
-                #         "Please enter the index of the humanitarian plan which you would like to allocate resources to.")
-                #     if index not in humani_plan.index:
-                #         print("Please enter a correct index.")
-                #     else:
-                #         location = humani_plan.loc[index, 'location'].replace(' ', '_')
-                #         year = humani_plan.loc[index, 'start_date'].split('-')[2]
-                #         hum_plan = f"{location}_{year}.csv"
-                #         print(f"\nopening {hum_plan}...\n")
-                #         break
                 print(f"\nYou have selected {plan_id}.\n")
+
+                logging.debug("Admin is prompted to select between all camps or a specific camp.")
                 print("\nWould you like to auto-allocate resources to all camps or select a camp?")
                 print("Auto-allocating feature will top up resources to all camps for the following 7 days.")
                 print("Enter [1] to allocate resources to all camps")
@@ -1317,6 +1280,7 @@ class Admin:
                     option = v.integer("Select an option: ")
                     if option not in range(3):
                         print("Please enter a number from the options provided.")
+                        logging.error("Invalid user input.")
                         continue
                     break
                 if option == 1:
@@ -1329,6 +1293,7 @@ class Admin:
 
     def refugee_menu(self):
         while True:
+            logging.debug("Admin has entered the refugee profile menu.")
             print("\nManage Refugee Profiles")
             while True:
                 print("Enter [1] to create a new refugee profile")
@@ -1338,27 +1303,28 @@ class Admin:
                 try:
                     option = int(input("Select an option: "))
                     if option not in range(4):
-                        logging.error(f'Admin did not select a valid option at the Refugee Profile menu.')
                         raise ValueError
                 except ValueError:
                     print("Please enter a number from the options provided.\n")
+                    logging.error("Invalid user input.")
                     continue
                 break
             if option == 0:
                 logging.debug(f"Admin has returned to the admin menu.")
                 return
             if option == 1:
-                logging.debug(f'Admin will be taken to the create refugee profile function.')
+                logging.debug(f'Admin has chosen to create a refugee profile.')
                 self.create_refugee_profile()
             if option == 2:
-                logging.debug(f'Admin will be taken to the view refugee profile function.')
+                logging.debug(f'Admin has chosen to view a refugee profile.')
                 self.view_refugee_profile()
             if option == 3:
-                logging.debug(f'Admin will be taken to the edit refugee profile function.')
+                logging.debug(f'Admin has chosen to edit or remove a refugee profile.')
                 self.edit_refugee_profile()
 
     def volunteering_session_menu(self):
         while True:
+            logging.debug("Admin has entered the refugee profile menu.")
             print("\nManage Volunteering Sessions")
             users = pd.read_csv('users.csv')
             users = users[(users['account_type'] == "volunteer") & (users['active'] == 1)]
@@ -1372,17 +1338,16 @@ class Admin:
                 print("Enter [3] to remove a volunteering session")
                 print("Enter [0] to return to the admin menu")
                 try:
-                    user_input = input("Select an option: ")
-                    option = int(user_input)
+                    option = int(input("Select an option: "))
                     if option not in range(4):
-                        logging.error(f'Admin has entered {user_input}, which raised a ValueError.')
                         raise ValueError
                 except ValueError:
                     print("Please enter a number from the options provided.\n")
+                    logging.error("Invalid user input.")
                     continue
                 break
             if option == 0:
-                logging.debug(f'Admin has chosen to return to the volunteer menu.')
+                logging.debug(f'Admin has returned to the volunteer menu.')
                 return
             if option == 1:
                 logging.debug(f'Admin has chosen to add a volunteering session.')
@@ -1395,7 +1360,6 @@ class Admin:
                 self.remove_volunteering_session()
 
     def logout(self):
-        logging.info(f'Admin has logged out of their session.')
         self.logged_in = False
         print("You are now logged out. See you again!\n")
 
