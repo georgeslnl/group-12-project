@@ -75,6 +75,11 @@ class Admin:
         # desc is wrapped in "" because we don't want to csv file to see a "," in the description as a delimitter
         h.close()
 
+        # sort by plan_id after a new plan is added
+        plans = pd.read_csv('humanitarian_plan.csv')
+        plans = plans.sort_values(by=['plan_id'])
+        plans.to_csv('humanitarian_plan.csv', index=False)
+
         # Prints out the information about the Humanitarian Plan created
         print(f'A new humanitarian plan has been created with the following information:'
               f'\n\t Description: {desc}'
@@ -341,14 +346,24 @@ class Admin:
                     progress += 1
 
         # Update csv tables
-        users = open("users.csv", "a")
-        if camp_name:
-            users.write(
-                f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},{camp_name}')
-        else:
-            users.write(
-                f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},')
-        users.close()
+        # users = open("users.csv", "a")
+        # if camp_name:
+        #     users.write(
+        #         f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},{camp_name}')
+        # else:
+        #     users.write(
+        #         f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},')
+        # users.close()
+
+        users = pd.read_csv('users.csv', dtype={'password': str})
+        new_row = {'username': [username], 'password': [password], 'account_type': ['volunteer'], 'active': [1],
+                   'deactivation_requested': [0], 'first_name': [first_name], 'last_name': [last_name],
+                   'email': [email], 'phone_number': [phone_number], 'gender': [gender],
+                   'date_of_birth': [date_of_birth], 'plan_id': [plan_id], 'camp_name': [camp_name]}
+        new = pd.DataFrame(new_row)
+        users = pd.concat([users, new], ignore_index=True)
+        users = users.sort_values(by=['username'])  # sort by username before saving
+        users.to_csv('users.csv', index=False)
 
         if camp_name:
             camps = pd.read_csv(plan_id + '.csv')
@@ -1485,6 +1500,7 @@ class Admin:
 
         users = pd.read_csv('users.csv', dtype={'password': str})
         select_user = users[users['username'] == username]
+        select_user = select_user.replace({np.nan: None})
         gender_str = convert_gender(select_user.iloc[0]['gender'])
         print("\nDetails of", username, "are as follows:")
         print("Username:", username)

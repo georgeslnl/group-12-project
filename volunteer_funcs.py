@@ -267,7 +267,14 @@ def edit_username(username):
     # update csv file
     cur_user = (users['username'] == username)
     users.loc[cur_user, 'username'] = new_username
+    users = users.sort_values(by=['username'])  # sort by username before saving
     users.to_csv('users.csv', index=False)
+
+    # also update for volunteering sessions
+    vol_times = pd.read_csv("volunteering_times.csv")
+    vol_times.loc[vol_times["username"] == username, "username"] = new_username
+    vol_times.to_csv('volunteering_times.csv', index=False)
+
     print("Volunteer's new username is:", new_username)
     return
 
