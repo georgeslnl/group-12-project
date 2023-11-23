@@ -92,19 +92,41 @@ def add_num_camps():
             continue
         return nb_of_camps
 
-def edit_description(plan_id,plan_index,hum_plan_df):
+def edit_description(plan_id, cur_desc):
+    print(f'You have chosen to edit the description of {plan_id}.'
+          f'\n The current description is:'
+          f'\n {cur_desc}')
     while True:
-        print("\nEnter [X] to return to the previous menu.")
-        new_desc = v.string(f'Enter the new description of {plan_id}: ').strip()
-        if new_desc.upper() == "X":
-            return new_desc.upper()
-        elif len(new_desc) > 200:
+        print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
+        try:
+            new_desc = input(f'Enter the new description of {plan_id}: ').strip()
+            if new_desc in ("0", "9"):
+                return new_desc
+            s = re.search("[a-zA-Z]", new_desc)
+            if not s:
+                raise ValueError
+        except ValueError:
+            print("Please ensure description contains text.")
+            continue
+        if len(new_desc) > 200:
             print("Description cannot exceed 200 characters.")
             continue
-        else:
-            break
-    hum_plan_df.loc[hum_plan_df.index == plan_index, "description"] = new_desc
-    hum_plan_df.to_csv('humanitarian_plan.csv', index=False)
-    print(f'The change has been saved. The updated details of {plan_id} are as follows:'
-          f'\n{hum_plan_df.loc[hum_plan_df.index == plan_index, :]}')
-    return hum_plan_df
+        # new_desc will be updated in the csv file after being returned
+        return new_desc
+
+# def edit_description(plan_id,plan_index,hum_plan_df):
+#     while True:
+#         print("\nEnter [X] to return to the previous menu.")
+#         new_desc = v.string(f'Enter the new description of {plan_id}: ').strip()
+#         if new_desc.upper() == "X":
+#             return new_desc.upper()
+#         elif len(new_desc) > 200:
+#             print("Description cannot exceed 200 characters.")
+#             continue
+#         else:
+#             break
+#     hum_plan_df.loc[hum_plan_df.index == plan_index, "description"] = new_desc
+#     hum_plan_df.to_csv('humanitarian_plan.csv', index=False)
+#     print(f'The change has been saved. The updated details of {plan_id} are as follows:'
+#           f'\n{hum_plan_df.loc[hum_plan_df.index == plan_index, :]}')
+#     return hum_plan_df
