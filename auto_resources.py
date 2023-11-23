@@ -4,8 +4,32 @@ import admin
 import verify as v
 import logging
 
+
+
+# By entering the plan_id and camp_name, we will get how many supplies we need exactly
+def med_needed(plan_id, camp_name):
+    refugees = pd.read_csv("refugees.csv")
+    filtered_refugees = refugees[(refugees['plan_id'] == plan_id) & (refugees['camp_name'] == camp_name)]
+    total_med_needed = 0
+
+    # Iterate each refugee
+    for index, row in filtered_refugees.iterrows():
+        fam_size = row['family_members']    #getting the no. of family memebers
+        med_con = str(row['medical_condition']) #getting their medical condition
+        # medical condition: 1 is 0, 2/4/6 is 2, 3/5 is 5, 7 is 7
+        if med_con == "1":
+            med_needed = 0
+        elif med_con == "2" or med_con == "4" or med_con == "6":
+            med_needed = 1*fam_size
+        elif med_con == "3" or med_con == "5":
+            med_needed = 2*fam_size
+        elif med_con ==  "7":
+            med_needed = 3*fam_size
+        total_med_needed += med_needed
+    return total_med_needed
+
 def auto_all(hum_plan, location):
-    resources = pd.read_csv(hum_plan)
+    resources = pd.read_csv(hum_plan) # hum_plan == London_2023.csv for example
     humani_plan = pd.read_csv("humanitarian_plan.csv")
 
     # first we count how many resources we need
@@ -20,11 +44,15 @@ def auto_all(hum_plan, location):
         if water_needed < 0:
             water_needed = 0
         sum_needed[1] += water_needed
-        # each person consumes 1/3 kit per day (presumably)
-        firstaid_needed = int((refugees * 7) / 3) - resources.loc[i, "firstaid_kits"]
+
+        # now we calculate the medical supplies needed
+        camp_name = resources.loc[i, "camp_name"]
+        firstaid_needed = med_needed(hum_plan[:-4], camp_name)*7 - resources.loc[i, "firstaid_kits"]
         if firstaid_needed < 0:
             firstaid_needed = 0
         sum_needed[2] += firstaid_needed
+
+    # medical condition: 1 is 0, 2/4/6 is 2, 3/5 is 5, 7 is 7
 
     # check if we have enough resources in store.
     food_in_storage = int(humani_plan.loc[humani_plan.location == location, 'food_storage'].iloc[0])
@@ -35,7 +63,7 @@ def auto_all(hum_plan, location):
         humani_plan.loc[humani_plan['location'] == location, 'firstaid_kits_storage'].iloc[0])
     # if storage resources insufficient
     if food_in_storage < sum_needed[0] or water_in_storage < sum_needed[1] or firstaid_in_storage < sum_needed[2]:
-        print("Resources insufficient, please enter manually or request new resources.")
+        print("\nResources insufficient, please enter manually or request new resources.")
         return
 
     # now we add and write one by one, if resources sufficient
@@ -57,7 +85,7 @@ def auto_all(hum_plan, location):
                     humani_plan['location'] == location, 'water_storage'] -= water_needed
                 resources.loc[i, "water"] += water_needed
                 # first-aid
-                firstaid_needed = int((refugees * 7) / 3) - resources.loc[i, "firstaid_kits"]
+                firstaid_needed = med_needed(hum_plan[:-4], camp_name)*7 - resources.loc[i, "firstaid_kits"]
                 humani_plan.loc[
                     humani_plan['location'] == location, 'firstaid_kits_storage'] -= firstaid_needed
                 resources.loc[i, "firstaid_kits"] += firstaid_needed
@@ -97,7 +125,7 @@ def auto_one(hum_plan, location):
         if water_needed < 0:
             water_needed = 0
         # each person consumes 1/3 kit per day (presumably)
-        firstaid_needed = int((refugees * 7) / 3) - int(
+        firstaid_needed = med_needed(hum_plan[:-4], camp_name)*7 - int(
             resources.loc[resources['camp_name'] == camp_name, "firstaid_kits"].iloc[0])
         if firstaid_needed < 0:
             firstaid_needed = 0

@@ -233,23 +233,25 @@ def volunteer_registration():
             else:
                 progress += 1
 
-    # Update csv tables
-    users = open("users.csv", "a")
-    if camp_name:
-        users.write(
-            f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},{camp_name}')
-    else:
-        users.write(
-            f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},')
-    users.close()
+    # Update csv files
+    # users = open("users.csv", "a")
+    # if camp_name:
+    #     users.write(
+    #         f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},{camp_name}')
+    # else:
+    #     users.write(
+    #         f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},')
+    # users.close()
 
-    # users = pd.read_csv('users.csv', dtype={'password': str})
-    # new_row = {'username': [username], 'password': [password], 'active': [1], 'first_name': [first_name],
-    #            'last_name': [last_name], 'email': [email], 'phone_number': [phone_number], 'gender': [gender],
-    #            'date_of_birth': [date_of_birth], 'camp_name': [camp_name]}
-    # new = pd.DataFrame(new_row)
-    # users = pd.concat([users, new], ignore_index=True)
-    # users.to_csv('users.csv', index=False)
+    users = pd.read_csv('users.csv', dtype={'password': str})
+    new_row = {'username': [username], 'password': [password], 'account_type': ['volunteer'], 'active': [1],
+               'deactivation_requested': [0], 'first_name': [first_name], 'last_name': [last_name], 'email': [email],
+               'phone_number': [phone_number], 'gender': [gender], 'date_of_birth': [date_of_birth],
+               'plan_id': [plan_id], 'camp_name': [camp_name]}
+    new = pd.DataFrame(new_row)
+    users = pd.concat([users, new], ignore_index=True)
+    users = users.sort_values(by=['username'])  # sort by username before saving
+    users.to_csv('users.csv', index=False)
 
     if camp_name:
         camps = pd.read_csv(plan_id + '.csv')

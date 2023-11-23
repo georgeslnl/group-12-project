@@ -308,7 +308,14 @@ class Volunteer:
             # update csv file
             cur_user = (users['username'] == self.username)
             users.loc[cur_user, 'username'] = new_username
+            users = users.sort_values(by=['username'])  # sort by username before saving
             users.to_csv('users.csv', index=False)
+
+            # also update for volunteering sessions
+            vol_times = pd.read_csv("volunteering_times.csv")
+            vol_times.loc[vol_times["username"] == self.username, "username"] = new_username
+            vol_times.to_csv('volunteering_times.csv', index=False)
+
             print("Your new username is:", new_username)
             logging.info(f'{self.username} has successfully changed their username to {new_username}.')
             self.username = new_username
@@ -936,6 +943,7 @@ class Volunteer:
             selected = selected.replace({np.nan: None})
             refugee_name = selected.iloc[0]['refugee_name']
             gender = selected.iloc[0]['gender']
+            date_of_birth = selected.iloc[0]['date_of_birth']
             medical_cond = selected.iloc[0]['medical_condition']
             family = selected.iloc[0]['family_members']
             remarks = selected.iloc[0]['remarks']
@@ -944,14 +952,15 @@ class Volunteer:
                 print("\nWhich details would you like to update?")
                 print("Enter [1] for refugee name")
                 print("Enter [2] for gender")
-                print("Enter [3] for medical condition")
-                print("Enter [4] for no. of family members")
-                print("Enter [5] for remarks")
+                print("Enter [3] for date of birth")
+                print("Enter [4] for medical condition")
+                print("Enter [5] for no. of family members")
+                print("Enter [6] for remarks")
                 print("Enter [9] to remove the refugee's profile")
                 print("Enter [0] to return to the previous menu")
                 try:
                     option = int(input("Select an option: "))
-                    if option not in (0,1,2,3,4,5,9):
+                    if option not in (0,1,2,3,4,5,6,9):
                         raise ValueError
                 except ValueError:
                     print("Please enter a number from the options provided.")
@@ -965,10 +974,12 @@ class Volunteer:
             if option == 2:
                 refugee_profile_funcs.edit_gender(refugee_id, gender)
             if option == 3:
-                refugee_profile_funcs.edit_medical_cond(refugee_id, medical_cond)
+                refugee_profile_funcs.edit_dob(refugee_id, date_of_birth)
             if option == 4:
-                refugee_profile_funcs.edit_family(self.plan_id, self.camp_name, refugee_id, family)
+                refugee_profile_funcs.edit_medical_cond(refugee_id, medical_cond)
             if option == 5:
+                refugee_profile_funcs.edit_family(self.plan_id, self.camp_name, refugee_id, family)
+            if option == 6:
                 refugee_profile_funcs.edit_remarks(refugee_id, remarks)
             if option == 9:
                 refugee_profile_funcs.remove_refugee(self.plan_id, self.camp_name, refugee_id, refugee_name, family)

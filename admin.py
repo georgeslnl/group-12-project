@@ -25,7 +25,7 @@ class Admin:
         """This method lets the admin create a new humanitarian plan.
            The admin needs to input a description, the location affected, the start date of the event, and the number
            of camps.
-           The method then creates a new HumanitarianPlan object and returns it.
+           The method then creates a new HumanitarianPlan object but need not return it.
            It also adds the Humanitarian Plan to the csv file 'humanitarian_plan.csv'
            """
         print("\nCreate humanitarian plan")
@@ -75,14 +75,18 @@ class Admin:
         # desc is wrapped in "" because we don't want to csv file to see a "," in the description as a delimitter
         h.close()
 
+        # sort by plan_id after a new plan is added
+        plans = pd.read_csv('humanitarian_plan.csv')
+        plans = plans.sort_values(by=['plan_id'])
+        plans.to_csv('humanitarian_plan.csv', index=False)
+
         # Prints out the information about the Humanitarian Plan created
         print(f'A new humanitarian plan has been created with the following information:'
               f'\n\t Description: {desc}'
               f'\n\t Location affected: {loc}'
               f'\n\t Start date of the event: {start_date}'
               f'\n\t Number of camps: {nb_of_camps}')
-
-        return hu_pl
+        return
 
     def edit_hum_plan(self):
         hum_plan_df = pd.read_csv('humanitarian_plan.csv')
@@ -342,14 +346,24 @@ class Admin:
                     progress += 1
 
         # Update csv tables
-        users = open("users.csv", "a")
-        if camp_name:
-            users.write(
-                f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},{camp_name}')
-        else:
-            users.write(
-                f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},')
-        users.close()
+        # users = open("users.csv", "a")
+        # if camp_name:
+        #     users.write(
+        #         f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},{camp_name}')
+        # else:
+        #     users.write(
+        #         f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},')
+        # users.close()
+
+        users = pd.read_csv('users.csv', dtype={'password': str})
+        new_row = {'username': [username], 'password': [password], 'account_type': ['volunteer'], 'active': [1],
+                   'deactivation_requested': [0], 'first_name': [first_name], 'last_name': [last_name],
+                   'email': [email], 'phone_number': [phone_number], 'gender': [gender],
+                   'date_of_birth': [date_of_birth], 'plan_id': [plan_id], 'camp_name': [camp_name]}
+        new = pd.DataFrame(new_row)
+        users = pd.concat([users, new], ignore_index=True)
+        users = users.sort_values(by=['username'])  # sort by username before saving
+        users.to_csv('users.csv', index=False)
 
         if camp_name:
             camps = pd.read_csv(plan_id + '.csv')
@@ -591,6 +605,44 @@ class Admin:
         #       "All status below:")
         # print(df)
         # logging.info({f'Admin has {_str}d {user}'})
+
+    def low_resources_notification(self):
+
+        # Getting the plan_id of all the plans created
+        humani_plan = pd.read_csv('humanitarian_plan.csv')
+        plans = []
+        for index, row in humani_plan.iterrows():
+            plans.append(row["plan_id"])
+        # print(plans)
+
+        for plan_id in plans:  # iterate through each humanitarian plan created
+            current_plan = pd.read_csv(f'{plan_id}.csv')
+            nb_of_camps = 0  # number of camps with low resources
+
+            for i in current_plan.index:  # iterate through each camp of the current humanitarian plan
+                refugees = current_plan.loc[i, "refugees"]
+                camp = current_plan.loc[i, "camp_name"]
+                food_left = refugees * 2 - current_plan.loc[i, "food"]
+                water_left = refugees * 2 - current_plan.loc[i, "water"]
+                firstaid_left = int((refugees * 2) / 3) - current_plan.loc[i, "firstaid_kits"]
+
+                # if food_left > 0:  # if there is less than two days' worth of food
+                #     print(f'* Warning: {plan_id}\'s {camp} is running low on food. Please navigate to the '
+                #           f'resource allocation menu *')
+                # if water_left > 0:
+                #     print(f'* Warning: {plan_id}\'s {camp} is running low on water. Please navigate to the '
+                #           f'resource allocation menu *')
+                # if firstaid_left > 0:
+                #     print(f'* Warning: {plan_id}\'s {camp} is running low on first-aid kits. Please navigate to the '
+                #           f'resource allocation menu *')
+
+                if food_left > 0 or water_left > 0 or firstaid_left > 0:  # if there is less than two days' worth of food
+                    nb_of_camps += 1
+
+            if nb_of_camps == 1:
+                print(f'* Warning: {plan_id} has {nb_of_camps} camp with low resources. *')
+            elif nb_of_camps > 1:
+                print(f'* Warning: {plan_id} has {nb_of_camps} camps with low resources. *')
 
     def resource_request_notification(self):
         try:
@@ -924,101 +976,101 @@ class Admin:
             else:
                 print('Please enter the number of an existing camp in this humanitarian plan.')
 
-        choice_format = False
-        while choice_format == False:
-            print("\nChoose the resource you would like to allocate.")
+        # loop allows multiple resources to be allocated without re-selecting camp
+        while True:
+            print("\nChoose the resource you would like to allocate to Camp", camp_no, "of plan", hum_plan[:-4] + ".")
             print("Enter [1] for food packets")
             print("Enter [2] for water portions")
             print("Enter [3] for first-aid kits")
-            print("Enter [0] to return to the previous menu")
+            print("Enter [0] to finish and return to the previous menu")
             try:
                 resource_choice = int(input('Select an option: '))
-                if resource_choice in range(4):
-                    choice_format = True
-                else:
+                if resource_choice not in range(4):
                     raise ValueError
             except ValueError:
                 logging.error('ValueError raised from user input')
                 print('Please enter a number from the options provided.')
                 continue
             if resource_choice == 0:
+                resources.to_csv(hum_plan, index=False)
+                humani_plan.to_csv("humanitarian_plan.csv", index=False)
+                print(f"\nReturning to admin resources menu."
+                      f"\nThe resources in {hum_plan[:-4]} are as follows:"
+                      f"\n{resources}")
+                print(f"\nAnd the remaining resources in storage: "
+                      f"\n{humani_plan.loc[humani_plan.location == location, ['location', 'start_date', 'food_storage', 'water_storage', 'firstaid_kits_storage']]}")
                 return
+            if resource_choice == 1:
+                while True:
+                    print("\nEnter [B] to go back to the previous step.")
+                    amount = input(f'Enter the number of food packets you would like to allocate to Camp {camp_no}: ')
+                    if amount == "B":
+                        break
+                    try:
+                        amount = int(amount)
+                        if amount <= 0:
+                            raise ValueError
+                    except ValueError:
+                        print("Please enter a positive integer.")
+                        continue
+                    # making sure number of {resource} entered does not exceed number in storage
+                    in_storage = humani_plan.loc[humani_plan['location'] == location, 'food_storage']
+                    if any(in_storage - amount < 0):
+                        print('The amount entered exceeds the amount available in storage.'
+                              '\nPlease check the amount in storage and try again.')
+                    else:
+                        humani_plan.loc[humani_plan['location'] == location, 'food_storage'] -= int(amount)
+                        resources.loc[resources['camp_name'] == f"Camp {camp_no}", 'food'] += int(
+                            amount)  # like a = a + food
+                        print("Allocation complete.")
+                        break
+            if resource_choice == 2:
+                while True:
+                    print("\nEnter [B] to go back to the previous step.")
+                    amount = input(f'Enter the number of water portions you would like to allocate to Camp {camp_no}: ')
+                    if amount == "B":
+                        break
+                    try:
+                        amount = int(amount)
+                        if amount <= 0:
+                            raise ValueError
+                    except ValueError:
+                        print("Please enter a positive integer.")
+                        continue
+                    in_storage = humani_plan.loc[humani_plan['location'] == location, 'water_storage']
+                    if any(in_storage - amount < 0):
+                        print('The amount entered exceeds the amount available in storage.'
+                              '\nPlease check the amount in storage and try again.')
+                    else:
+                        humani_plan.loc[humani_plan['location'] == location, 'water_storage'] -= int(amount)
+                        resources.loc[resources['camp_name'] == f"Camp {camp_no}", 'water'] += int(
+                            amount)  # like a = a + food
+                        print("Allocation complete.")
+                        break
+            if resource_choice == 3:
+                while True:
+                    print("\nEnter [B] to go back to the previous step.")
+                    amount = input(f'Enter the number of first-aid kits you would like to allocate to Camp {camp_no}: ')
+                    if amount == "B":
+                        break
+                    try:
+                        amount = int(amount)
+                        if amount <= 0:
+                            raise ValueError
+                    except ValueError:
+                        print("Please enter a positive integer.")
+                        continue
+                    in_storage = humani_plan.loc[humani_plan['location'] == location, 'firstaid_kits_storage']
+                    if any(in_storage - amount < 0):
+                        print('The amount entered exceeds the amount available in storage.'
+                              '\nPlease check the amount in storage and try again.')
+                    else:
+                        humani_plan.loc[humani_plan['location'] == location, 'firstaid_kits_storage'] -= int(amount)
+                        resources.loc[resources['camp_name'] == f"Camp {camp_no}", 'firstaid_kits'] += int(
+                            amount)  # like a = a + food
+                        print("Allocation complete.")
+                        break
 
-        if resource_choice == 1:
-            while True:
-                print("\nEnter [X] to return to the previous menu.")
-                amount = input(f'Enter the number of food packets you would like to allocate to Camp {camp_no}: ')
-                if amount == "X":
-                    return
-                try:
-                    amount = int(amount)
-                    if amount <= 0:
-                        raise ValueError
-                except ValueError:
-                    print("Please enter a positive integer.")
-                    continue
-                # making sure number of {resource} entered does not exceed number in storage
-                in_storage = humani_plan.loc[humani_plan['location'] == location, 'food_storage']
-                if any(in_storage - amount <= 0):
-                    print('The amount entered exceeds the amount available in storage.'
-                          '\nPlease check the amount in storage and try again.')
-                else:
-                    humani_plan.loc[humani_plan['location'] == location, 'food_storage'] -= int(amount)
-                    resources.loc[resources['camp_name'] == f"Camp {camp_no}", 'food'] += int(
-                        amount)  # like a = a + food
-                    break
-        elif resource_choice == 2:
-            while True:
-                print("\nEnter [X] to return to the previous menu.")
-                amount = input(f'Enter the number of food packets you would like to allocate to Camp {camp_no}: ')
-                if amount == "X":
-                    return
-                try:
-                    amount = int(amount)
-                    if amount <= 0:
-                        raise ValueError
-                except ValueError:
-                    print("Please enter a positive integer.")
-                    continue
-                in_storage = humani_plan.loc[humani_plan['location'] == location, 'water_storage']
-                if any(in_storage - amount <= 0):
-                    print('The amount entered exceeds the amount available in storage.'
-                          '\nPlease check the amount in storage and try again.')
-                else:
-                    humani_plan.loc[humani_plan['location'] == location, 'water_storage'] -= int(amount)
-                    resources.loc[resources['camp_name'] == f"Camp {camp_no}", 'water'] += int(
-                        amount)  # like a = a + food
-                    break
-        elif resource_choice == 3:
-            while True:
-                print("\nEnter [X] to return to the previous menu.")
-                amount = input(f'Enter the number of food packets you would like to allocate to Camp {camp_no}: ')
-                if amount == "X":
-                    return
-                try:
-                    amount = int(amount)
-                    if amount <= 0:
-                        raise ValueError
-                except ValueError:
-                    print("Please enter a positive integer.")
-                    continue
-                in_storage = humani_plan.loc[humani_plan['location'] == location, 'firstaid_kits_storage']
-                if any(in_storage - amount <= 0):
-                    print('The amount entered exceeds the amount available in storage.'
-                          '\nPlease check the amount in storage and try again.')
-                else:
-                    humani_plan.loc[humani_plan['location'] == location, 'firstaid_kits_storage'] -= int(amount)
-                    resources.loc[resources['camp_name'] == f"Camp {camp_no}", 'firstaid_kits'] += int(
-                        amount)  # like a = a + food
-                    break
-
-        resources.to_csv(hum_plan, index=False)
-        humani_plan.to_csv("humanitarian_plan.csv", index=False)
-        print(f"\nAllocation complete. Currently, the resources in {hum_plan[:-4]} are as follows:"
-              f"\n{resources}")
-        print(f"\nAnd the remaining resources in storage: "
-              f"\n{humani_plan.loc[humani_plan.location == location, ['location', 'start_date', 'food_storage', 'water_storage', 'firstaid_kits_storage']]}")
-        return
 
     def admin_menu(self):
         while self.logged_in:
@@ -1027,8 +1079,9 @@ class Admin:
             print("---------------")
             self.deactivation_request_notification()
             self.resource_request_notification()
+            self.low_resources_notification()
             while True:
-                print("Choose would you would like to do.")
+                print("\nChoose would you would like to do.")
                 print("Enter [1] to create, display, edit or end a humanitarian plan")
                 print("Enter [2] to manage volunteer accounts (including camp identification)")
                 print("Enter [3] to display, allocate or respond to requests for resources")
@@ -1181,7 +1234,7 @@ class Admin:
                 if plan_id == 0:
                     continue
                 plan_csv = plan_id + ".csv"
-                print(f"opening {plan_csv}...\n")
+                print(f"\nopening {plan_csv}...\n")
                 self.display_resources(plan_csv)
                 # humani_plan = pd.read_csv('humanitarian_plan.csv')
                 # while True:
@@ -1240,6 +1293,7 @@ class Admin:
                 #         hum_plan = f"{location}_{year}.csv"
                 #         print(f"\nopening {hum_plan}...\n")
                 #         break
+                print(f"\nYou have selected {plan_id}.\n")
                 print("\nWould you like to auto-allocate resources to all camps or select a camp?")
                 print("Auto-allocating feature will top up resources to all camps for the following 7 days.")
                 print("Enter [1] to allocate resources to all camps")
@@ -1446,6 +1500,7 @@ class Admin:
 
         users = pd.read_csv('users.csv', dtype={'password': str})
         select_user = users[users['username'] == username]
+        select_user = select_user.replace({np.nan: None})
         gender_str = convert_gender(select_user.iloc[0]['gender'])
         print("\nDetails of", username, "are as follows:")
         print("Username:", username)
