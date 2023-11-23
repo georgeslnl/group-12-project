@@ -147,10 +147,11 @@ class Admin:
                     elif new_desc == "9":
                         progress -= 1
                     else:
-                        hum_plan_df.loc[hum_plan_df.index == plan_index, "description"] = new_desc
-                        hum_plan_df.to_csv('humanitarian_plan.csv', index=False)
+                        plans = pd.read_csv('humanitarian_plan.csv')
+                        plans.loc[plans["plan_id"] == plan_id, "description"] = new_desc
+                        plans.to_csv('humanitarian_plan.csv', index=False)
                         print(f'The change has been saved. The updated details of {plan_id} are as follows:'
-                              f'\n{hum_plan_df.loc[hum_plan_df.index == plan_index, :]}')
+                              f'\n{plans.loc[plans["plan_id"] == plan_id, :]}')
                         progress += 1
 
                 elif edit_choice == 2:

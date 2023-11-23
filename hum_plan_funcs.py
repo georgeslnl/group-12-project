@@ -108,6 +108,9 @@ def edit_description(plan_id, cur_desc):
         except ValueError:
             print("Please ensure description contains text.")
             continue
+        if new_desc == cur_desc:
+            print("Description is unchanged. Please try again.")
+            continue
         if len(new_desc) > 200:
             print("Description cannot exceed 200 characters.")
             continue
