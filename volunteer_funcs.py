@@ -151,7 +151,7 @@ def add_gender():
             if gender not in (0, 1, 2, 3, 9):
                 raise ValueError
         except ValueError:
-            print("Please enter a number from the options provided.\n")
+            print("Please enter a number from the options provided.")
             continue
         return gender
 
@@ -371,7 +371,7 @@ def edit_gender(username, gender):
             if new_gender not in range(4):
                 raise ValueError
         except ValueError:
-            print("Please enter a number from the options provided.\n")
+            print("Please enter a number from the options provided.")
             continue
         if new_gender == 0:
             return
