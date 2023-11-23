@@ -89,82 +89,96 @@ class Admin:
         return
 
     def edit_hum_plan(self):
+        print("\nEdit humanitarian plan")
         hum_plan_df = pd.read_csv('humanitarian_plan.csv')
+        hum_plan_df = hum_plan_df[hum_plan_df['end_date'].isna()]
+        if len(hum_plan_df.index) == 0:
+            print("There are no ongoing humanitarian plans.")
+            return
+
         progress = 0
+        edit_choice = None  # remove red underline under progress == 2
         print(f"Currently, the details of humanitarian plans are as follows:"
               f"\n {hum_plan_df}")
-        while progress < 3:
-            # if progress < 0:
-            #     print('You have decided to return to the previous menu.')
-            #     return
+        while progress < 4:
             if progress == 0:
                 while True:
-                    plan_index = v.integer('Please select the index of the humanitarian plan you wish to edit.'
-                                           '(please note only the description or number of camps of the plan can be changed)')
-                    plan_id = str(hum_plan_df.loc[hum_plan_df.index == plan_index,'plan_id'])
+                    print("\nEnter [X] to return to the previous menu.")
+                    print("Please note only the description or number of camps of a humanitarian plan can be changed.")
+                    plan_index = v.integer('Please enter the index of the humanitarian plan you wish to edit: ')
+                    if plan_index.upper() == "X":
+                        return
+                    plan_id = str(hum_plan_df.loc[hum_plan_df.index == plan_index, 'plan_id'])
                     plan_id = plan_id.split('\n')[0]
                     plan_id = plan_id[5:]
-                    if plan_index in range(0,len(hum_plan_df.plan_id)):
-                        while True:
-                            edit_choice = v.integer('Please choose what you would like to edit:'
-                                                f'\nEnter [1] to change the description of {plan_id}.'
-                                                f'\nEnter [2] to change the number of camps of {plan_id}.'
-                                                f'\nEnter [0] to return to the previous menu. ')
-                            if edit_choice in range(0,3):
-                                break
-                            else:
-                                print('Number entered not in range [0-2].')
-                        if edit_choice == 0:
-                            return
-                        elif edit_choice == 1 or edit_choice == 2:
-                            progress += 1
+                    if plan_index not in range(0, len(hum_plan_df.plan_id)):
+                        print('The index you entered is outside the range of humanitarian plans.')
+                        continue
+                    break
+
+            elif progress == 1:
+                while True:
+                    print("\nEnter [0] to return to the previous menu or [9] to return to plan selection.")
+                    print("Please choose what you would like to edit.")
+                    print(f'Enter [1] to change the description of {plan_id}.')
+                    print(f'Enter [2] to change the number of camps of {plan_id}.')
+                    edit_choice = v.integer('Select an option: ')
+                    if edit_choice in (0, 1, 2, 9):
                         break
                     else:
-                        print('The index you entered is outside the range of humanitarian plans.')
-            elif progress == 1:
+                        print('Please enter a number from the options provided.')
+                if edit_choice == 0:
+                    return
+                elif edit_choice == 9:
+                    progress -= 1
+                elif edit_choice == 1 or edit_choice == 2:
+                    progress += 1
+                break
+
+            elif progress == 2:
                 if edit_choice == 1:
-                    cur_desc = str(hum_plan_df.loc[hum_plan_df.index == plan_index,"description"])
+                    cur_desc = str(hum_plan_df.loc[hum_plan_df.index == plan_index, "description"])
                     cur_desc = cur_desc.split('\n')[0]
                     cur_desc = cur_desc[5:]
-                    print(f'You have chosen to edit the description of {plan_id}.'
-                          f'\n The current description is:'
-                          f'\n {cur_desc}')
-                    while True:
-                        edit_desc = v.integer("Enter [1] to edit the description."
-                                              "\nEnter [0] to return to the previous step: ")
-                        if edit_desc in range(0,2):
-                            if edit_desc == 0:
-                                progress -= 1
-                                break
-                            elif edit_desc == 1:
-                                desc = hum_plan_funcs.edit_description(plan_id,plan_index,hum_plan_df)
-                                if any(desc) == 'X':
-                                    progress -= 1
-                                else:
-                                    progress += 1
-                                break
-                        else:
-                            print('Number entered not in range [0-1].')
+
+                    new_desc = hum_plan_funcs.edit_description(plan_id, cur_desc)
+                    if new_desc == "0":
+                        return
+                    elif new_desc == "9":
+                        progress -= 1
+                    else:
+                        plans = pd.read_csv('humanitarian_plan.csv')
+                        plans.loc[plans["plan_id"] == plan_id, "description"] = new_desc
+                        plans.to_csv('humanitarian_plan.csv', index=False)
+                        print(f'The change has been saved. The updated details of {plan_id} are as follows:'
+                              f'\n{plans.loc[plans["plan_id"] == plan_id, :]}')
+                        progress += 1
+
                 elif edit_choice == 2:
                     num_camps = hum_plan_df.loc[hum_plan_df.index == plan_index, "number_of_camps"]
                     num_camps = num_camps[5:]
+                    # TODO: add function
                     print(f'You have chosen to edit the number of camps of {plan_id}.'
                           f'\n The current number of camps is:'
                           f'\n {num_camps}')
                     progress += 1
-            elif progress == 2:
+
+            elif progress == 3:
                 while True:
-                    next = v.integer("Enter [1] to edit other details of humanitarian plans."
-                                     "\nEnter [0] to exit the edit humanitarian plan function and return to the previous menu: ")
-                    if next in range(0,2):
+                    print(f'Enter [1] to edit other details of {plan_id}')
+                    print("Enter [2] to edit details of other humanitarian plans")
+                    print("Enter [0] to exit the edit humanitarian plan function and return to the previous menu")
+                    next = v.integer("Select an option: ")
+                    if next in range(0, 3):
                         if next == 0:
                             return
                         elif next == 1:
+                            progress = 1
+                        elif next == 2:
                             progress = 0
                         break
                     else:
-                        print('Number entered not in range [0-1].')
-
+                        print('Please enter a number from the options provided.')
 
 
     # def display_hum_plan(self, hum_plan):
@@ -259,7 +273,7 @@ class Admin:
         while progress < 10:
             if progress == 0:
                 plan_id = volunteer_funcs.add_plan()
-                if plan_id == "B":
+                if plan_id == "X":
                     return
                 else:
                     progress += 1
@@ -1004,7 +1018,7 @@ class Admin:
                 while True:
                     print("\nEnter [B] to go back to the previous step.")
                     amount = input(f'Enter the number of food packets you would like to allocate to Camp {camp_no}: ')
-                    if amount == "B":
+                    if amount.upper() == "B":
                         break
                     try:
                         amount = int(amount)
@@ -1028,7 +1042,7 @@ class Admin:
                 while True:
                     print("\nEnter [B] to go back to the previous step.")
                     amount = input(f'Enter the number of water portions you would like to allocate to Camp {camp_no}: ')
-                    if amount == "B":
+                    if amount.upper() == "B":
                         break
                     try:
                         amount = int(amount)
@@ -1051,7 +1065,7 @@ class Admin:
                 while True:
                     print("\nEnter [B] to go back to the previous step.")
                     amount = input(f'Enter the number of first-aid kits you would like to allocate to Camp {camp_no}: ')
-                    if amount == "B":
+                    if amount.upper() == "B":
                         break
                     try:
                         amount = int(amount)
@@ -1074,31 +1088,35 @@ class Admin:
 
     def admin_menu(self):
         while self.logged_in:
+            logging.debug("Admin has entered the admin menu.")
             print("\n---------------")
             print("Admin Menu")
             print("---------------")
+            logging.debug("Checking for deactivation requests.")
             self.deactivation_request_notification()
+            logging.debug("Checking for resource requests.")
             self.resource_request_notification()
+            logging.debug("Checking if any camps are low on resources.")
             self.low_resources_notification()
             while True:
                 print("\nChoose would you would like to do.")
                 print("Enter [1] to create, display, edit or end a humanitarian plan")
                 print("Enter [2] to manage volunteer accounts (including camp identification)")
-                print("Enter [3] to display, allocate or respond to requests for resources")
+                print("Enter [3] to manage resources at humanitarian plans")
                 print("Enter [4] to manage refugee profiles")
                 print("Enter [5] to manage volunteering sessions")
                 print("Enter [0] to logout")
                 try:
                     option = int(input("Select an option: "))
                     if option not in range(6):
-                        logging.error(f"Value error raised - Admin entered {option}")
                         raise ValueError
                 except ValueError:
                     print("Please enter a number from the options provided.\n")
+                    logging.error("Invalid user input.")
                     continue
                 break
             if option == 0:
-                logging.debug(f"Admin has chosen to logout.")
+                logging.debug(f"Admin has logged out of their session.")
                 self.logout()
             if option == 1:
                 logging.debug(f"Admin has selected the humanitarian plan menu.")
@@ -1110,14 +1128,15 @@ class Admin:
                 logging.debug(f"Admin has selected the resources menu.")
                 self.resources_menu()
             if option == 4:
-                logging.debug(f"Admin has selected the refugee menu.")
+                logging.debug(f"Admin has selected the refugee profile menu.")
                 self.refugee_menu()
             if option == 5:
-                logging.debug(f"{self.username} has selected the volunteering session menu.")
+                logging.debug(f"Admin has selected the volunteering session menu.")
                 self.volunteering_session_menu()
 
     def hum_plan_menu(self):
         while True:
+            logging.debug("Admin has entered the humanitarian plan menu.")
             print("\nHumanitarian Plans")
             while True:
                 print("Enter [1] to create a humanitarian plan")
@@ -1127,14 +1146,12 @@ class Admin:
                 print("Enter [5] to end a humanitarian plan")
                 print("Enter [0] to return to the admin menu")
                 try:
-                    user_input = input("Select an option: ")
-                    option = int(user_input)
-                    logging.debug(f'Admin has entered {user_input}.')
+                    option = int(input("Select an option: "))
                     if option not in range(6):
-                        logging.error(f"Admin has entered {user_input}, raising a ValueError.")
                         raise ValueError
                 except ValueError:
                     print("Please enter a number from the options provided.\n")
+                    logging.error("Invalid user input.")
                     continue
                 break
             if option == 0:
@@ -1158,6 +1175,7 @@ class Admin:
 
     def vol_accounts_menu(self):
         while True:
+            logging.debug("Admin has entered the volunteer accounts menu.")
             print("\nManage Volunteer Accounts")
             while True:
                 print("Enter [1] to create a volunteer account")
@@ -1169,14 +1187,12 @@ class Admin:
                 print("Enter [7] to delete a volunteer account")
                 print("Enter [0] to return to the admin menu")
                 try:
-                    user_input = input("Select an option: ")
-                    option = int(user_input)
-                    logging.debug(f'Admin has entered {user_input}.')
+                    option = int(input("Select an option: "))
                     if option not in range(8):
-                        logging.error(f"Admin has entered {user_input}, raising a ValueError.")
                         raise ValueError
                 except ValueError:
                     print("Please enter a number from the options provided.\n")
+                    logging.error("Invalid user input.")
                     continue
                 break
             if option == 0:
@@ -1206,6 +1222,7 @@ class Admin:
 
     def resources_menu(self):
         while True:
+            logging.debug("Admin has entered the resources menu.")
             print("\nManage Resources")
             while True:
                 print("Enter [1] to display resources for a humanitarian plan")
@@ -1214,14 +1231,12 @@ class Admin:
                 print("Enter [4] to respond to resource requests from volunteers")
                 print("Enter [0] to return to the admin menu")
                 try:
-                    user_input = input("Select an option: ")
-                    option = int(user_input)
-                    logging.debug(f'Admin has entered {user_input}.')
+                    option = int(input("Select an option: "))
                     if option not in range(5):
-                        logging.error(f"Admin has entered {user_input}, raising a ValueError.")
                         raise ValueError
                 except ValueError:
                     print("Please enter a number from the options provided.\n")
+                    logging.error("Invalid user input.")
                     continue
                 break
             if option == 0:
@@ -1236,20 +1251,6 @@ class Admin:
                 plan_csv = plan_id + ".csv"
                 print(f"\nopening {plan_csv}...\n")
                 self.display_resources(plan_csv)
-                # humani_plan = pd.read_csv('humanitarian_plan.csv')
-                # while True:
-                #      try:
-                #          print(humani_plan)
-                #          index = v.integer(
-                #              "Please enter the index of the humanitarian plan of which you would like to display resources.")
-                #          location = humani_plan.loc[index, 'location'].replace(' ', '_')
-                #          year = humani_plan.loc[index,'start_date'].split('-')[2]
-                #          plan_csv = f"{location}_{year}.csv"
-                #          print(f"\nopening {plan_csv}...\n")
-                #          self.display_resources(plan_csv)
-                #          break
-                #      except KeyError:
-                #          print("Please enter a correct index.")
             if option == 2:
                 logging.debug(f"Admin has chosen to allocate resources manually.")
                 print("\nManually allocate resources")
@@ -1258,19 +1259,6 @@ class Admin:
                     continue
                 hum_plan = plan_id + ".csv"
                 location = plan_id[:-5]
-                # humani_plan = pd.read_csv('humanitarian_plan.csv')
-                # while True:
-                #     try:
-                #         print(humani_plan)
-                #         index = v.integer(
-                #             "Please enter the index of the humanitarian plan which you would like to allocate resources to.")
-                #         location = humani_plan.loc[index, 'location'].replace(' ', '_')
-                #         year = humani_plan.loc[index, 'start_date'].split('-')[2]
-                #         hum_plan = f"{location}_{year}.csv"
-                #         print(f"\nopening {hum_plan}...\n")
-                #         break
-                #     except KeyError:
-                #         print("Please enter a correct index.")
                 self.allocate_resources(hum_plan, location)
             if option == 3:  # auto-allocate
                 logging.debug(f"Admin has chosen to auto-allocate resources.")
@@ -1280,20 +1268,9 @@ class Admin:
                     continue
                 hum_plan = plan_id + ".csv"
                 location = plan_id[:-5]
-                # humani_plan = pd.read_csv('humanitarian_plan.csv')
-                # while True:
-                #     print(humani_plan)
-                #     index = v.integer(
-                #         "Please enter the index of the humanitarian plan which you would like to allocate resources to.")
-                #     if index not in humani_plan.index:
-                #         print("Please enter a correct index.")
-                #     else:
-                #         location = humani_plan.loc[index, 'location'].replace(' ', '_')
-                #         year = humani_plan.loc[index, 'start_date'].split('-')[2]
-                #         hum_plan = f"{location}_{year}.csv"
-                #         print(f"\nopening {hum_plan}...\n")
-                #         break
                 print(f"\nYou have selected {plan_id}.\n")
+
+                logging.debug("Admin is prompted to select between all camps or a specific camp.")
                 print("\nWould you like to auto-allocate resources to all camps or select a camp?")
                 print("Auto-allocating feature will top up resources to all camps for the following 7 days.")
                 print("Enter [1] to allocate resources to all camps")
@@ -1303,6 +1280,7 @@ class Admin:
                     option = v.integer("Select an option: ")
                     if option not in range(3):
                         print("Please enter a number from the options provided.")
+                        logging.error("Invalid user input.")
                         continue
                     break
                 if option == 1:
@@ -1315,6 +1293,7 @@ class Admin:
 
     def refugee_menu(self):
         while True:
+            logging.debug("Admin has entered the refugee profile menu.")
             print("\nManage Refugee Profiles")
             while True:
                 print("Enter [1] to create a new refugee profile")
@@ -1324,27 +1303,28 @@ class Admin:
                 try:
                     option = int(input("Select an option: "))
                     if option not in range(4):
-                        logging.error(f'Admin did not select a valid option at the Refugee Profile menu.')
                         raise ValueError
                 except ValueError:
                     print("Please enter a number from the options provided.\n")
+                    logging.error("Invalid user input.")
                     continue
                 break
             if option == 0:
                 logging.debug(f"Admin has returned to the admin menu.")
                 return
             if option == 1:
-                logging.debug(f'Admin will be taken to the create refugee profile function.')
+                logging.debug(f'Admin has chosen to create a refugee profile.')
                 self.create_refugee_profile()
             if option == 2:
-                logging.debug(f'Admin will be taken to the view refugee profile function.')
+                logging.debug(f'Admin has chosen to view a refugee profile.')
                 self.view_refugee_profile()
             if option == 3:
-                logging.debug(f'Admin will be taken to the edit refugee profile function.')
+                logging.debug(f'Admin has chosen to edit or remove a refugee profile.')
                 self.edit_refugee_profile()
 
     def volunteering_session_menu(self):
         while True:
+            logging.debug("Admin has entered the refugee profile menu.")
             print("\nManage Volunteering Sessions")
             users = pd.read_csv('users.csv')
             users = users[(users['account_type'] == "volunteer") & (users['active'] == 1)]
@@ -1358,17 +1338,16 @@ class Admin:
                 print("Enter [3] to remove a volunteering session")
                 print("Enter [0] to return to the admin menu")
                 try:
-                    user_input = input("Select an option: ")
-                    option = int(user_input)
+                    option = int(input("Select an option: "))
                     if option not in range(4):
-                        logging.error(f'Admin has entered {user_input}, which raised a ValueError.')
                         raise ValueError
                 except ValueError:
                     print("Please enter a number from the options provided.\n")
+                    logging.error("Invalid user input.")
                     continue
                 break
             if option == 0:
-                logging.debug(f'Admin has chosen to return to the volunteer menu.')
+                logging.debug(f'Admin has returned to the volunteer menu.')
                 return
             if option == 1:
                 logging.debug(f'Admin has chosen to add a volunteering session.')
@@ -1381,7 +1360,6 @@ class Admin:
                 self.remove_volunteering_session()
 
     def logout(self):
-        logging.info(f'Admin has logged out of their session.')
         self.logged_in = False
         print("You are now logged out. See you again!\n")
 
@@ -1461,9 +1439,9 @@ class Admin:
                 while True:
                     print("\nEnter [X] to return to the previous menu or [B] to go back to camp selection.")
                     new_capacity = input("New capacity: ")
-                    if new_capacity == "X":
+                    if new_capacity.upper() == "X":
                         return
-                    if new_capacity == "B":
+                    if new_capacity.upper() == "B":
                         progress -= 1
                         break
                     try:
@@ -1538,7 +1516,7 @@ class Admin:
                           str(camps['refugees'].iloc[row]) + " refugees",
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 camp_num = input("Enter the number of the camp the volunteer will join (e.g. [1] for Camp 1): ")
-                if camp_num == "X":
+                if camp_num.upper() == "X":
                     return None
                 try:
                     camp_num = int(camp_num)
@@ -1566,8 +1544,8 @@ class Admin:
                           str(camps['refugees'].iloc[row]) + " refugees",
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 camp_num = input("Enter the number of the camp the volunteer will join (e.g. [1] for Camp 1): ")
-                if camp_num == "X":
-                    return camp_name
+                if camp_num.upper() == "X":
+                    return camp_name.upper()
                 try:
                     camp_num = int(camp_num)
                     if camp_num not in range(1, len(camps.index) + 1):
@@ -1970,7 +1948,7 @@ class Admin:
                     '%d-%m-%Y %H:%M')
                 print("[" + str(row + 1) + "]", "Start:", start, "\t", "End:", end)
             remove = input("Enter the number of the session you would like to remove: ").strip()
-            if remove == "X":
+            if remove.upper() == "X":
                 return
             try:
                 remove = int(remove)

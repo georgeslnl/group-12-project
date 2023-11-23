@@ -539,7 +539,7 @@ class Volunteer:
                           str(camps['refugees'].iloc[row]) + " refugees",
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 camp_num = input("Enter the number of the camp you would like to join (e.g. [1] for Camp 1): ")
-                if camp_num == "X":
+                if camp_num.upper() == "X":
                     return None
                 try:
                     camp_num = int(camp_num)
@@ -566,7 +566,7 @@ class Volunteer:
                           str(camps['refugees'].iloc[row]) + " refugees",
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 camp_num = input("Enter the number of the camp you would like to join (e.g. [1] for Camp 1): ")
-                if camp_num == "X":
+                if camp_num.upper() == "X":
                     return self.camp_name
                 try:
                     camp_num = int(camp_num)
@@ -959,7 +959,7 @@ class Volunteer:
             while True:
                 print("\nEnter [X] to return to the previous step.")
                 new_capacity = input("New capacity: ")
-                if new_capacity == "X":
+                if new_capacity.upper() == "X":
                     return
                 try:
                     new_capacity = int(new_capacity)
@@ -991,7 +991,7 @@ class Volunteer:
             while True:
                 print("\nEnter [X] to return to the previous step.")
                 food_consumed = input("Enter the number of food packets consumed: ")
-                if food_consumed == "X":
+                if food_consumed.upper() == "X":
                     return
                 try:
                     food_consumed = int(food_consumed)
@@ -1037,7 +1037,7 @@ class Volunteer:
             while True:
                 print("\nEnter [X] to return to the previous step.")
                 water_consumed = input("Enter the number of water portions consumed: ")
-                if water_consumed == "X":
+                if water_consumed.upper() == "X":
                     return
                 try:
                     water_consumed = int(water_consumed)
@@ -1083,7 +1083,7 @@ class Volunteer:
             while True:
                 print("\nEnter [X] to return to the previous step.")
                 medical_used = input("Enter the number of first-aid kits used: ")
-                if medical_used == "X":
+                if medical_used.upper() == "X":
                     return
                 try:
                     medical_used = int(medical_used)
@@ -1236,7 +1236,7 @@ class Volunteer:
                 end = datetime.datetime.strptime(cur_user_times['end_time'].iloc[row], '%Y-%m-%d %H:%M').strftime('%d-%m-%Y %H:%M')
                 print("[" + str(row + 1) + "]", "Start:", start, "\t", "End:", end)
             remove = input("Enter the number of the session you would like to remove: ").strip()
-            if remove == "X":
+            if remove.upper() == "X":
                 return
             try:
                 remove = int(remove)
@@ -1291,7 +1291,7 @@ class Volunteer:
                 while True:
                     print("\nEnter [X] to return to the previous menu.")
                     food = input("Enter the number of food packets you are requesting: ")
-                    if food == "X":
+                    if food.upper() == "X":
                         return
                     try:
                         food = int(food)
@@ -1307,9 +1307,9 @@ class Volunteer:
                 while True:
                     print("\nEnter [X] to return to the previous menu or [B] to return to the previous step.")
                     water = input("Enter the number of water portions you are requesting: ")
-                    if water == "X":
+                    if water.upper() == "X":
                         return
-                    if water == "B":
+                    if water.upper() == "B":
                         progress -= 1
                         break
                     try:
@@ -1326,9 +1326,9 @@ class Volunteer:
                 while True:
                     print("\nEnter [X] to return to the previous menu or [B] to return to the previous step.")
                     kits = input("Enter the number of first-aid kits you are requesting: ")
-                    if kits == "X":
+                    if kits.upper() == "X":
                         return
-                    if kits == "B":
+                    if kits.upper() == "B":
                         progress -= 1
                         break
                     try:
