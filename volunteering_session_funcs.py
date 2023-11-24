@@ -2,7 +2,8 @@ import datetime
 import logging
 
 def select_date():
-    logging.debug("User prompted to select date of volunteering session.")
+    """Prompts the user to enter the date of the volunteering session."""
+    logging.debug("User prompted to enter date of volunteering session.")
     while True:
         print("You can add volunteering sessions within the next 2 weeks, starting from tomorrow.")
         start_date = datetime.date.today() + datetime.timedelta(days=1)
@@ -29,6 +30,11 @@ def select_date():
 
 
 def select_start_time(vol_date, cur_user_times):
+    """
+    Prompts the user to enter the start time of the volunteering session.
+    This function takes as input the date of the session and the volunteer's existing sessions.
+    A list of available start times on this date is generated, which the user has the option to view.
+    """
     vol_date2 = datetime.datetime.strptime(vol_date, '%Y-%m-%d').date().strftime('%d-%m-%Y')
 
     prev_day = datetime.datetime.strptime(vol_date, '%Y-%m-%d').date() - datetime.timedelta(days=1)
@@ -103,6 +109,11 @@ def select_start_time(vol_date, cur_user_times):
 
 
 def select_end_time(start_time, cur_user_times):
+    """
+    Prompts the user to select the end time of the volunteering session.
+    This function takes as input the start time of the session and the volunteer's existing sessions.
+    A list of possible end times is generated, which the user must select from.
+    """
     # find next slot booked after start time
     next_slot = cur_user_times[cur_user_times['start_time'] > start_time].head(1)
     logging.debug("Generating list of available start times.")
@@ -140,6 +151,7 @@ def select_end_time(start_time, cur_user_times):
 
 
 def confirm_slot(start_time, end_time):
+    """Prints the details of the volunteering session entered by the user and asks for confirmation."""
     start_time2 = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M').strftime('%d-%m-%Y %H:%M')
     end_time2 = datetime.datetime.strptime(end_time, '%Y-%m-%d %H:%M').strftime('%d-%m-%Y %H:%M')
     print("\nYou are adding the following volunteering session:")

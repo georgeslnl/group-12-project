@@ -13,11 +13,15 @@ logging.basicConfig(level=logging.DEBUG,
 
 
 def main_menu():
+    """
+    The main menu that runs when the application is first started.
+    Gives the user options to login as an admin or volunteer (including volunteer registration).
+    """
     while True:
         logging.debug("User has entered main menu.")
         print("Main menu: Please login.")
-        print("Enter [1] for Admin")
-        print("Enter [2] for Volunteer")
+        print("Enter [1] to login as Admin")
+        print("Enter [2] to login or register as Volunteer")
         print("Enter [0] to exit the application")
         try:
             login_option = int(input("Select an option: "))
@@ -40,6 +44,10 @@ def main_menu():
 
 
 def admin_login():
+    """
+    Prompts the user to enter the admin's username and password.
+    If the correct details are entered, an admin object is created and the user logs in as an admin.
+    """
     print("\n-----------------")
     print("Admin Login")
     while True:
@@ -79,6 +87,9 @@ def admin_login():
 
 
 def main_menu_vol():
+    """
+    This menu prompts the user to choose whether to login or register as a volunteer.
+    """
     while True:
         logging.debug("User has entered main menu preceding volunteer login.")
         print("\nEnter [1] to register as a new volunteer")
@@ -94,6 +105,7 @@ def main_menu_vol():
             continue
 
         if login_option_vol == 0:
+            logging.debug("Returning to main menu.")
             print("")
             return
         elif login_option_vol == 1:
@@ -103,6 +115,12 @@ def main_menu_vol():
 
 
 def volunteer_login():
+    """
+    Prompts the user to enter their username and password to login as a volunteer.
+    If the correct details are entered and the user's account is active, a volunteer object is created and the user logs in.
+    If the correct details are entered but the user's account has been deactivated,
+    the user is informed of this and returned to the previous menu.
+    """
     print("\nVolunteer Login")
     while True:
         logging.debug("User has entered volunteer login.")
@@ -151,6 +169,10 @@ def volunteer_login():
 
 
 def volunteer_registration():
+    """
+    Enables the user to create a new volunteer account at a selected humanitarian plan.
+    The user is prompted for their details one by one.
+    """
     logging.debug("User has entered volunteer registration.")
     print("\nVolunteer Registration")
     print("You will be prompted to enter details for registration.")

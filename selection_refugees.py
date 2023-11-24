@@ -2,6 +2,7 @@ import pandas as pd, numpy as np
 import logging
 
 def select_plan():
+    """Prompts the admin to select a humanitarian plan."""
     print("\nSelect a humanitarian plan.")
     plans = pd.read_csv('humanitarian_plan.csv')
     plans = plans[plans['end_date'].isna()]
@@ -27,6 +28,11 @@ def select_plan():
 
 # select camp allowing user to go back to plan selection
 def select_camp(plan_id):
+    """
+    Takes as input the plan_id of a humanitarian plan.
+    Prompts the admin to select a camp at this plan.
+    The function checks whether any refugees can be selected at this plan and returns the admin to the previous step if not.
+    """
     refugees = pd.read_csv('refugees.csv')
     refugees = refugees[refugees['plan_id'] == plan_id]
     if len(refugees.index) == 0:
@@ -58,6 +64,12 @@ def select_camp(plan_id):
         return camps['camp_name'].iloc[camp_num-1]
 
 def select_refugee(plan_id, camp_name):
+    """
+    Takes as input the plan_id of a humanitarian plan and the name of a camp at this plan.
+    Prompts the admin to select a refugee at this camp.
+    The function checks whether any refugees can be selected at this camp and returns the admin to the previous step if not.
+    The admin is given the option to list all refugees at the camp before entering the refugee ID.
+    """
     refugees = pd.read_csv('refugees.csv')
     refugees = refugees[(refugees['plan_id'] == plan_id) & (refugees['camp_name'] == camp_name)]
     if len(refugees.index) == 0:
@@ -94,6 +106,11 @@ def select_refugee(plan_id, camp_name):
 
 # allows user to choose whether to enter username directly or go through plan->camp->refugee
 def initial_selection():
+    """
+    Prompts the admin to choose whether to select a refugee by entering the refugee ID directly or selecting a humanitarian plan and camp first.
+    If the admin chooses to enter the refugee ID directly, they are prompted for it.
+    The function checks whether there are any refugees that can be selected and returns the admin to the previous menu if not.
+    """
     while True:
         refugees = pd.read_csv('refugees.csv')
         if len(refugees.index) == 0:
@@ -144,6 +161,9 @@ def initial_selection():
 # for admin methods requiring volunteer to be selected at the start (but no further progress loop)
 # returns 0 if user chooses to return to previous memu
 def select_plan_camp_refugee():
+    """
+    Enables the admin to select a refugee when viewing or editing refugee's profiles.
+    """
     progress = 0
     while progress < 4:
         if progress == 0:

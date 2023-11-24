@@ -1,6 +1,7 @@
 import pandas as pd
 
 def convert_gender(gender):
+    "Converts a volunteer or refugee's gender (coded as an integer from 1-3 in csv files) into a string to be displayed to the user."
     if gender == 1:
         gender_str = "Male"
     elif gender == 2:
@@ -11,6 +12,7 @@ def convert_gender(gender):
 
 
 def convert_medical_condition(medical_cond):
+    "Converts a refugee's medical condition (coded as an integer from 1-7 in refugees.csv) into a string to be displayed to the user."
     if medical_cond == 1:
         medical_str = "Healthy"
     elif medical_cond == 2:

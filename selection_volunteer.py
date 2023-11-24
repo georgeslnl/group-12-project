@@ -3,6 +3,7 @@ import logging
 
 # select plan allowing user to go back to direct username vs plan->camp->volunteer
 def select_plan():
+    """Prompts the admin to select a humanitarian plan."""
     print("\nSelect a humanitarian plan.")
     plans = pd.read_csv('humanitarian_plan.csv')
     plans = plans[plans['end_date'].isna()]
@@ -28,6 +29,13 @@ def select_plan():
 
 # select camp allowing user to go back to plan selection
 def select_camp(plan_id, active):
+    """
+    Takes as input the plan_id of a humanitarian plan.
+    Prompts the admin to select a camp at this plan.
+    The function checks whether any volunteers can be selected at this plan and returns the admin to the previous step if not,
+    noting that volunteers must have a camp to be selected.
+    The parameter active (1 or 0) specifies whether the volunteer's account must be active to be selected.
+    """
     users = pd.read_csv('users.csv', dtype={'password': str})
     if active:
         users = users[(users['account_type'] == "volunteer") & (users['plan_id'] == plan_id) & (users['active'] == 1)
@@ -69,6 +77,12 @@ def select_camp(plan_id, active):
 
 # same as above, but includes volunteers with no camp identification
 def select_camp_none(plan_id, active):
+    """
+    Takes as input the plan_id of a humanitarian plan.
+    Prompts the admin to select a camp at this plan.
+    The function checks whether any volunteers can be selected at this plan and returns the admin to the previous step if not.
+    The parameter active (1 or 0) specifies whether the volunteer's account must be active to be selected.
+    """
     users = pd.read_csv('users.csv', dtype={'password': str})
     if active:
         users = users[(users['account_type'] == "volunteer") & (users['plan_id'] == plan_id) & (users['active'] == 1)]
@@ -111,6 +125,13 @@ def select_camp_none(plan_id, active):
 
 # active = 1 means only active volunteers can be selected
 def select_volunteer(plan_id, camp_name, active):
+    """
+    Takes as input the plan_id of a humanitarian plan and the name of a camp at this plan (which can be None).
+    Prompts the admin to select a volunteer at this camp.
+    The function checks whether any volunteers can be selected at this camp and returns the admin to the previous step if not.
+    The admin is given the option to list all volunteers at the camp before entering the username.
+    The parameter active (1 or 0) specifies whether the volunteer's account must be active to be selected.
+    """
     users = pd.read_csv('users.csv', dtype={'password': str})
     users = users[(users['account_type'] == "volunteer") & (users['plan_id'] == plan_id)]
     users = users.replace({np.nan: None})
@@ -170,6 +191,13 @@ def select_volunteer(plan_id, camp_name, active):
 
 # allows user to choose whether to enter username directly or go through plan->camp->volunteer
 def initial_selection(active, none):
+    """
+    Prompts the admin to choose whether to select a volunteer by entering the username directly or selecting a humanitarian plan and camp first.
+    If the admin chooses to enter the username directly, they are prompted for it.
+    The function checks whether there are any volunteers that can be selected and returns the admin to the previous menu if not.
+    The parameter active (1 or 0) specifies whether the volunteer's account must be active to be selected.
+    The parameter none (1 or 0) specifies whether the volunteer must have a camp to be selected (none = 1 means volunteer need not have a camp).
+    """
     while True:
         users = pd.read_csv('users.csv', dtype={'password': str})
         users = users[users['account_type'] == "volunteer"]
@@ -232,6 +260,11 @@ def initial_selection(active, none):
 # active is whether volunteer must be active to be selected
 # none is whether volunteers with no camp identification can be selected
 def select_plan_camp_vol(active, none):
+    """
+    Enables the admin to select a volunteer when using functionalities relating to volunteer accounts and volunteering sessions.
+    The parameter active (1 or 0) specifies whether the volunteer's account must be active to be selected.
+    The parameter none (1 or 0) specifies whether the volunteer must have a camp to be selected (none = 1 means volunteer need not have a camp).
+    """
     progress = 0
     while progress < 4:
         if progress == 0:

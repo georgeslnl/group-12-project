@@ -3,6 +3,7 @@ import logging
 from coded_vars import convert_gender, convert_medical_condition
 
 def add_name():
+    """Prompts the user to enter the refugee's name."""
     logging.debug("User prompted to enter refugee name.")
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
@@ -24,6 +25,7 @@ def add_name():
 
 
 def add_gender():
+    """Prompts the user to select the refugee's gender."""
     logging.debug("User prompted to select gender.")
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
@@ -43,6 +45,10 @@ def add_gender():
 
 
 def add_dob():
+    """
+    Prompts the user to enter the refugee's date of birth.
+    If the refugee is over 120 years old based on the input, a warning is displayed and the user is asked to confirm the input.
+    """
     logging.debug("User prompted to enter date of birth.")
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
@@ -86,6 +92,7 @@ def add_dob():
 
 
 def add_medical_cond():
+    """Prompts the user to select the refugee's medical condition."""
     logging.debug("User prompted to select medical condition.")
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
@@ -109,6 +116,10 @@ def add_medical_cond():
 
 
 def add_family(remaining_cap):
+    """
+    Prompts the user to enter the refugee's family size.
+    If the family size exceeds 12, a warning is displayed and the user is asked to confirm the input.
+    """
     logging.debug("User prompted to enter number of family members.")
     while True:
         print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
@@ -151,6 +162,7 @@ def add_family(remaining_cap):
 
 
 def add_remarks():
+    """Prompts the user to enter any additional remarks on the refugee."""
     logging.debug("User prompted to enter optional remarks.")
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
@@ -173,6 +185,7 @@ def add_remarks():
 
 
 def edit_refugee_name(refugee_id, refugee_name):
+    """Prompts the user to enter the refugee's new name."""
     logging.debug("User prompted to enter new refugee name.")
     print("\nRefugee's current name is:", refugee_name)
     while True:
@@ -197,6 +210,7 @@ def edit_refugee_name(refugee_id, refugee_name):
     return
 
 def edit_gender(refugee_id, gender):
+    """Prompts the user to select the refugee's new gender."""
     gender_str = convert_gender(gender)
     print("\nRefugee's current gender is:", gender_str)
     logging.debug("User prompted to select new gender.")
@@ -232,6 +246,10 @@ def edit_gender(refugee_id, gender):
     return
 
 def edit_dob(refugee_id, date_of_birth):
+    """
+    Prompts the user to enter the refugee's corrected date of birth.
+    If the refugee is over 120 years old based on the input, a warning is displayed and the user is asked to confirm the input.
+    """
     print("\nRefugee's current date of birth (DD-MM-YYYY) is:", date_of_birth)
     logging.debug("User prompted to enter corrected date of birth.")
     while True:
@@ -287,6 +305,7 @@ def edit_dob(refugee_id, date_of_birth):
     return
 
 def edit_medical_cond(refugee_id, medical_cond):
+    """Prompts the user to select the refugee's new medical condition."""
     medical_str = convert_medical_condition(medical_cond)
     print("\nRefugee's current medical condition is:", medical_str)
     logging.debug("User prompted to select new medical condition.")
@@ -326,6 +345,10 @@ def edit_medical_cond(refugee_id, medical_cond):
     return
 
 def edit_family(plan_id, camp_name, refugee_id, family):
+    """
+    Prompts the user to enter the refugee's new family size.
+    If the family size exceeds 12, a warning is displayed and the user is asked to confirm the input.
+    """
     print("\nCurrent no. of members in refugee's family:", family)
     camps = pd.read_csv(plan_id + '.csv')
     cur_camp = camps[camps['camp_name'] == camp_name]
@@ -392,6 +415,7 @@ def edit_family(plan_id, camp_name, refugee_id, family):
     return
 
 def edit_remarks(refugee_id, remarks):
+    """Prompts the user to enter the updated remarks on the refugee."""
     print("\nCurrent remarks on refugee:", remarks)
     logging.debug("User prompted to enter new remarks.")
     while True:
@@ -426,6 +450,7 @@ def edit_remarks(refugee_id, remarks):
     return
 
 def remove_refugee(plan_id, camp_name, refugee_id, refugee_name, family):
+    """Prompts the user to confirm that they wish to remove the profile of the selected refugee."""
     logging.debug(f"User prompted to confirm removal of refugee ID {refugee_id}.")
     while True:
         print("\nAre you sure you would like to remove the profile of " + refugee_name + "?")

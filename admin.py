@@ -211,6 +211,10 @@ class Admin:
                         logging.error("Invalid user input.")
 
     def create_volunteer(self):
+        """
+        Enables the admin to create a volunteer account at a selected humanitarian plan.
+        The admin is prompted for the volunteer's details one by one.
+        """
         print("\nCreate volunteer account")
         print("You will be prompted to enter the volunteer's details.")
 
@@ -358,6 +362,10 @@ class Admin:
         return
 
     def edit_volunteer(self):
+        """
+        Enables the admin to edit the personal details of a selected volunteer.
+        Once the volunteer is selected, a menu enables the admin to edit multiple details before leaving the method.
+        """
         print("\nEdit volunteer details")
         print("Select the volunteer whose details you are updating.")
         selected = select_plan_camp_vol(active=0, none=1)  # returns (plan_id, camp_name, username)
@@ -431,6 +439,10 @@ class Admin:
                 logging.debug("Phone number updated successfully")
 
     def delete_volunteer(self):
+        """
+        Enables the admin to delete the account of a selected volunteer.
+        The admin is asked for confirmation before the deletion is carried out.
+        """
         print("\nDelete volunteer account")
         print("Select the volunteer whose account you would like to delete.")
         selected = select_plan_camp_vol(active=0, none=1)  # returns (plan_id, camp_name, username)
@@ -480,6 +492,11 @@ class Admin:
         print(username + "'s account has been deleted successfully.")
 
     def active_volunteer(self):
+        """
+        Enables the admin to deactivate or reactivate the account of a selected volunteer.
+        If the volunteer's account is currently active, the admin is asked to confirm deactivation.
+        If the volunteer's account is currently deactivated, the admin is asked to confirm reactivation.
+        """
         print("\nDeactivate or reactivate volunteer account")
         print("Select the volunteer whose account you would like to deactivate or reactivate.")
         selected = select_plan_camp_vol(active=0, none=1)  # returns (plan_id, camp_name, username)
@@ -853,7 +870,7 @@ class Admin:
     def end_event(self):
         """
         The method adds the end_date of the selected humanitarian plan.
-        The while loop is used to ensure the user inputs a date in the correct format
+        The selected plan is then closed and can no longer be updated.
         """
         plans = pd.read_csv('humanitarian_plan.csv')
         plans = plans[plans['end_date'].isna()]
@@ -1084,6 +1101,7 @@ class Admin:
 
 
     def admin_menu(self):
+        """Main menu when the admin logs in, providing options to access sub-menus categorising the various admin functionalities."""
         while self.logged_in:
             logging.debug("Admin has entered the admin menu.")
             print("\n---------------")
@@ -1132,6 +1150,7 @@ class Admin:
                 self.volunteering_session_menu()
 
     def hum_plan_menu(self):
+        """Sub-menu enabling the admin to access functionalities relating to humanitarian plans."""
         while True:
             logging.debug("Admin has entered the humanitarian plan menu.")
             print("\nHumanitarian Plans")
@@ -1171,6 +1190,7 @@ class Admin:
                 self.end_event()
 
     def vol_accounts_menu(self):
+        """Sub-menu enabling the admin to access functionalities relating to volunteer accounts."""
         while True:
             logging.debug("Admin has entered the volunteer accounts menu.")
             print("\nManage Volunteer Accounts")
@@ -1218,6 +1238,7 @@ class Admin:
                 self.delete_volunteer()
 
     def resources_menu(self):
+        """Sub-menu enabling the admin to access functionalities relating to resource allocation to camps."""
         while True:
             logging.debug("Admin has entered the resources menu.")
             print("\nManage Resources")
@@ -1298,6 +1319,7 @@ class Admin:
                 self.resource_request_menu()
 
     def refugee_menu(self):
+        """Sub-menu enabling the admin to access functionalities relating to refugee profiles."""
         while True:
             logging.debug("Admin has entered the refugee profile menu.")
             print("\nManage Refugee Profiles")
@@ -1329,6 +1351,7 @@ class Admin:
                 self.edit_refugee_profile()
 
     def volunteering_session_menu(self):
+        """Sub-menu enabling the admin to access functionalities relating to volunteering sessions."""
         while True:
             logging.debug("Admin has entered the refugee profile menu.")
             print("\nManage Volunteering Sessions")
@@ -1366,10 +1389,16 @@ class Admin:
                 self.remove_volunteering_session()
 
     def logout(self):
+        """Changes the user's logged_in attribute to False, causing the user to log out."""
         self.logged_in = False
         print("You are now logged out. See you again!\n")
 
     def display_hum_plan(self):
+        """
+        Prompts the admin to select a humanitarian plan.
+        Displays details of the selected plan.
+        Details of the camps and resources in storage are only displayed if the selected plan is ongoing.
+        """
         print("\nDisplay humanitarian plan")
         plans = pd.read_csv('humanitarian_plan.csv')
         if len(plans.index) == 0:
@@ -1399,28 +1428,36 @@ class Admin:
                 continue
             break
 
+        plan_id = plans.loc[plan_num - 1, 'plan_id']
+        end_date = plans.loc[plan_num - 1, 'end_date']
+        logging.debug(f"Displaying details of {plan_id}.")
         print("\nDetails of humanitarian plan:")
         print("Location:", plans.loc[plan_num - 1, 'location'])
         print("Description:", plans.loc[plan_num - 1, 'description'])
         print("Number of camps:", plans.loc[plan_num - 1, 'number_of_camps'])
         print("Start date:", plans.loc[plan_num - 1, 'start_date'])
-        print("End date:", plans.loc[plan_num - 1, 'end_date'])
-        print("Food packets in storage:", plans.loc[plan_num - 1, 'food_storage'])
-        print("Water portions in storage:", plans.loc[plan_num - 1, 'water_storage'])
-        print("First-aid kits in storage:", plans.loc[plan_num - 1, 'firstaid_kits_storage'])
+        print("End date:", end_date)
+        # only print resources and camp details if plan is ongoing
+        if not end_date:
+            print("Food packets in storage:", plans.loc[plan_num - 1, 'food_storage'])
+            print("Water portions in storage:", plans.loc[plan_num - 1, 'water_storage'])
+            print("First-aid kits in storage:", plans.loc[plan_num - 1, 'firstaid_kits_storage'])
 
-        plan_id = plans.loc[plan_num - 1, 'plan_id']
-        camps = pd.read_csv(plan_id + '.csv')
-        logging.debug(f"Displaying details of {plan_id}.")
-        print("\nCamps in humanitarian plan:")
-        print("Camp Name - # Volunteers - # Refugees - Refugee Capacity")
-        for row in range(len(camps.index)):
-            print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
-                  str(camps['refugees'].iloc[row]) + " refugees", str(camps['capacity'].iloc[row]) + " capacity",
-                  sep=" - ")
+            camps = pd.read_csv(plan_id + '.csv')
+            print("\nCamps in humanitarian plan:")
+            print("Camp Name - # Volunteers - # Refugees - Refugee Capacity")
+            for row in range(len(camps.index)):
+                print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
+                      str(camps['refugees'].iloc[row]) + " refugees", str(camps['capacity'].iloc[row]) + " capacity",
+                      sep=" - ")
+        else:
+            print("This plan has been closed.")
         return
 
     def update_camp_capacity(self):
+        """
+        Enables the admin to update the refugee capacity of a selected camp within a humanitarian plan.
+        """
         print("\nUpdate camp capacity")
         print("Select the camp whose capacity you would like to update.")
         progress = 0
@@ -1489,6 +1526,7 @@ class Admin:
         print("You have updated the capacity of", plan_id + ",", camp_name, "to", str(new_capacity) + ".")
 
     def view_volunteer(self):
+        """Enables the admin to view the personal details and camp identification of a selected volunteer."""
         print("\nView volunteer details")
         print("Select the volunteer whose details you are viewing.")
         selected = select_plan_camp_vol(active=0, none=1)  # returns (plan_id, camp_name, username)
@@ -1518,6 +1556,11 @@ class Admin:
         return
 
     def update_volunteer_camp(self):
+        """
+        Enables the admin to update the camp identification of a selected active volunteer.
+        If the volunteer currently does not have a camp, the admin is prompted to select a camp.
+        If the volunteer currently has a camp, the admin can select whether to change the camp or remove the volunteer's camp identification.
+        """
         print("\nUpdate a volunteer's camp identification")
         print("Select the volunteer whose camp identification you are updating.")
         selected = select_plan_camp_vol(active=1, none=1)  # returns (plan_id, camp_name, username)
@@ -1528,6 +1571,7 @@ class Admin:
             plan_id, camp_name, username = selected
 
         def add_camp(plan_id):
+            """Prompts the admin to select a camp for the chosen volunteer if they currently do not have a camp."""
             camps = pd.read_csv(plan_id + '.csv')
             print(username, "currently has no camp identification.")
             logging.debug(f"Admin prompted to add a camp for {username}.")
@@ -1556,6 +1600,7 @@ class Admin:
                 return new_camp
 
         def edit_camp(plan_id, camp_name):
+            """Prompts the admin to select a new camp for the chosen volunteer if they currently have a camp."""
             camps = pd.read_csv(plan_id + '.csv')
             print(username + "'s current camp is:", camp_name)
             if len(camps.index) == 1:
@@ -1669,6 +1714,10 @@ class Admin:
         return
 
     def create_refugee_profile(self):
+        """
+        Enables the admin to create a refugee profile at a selected humanitarian plan and camp.
+        The admin is prompted for the refugee's details one by one.
+        """
         print("\nAdd refugee profile")
 
         progress = -2
@@ -1808,6 +1857,7 @@ class Admin:
         return
 
     def view_refugee_profile(self):
+        """Enables the admin to view the profile of a selected refugee."""
         print("\nView refugee profile")
         print("Select the refugee whose profile you are viewing.")
         selected = select_plan_camp_refugee()  # returns (plan_id, camp_name, refugee_id)
@@ -1841,6 +1891,11 @@ class Admin:
         return
 
     def edit_refugee_profile(self):
+        """
+        Enables the admin to edit the profile of a selected refugee.
+        Once a refugee is selected, a menu enables the admin to edit multiple details before leaving the method.
+        This includes an option to remove the refugee's profile.
+        """
         print("\nEdit or remove refugee profile")
         print("Select the refugee whose profile you would like to edit.")
         selected = select_plan_camp_refugee()  # returns (plan_id, camp_name, refugee_id)
@@ -1910,6 +1965,10 @@ class Admin:
                 return
 
     def add_volunteering_session(self):
+        """
+        Enables the admin to add a volunteering session for a selected volunteer.
+        The admin is prompted for the date, start time and end time of the session.
+        """
         print("\nAdd a volunteering session")
         print("Select the volunteer for whom you are adding a session.")
         selected = select_plan_camp_vol(active=1, none=0)
@@ -1979,6 +2038,7 @@ class Admin:
         return
 
     def view_volunteering_sessions(self):
+        """Enables the admin to view all volunteering sessions scheduled for a selected volunteer."""
         print("\nView volunteering sessions")
         print("Select the volunteer whose sessions you are viewing.")
         selected = select_plan_camp_vol(active=1, none=0)
@@ -2008,6 +2068,7 @@ class Admin:
         return
 
     def remove_volunteering_session(self):
+        """Enables the admin to remove a volunteering session scheduled for a selected volunteer."""
         print("\nRemove a volunteering session")
         print("Select the volunteer for whom you are removing a session.")
         selected = select_plan_camp_vol(active=1, none=0)
