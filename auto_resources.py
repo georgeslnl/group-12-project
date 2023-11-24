@@ -7,6 +7,12 @@ import logging
 
 # By entering the plan_id and camp_name, we will get how many supplies we need exactly
 def med_needed(plan_id, camp_name):
+    """
+    It iterates through each family's medical condition and family size in order to return the sufficient supplies for the camp per day.
+    :param plan_id: 'London_2023' for example
+    :param camp_name: 'Camp 4' for example
+    :return:
+    """
     refugees = pd.read_csv("refugees.csv")
     filtered_refugees = refugees[(refugees['plan_id'] == plan_id) & (refugees['camp_name'] == camp_name)]
     total_med_needed = 0
@@ -28,6 +34,13 @@ def med_needed(plan_id, camp_name):
     return total_med_needed
 
 def auto_all(hum_plan, location):
+    """
+    It checks remaining resources in storage and distribute resources to camps automatically to top up for each camp's following 7 days according to the conditions in camps.
+    If remaining resources insufficient, system will suggest manual allocation or request new resources to storage.
+    :param hum_plan: 'London_2023.csv' for example
+    :param location: 'London' for example
+    :return:
+    """
     resources = pd.read_csv(hum_plan) # hum_plan == London_2023.csv for example
     humani_plan = pd.read_csv("humanitarian_plan.csv")
 
@@ -110,6 +123,13 @@ def auto_all(hum_plan, location):
             logging.error("Invalid user input.")
 
 def auto_one(hum_plan, location):
+    """
+    It checks remaining resources in storage and distribute resources to the selected camp automatically to top up for the following 7 days according to the condition in camp.
+    If remaining resources insufficient, system will suggest manual allocation or request new resources to storage.
+    :param hum_plan: 'London_2023.csv' for example
+    :param location: 'London' for example
+    :return:
+    """
     resources = pd.read_csv(hum_plan)
     humani_plan = pd.read_csv("humanitarian_plan.csv")
     print(resources.to_string(index=False))
