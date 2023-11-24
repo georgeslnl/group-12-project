@@ -105,7 +105,7 @@ def username(line):
         if _username == "0":
             return _username
         elif _username == "":
-            logging.error("User did not enter a username.")
+            logging.error('Entry is empty')
             print("Please enter a username.")
         elif not s:
             logging.error(f'Username {_username} input by user is not in the correct format.')
@@ -138,16 +138,14 @@ def phone_number(line):
         s = re.search("^\+?\d{1,3} \d{8,11}$", _number)  # allow starting + to be omitted
         if _number == "0":
             return _number
-        elif _number == "":
+        if _number == "":
             print("Please enter a phone number.")
-        elif _number[0] != "+":
+        if _number[0] != "+":
             _number = f"+{_number}"
-            return _number
-        elif not s:
+            break
+        if not s:
             logging.error(f'Phone number {_number} input by user is not in the correct format.')
             print("Incorrect phone number format. Please try again.")
-        else:
-            return _number
 
 
 
