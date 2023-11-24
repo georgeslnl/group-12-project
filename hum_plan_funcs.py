@@ -97,18 +97,19 @@ def add_num_camps():
         print("\nEnter [X] to return to the previous menu or B] to go back to the previous step.")
         nb_of_camps = input("The maximum number of camps is 15."
                             "\nPlease enter the number of camps to set up: ").strip()
-        if nb_of_camps in ("X", "B"):
-            return nb_of_camps
+        if nb_of_camps.upper() in ("X", "B"):
+            return nb_of_camps.upper()
         try:
             nb_of_camps = int(nb_of_camps)
             if nb_of_camps <= 0:
-                raise ValueError
-            elif nb_of_camps > 15:
                 raise ValueError
         except ValueError:
             print("Please enter a positive integer.")
             logging.error("Invalid user input.")
             continue
+        if nb_of_camps > 15:
+            print("Number of camps cannot exceed 15.")
+            logging.error("Number of camps entered is more than 15.")
         return nb_of_camps
 
 def edit_description(plan_id, cur_desc):

@@ -117,14 +117,18 @@ class Admin:
                 while True:
                     print("\nEnter [X] to return to the previous menu.")
                     print("Please note only the description or number of camps of a humanitarian plan can be changed.")
-                    plan_index = v.integer('Please enter the index of the humanitarian plan you wish to edit: ') #can't use v.integer if input could be 'X'
-                    if plan_index.upper() == "X": #if integer is entered, cannot do .upper()
+                    plan_index = input('Please enter the index of the humanitarian plan you wish to edit: ')
+                    if plan_index.upper() == "X":
                         logging.debug("Returning to previous menu.")
                         return
-                    plan_id = str(hum_plan_df.loc[hum_plan_df.index == plan_index, 'plan_id'])
-                    plan_id = plan_id.split('\n')[0]
-                    plan_id = plan_id[5:]
-                    if plan_index not in range(0, len(hum_plan_df.plan_id)):
+                    try:
+                        plan_index = int(plan_index)
+                        plan_id = str(hum_plan_df.loc[hum_plan_df.index == plan_index, 'plan_id'])
+                        plan_id = plan_id.split('\n')[0]
+                        plan_id = plan_id[5:]
+                        if plan_index not in range(0, len(hum_plan_df.plan_id)):
+                            raise ValueError
+                    except ValueError:
                         print('The index you entered is outside the range of humanitarian plans.')
                         logging.error("Invalid user input.")
                         continue
