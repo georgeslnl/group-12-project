@@ -1,9 +1,11 @@
 import datetime
 import logging
-import pandas as pd
+import pandas as pd, numpy as np, re, datetime
+
 
 """This is a function set that verify all the inputs to include all exception handling.
-You can simply use them to replace the input() functions."""
+You can simply use them to replace the input() functions.
+"""
 
 # Creating list of valid cities in the world.
 # The csv file comes from the World Cities Database by SimpleMaps.com, last updated: March 31, 2023.
@@ -13,60 +15,55 @@ valid_cities = valid_cities_csv['city'].tolist()
 valid_cities = [city.lower() for city in valid_cities]
 
 def integer(line):
-    if line == 0:
-        return line
-    else:
-        while True:
-            try:
-                _int = input(line).strip()
-                if not _int:  # if int is empty
-                    raise ValueError('No data was entered.')
-                if not _int.isdigit():  # if int is not a number
-                    raise ValueError('Please enter an integer.')
-                return int(_int)
-            except ValueError as e:
-                logging.error('ValueError raised from user input')
-                print(e)
+    while True:
+        try:
+            _int = input(line).strip()
+            if not _int:  # if int is empty
+                raise ValueError('No data was entered.')
+            if not _int.isdigit():  # if int is not a number
+                raise ValueError('Please enter an integer.')
+            return int(_int)
+        except ValueError as e:
+            logging.error('ValueError raised from user input')
+            print(e)
 
 
 def string(line):
-    if line == 0:
-        return line
-    else:
-        while True:
+    while True:
+        try:
+            _str = input(line)
+            if _str == "0":
+                return _str
+            _str[0]
             try:
-                _str = input(line)
-                _str[0]
-                try:
-                    float(_str)
-                    print('Please make sure data entered is of correct data type.')
-                except ValueError:
-                    logging.error('ValueError raised from user input')
-                    break
-            except IndexError:
-                logging.error('IndexError raised from user input')
-                print('No data was entered.')
-            except Exception as e:
-                logging.error(f'Error raised from user input: {e}')
-                print(e)
-        return _str
+                float(_str)
+                print('Please make sure data entered is of correct data type.')
+            except ValueError:
+                logging.error('ValueError raised from user input')
+                break
+        except IndexError:
+            logging.error('IndexError raised from user input')
+            print('No data was entered.')
+        except Exception as e:
+            logging.error(f'Error raised from user input: {e}')
+            print(e)
+    return _str
 
 
 def date(line):
-    if line == 0:
-        return line
-    else:
-        while True:
-            _date = input(line).strip()
-            if not _date:
-                print("No data was entered. Please enter a date.")
-                continue
-            try:
-                _date = datetime.datetime.strptime(_date, "%d-%m-%Y")
-                return _date.date()
-            except ValueError:
-                logging.error('ValueError raised from user input')
-                print("Date must be in (DD-MM-YYYY) format. Please try again.")
+    while True:
+        _date = input(line).strip()
+        if _date == "0":
+            return _date
+        if not _date:
+            print("No data was entered. Please enter a date.")
+            continue
+        try:
+            _date = datetime.datetime.strptime(_date, "%d-%m-%Y")
+            return _date.date()
+        except ValueError:
+            logging.error('ValueError raised from user input')
+            print("Date must be in (DD-MM-YYYY) format. Please try again.")
 
 
 def location(line):
@@ -84,31 +81,74 @@ def location(line):
 
 
 def name(line):
-    if line == 0:
-        return line
-    else:
-        while True:
-            # first checks that name is a string
-            _name = string(line)
-            if all(character.isalpha() or character == '-' for character in _name):
-                return _name
-            else:
-                logging.error(f'Name {_name} input by user is not in the correct format.')
-                print("Please make sure you only input letters.")
+    while True:
+        # first checks that name is a string
+        _name = string(line).strip()
+        s = re.search("^[a-zA-Z-' ]+$", _name)
+        if _name == "0":
+            return _name
+        elif _name == "":
+            logging.error('Entry is empty')
+            print("Entry cannot be empty.")
+        if not s:
+            logging.error(f'Name {_name} input by user is not in the correct format.')
+            print("Last name can only contain letters, hyphen (-) and apostrophe (').")
+        else:
+            return _name
 
+def username(line):
+    while True:
+        _username = input(line).strip()
+        s = re.search("^[a-zA-Z]+[a-zA-Z0-9_]*$", _username)
+        users = pd.read_csv('users.csv', dtype={'password': str})
+        select_username = users[users['username'] == _username]
+        if _username == "0":
+            return _username
+        elif _username == "":
+            logging.error("User did not enter a username.")
+            print("Please enter a username.")
+        elif not s:
+            logging.error(f'Username {_username} input by user is not in the correct format.')
+            print("Username can only contain letters, digits (0-9) and underscore (_), and must start with a letter. Please choose another username.")
+        elif _username == "":
+            print("Please enter a username.")
+        elif 0 < len(select_username.index):  # username already exists
+            print("Username is taken. Please choose another username.")
+        else:
+            return _username
 
 def email(line):
-    if line == 0:
-        return line
-    else:
-        while True:
-            # first checks that email is a string
-            _email = string(line)
-            if '@' in _email and all(_email.split('@')):
-                return _email
-            else:
-                logging.error(f'Email {_email} input by user is not in the correct format.')
-                print("Please make sure email is in this format: example@email.com.")
+    while True:
+        # first checks that email is a string
+        _email = string(line)
+        s = re.search("^[A-Za-z0-9_]+@[A-Za-z0-9]+\.[A-Za-z.]+$", _email)
+        if _email == "0":
+            return _email
+        elif _email == "":
+            print("Please enter an email address.")
+        elif not s:
+            logging.error(f'Email {_email} input by user is not in the correct format.')
+            print("Please make sure email is in this format: example@email.com.")
+        else:
+            return _email
+
+def phone_number(line):
+    while True:
+        _number = input(line).strip()
+        s = re.search("^\+?\d{1,3} \d{8,11}$", _number)  # allow starting + to be omitted
+        if _number == "0":
+            return _number
+        elif _number == "":
+            print("Please enter a phone number.")
+        elif _number[0] != "+":
+            _number = f"+{_number}"
+            return _number
+        elif not s:
+            logging.error(f'Phone number {_number} input by user is not in the correct format.')
+            print("Incorrect phone number format. Please try again.")
+        else:
+            return _number
+
 
 
 def main():
