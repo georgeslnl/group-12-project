@@ -2041,7 +2041,7 @@ class Admin:
         cur_user_times = vol_times[vol_times['username'] == username]
         if len(cur_user_times.index) == 0:
             print(username, "does not have any volunteering sessions.")
-            logging.warning("No volunteering sessions for the selected volunteer.")
+            logging.info("No volunteering sessions for the selected volunteer.")
             return
 
         logging.debug(f"Displaying volunteering sessions for {username}.")

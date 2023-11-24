@@ -1,4 +1,6 @@
 import pandas as pd, numpy as np, re, datetime
+import six
+
 from coded_vars import convert_gender, convert_medical_condition
 import refugee_profile_funcs, volunteering_session_funcs
 import logging
@@ -1344,6 +1346,7 @@ class Volunteer:
             if progress == 0:
                 vol_date = volunteering_session_funcs.select_date()
                 if vol_date == "0":
+                    logging.debug("Returning to previous menu.")
                     return
                 else:
                     progress += 1
@@ -1351,8 +1354,10 @@ class Volunteer:
             elif progress == 1:
                 start_time = volunteering_session_funcs.select_start_time(vol_date, cur_user_times)
                 if start_time == "0":
+                    logging.debug("Returning to previous menu.")
                     return
                 elif start_time == "9":
+                    logging.debug("Returning to previous step.")
                     progress -= 1
                 else:
                     progress += 1
@@ -1360,8 +1365,10 @@ class Volunteer:
             elif progress == 2:
                 end_time = volunteering_session_funcs.select_end_time(start_time, cur_user_times)
                 if end_time == "X":
+                    logging.debug("Returning to previous menu.")
                     return
                 elif end_time == "B":
+                    logging.debug("Returning to previous step.")
                     progress -= 1
                 else:
                     progress += 1
@@ -1369,16 +1376,20 @@ class Volunteer:
             elif progress == 3:
                 confirm = volunteering_session_funcs.confirm_slot(start_time, end_time)
                 if confirm == 0:
+                    logging.debug("Returning to previous menu.")
                     return
                 elif confirm == 9:
+                    logging.debug("Returning to previous step.")
                     progress -= 1
                 else:
                     progress += 1
 
+        logging.debug(f"{self.username} has finished entering details of new volunteering session.")
         # update csv file
         vol_times = open("volunteering_times.csv", "a")
         vol_times.write(f'\n{self.username},{self.plan_id},{self.camp_name},{start_time},{end_time}')
         vol_times.close()
+        logging.debug("volunteering_times.csv updated")
         print("Volunteering session added successfully!")
         return
 
@@ -1389,8 +1400,10 @@ class Volunteer:
         cur_user_times = vol_times[vol_times['username'] == self.username]
         if len(cur_user_times.index) == 0:
             print("You do not have any volunteering sessions.")
+            logging.info(f"{self.username} does not have any volunteering sessions.")
             return
 
+        logging.debug(f"Displaying {self.username}'s volunteering sessions.")
         # sort existing times by ascending start time (need date in YYYY-MM-DD format)
         cur_user_times = cur_user_times.sort_values(by=['start_time'])
         print("You have added the following volunteering sessions:")
@@ -1406,10 +1419,12 @@ class Volunteer:
         cur_user_times = vol_times[vol_times['username'] == self.username]
         if len(cur_user_times.index) == 0:
             print("You do not have any volunteering sessions.")
+            logging.warning(f"{self.username} does not have any volunteering sessions.")
             return
         # sort existing times by ascending start time (need date in YYYY-MM-DD format)
         cur_user_times = cur_user_times.sort_values(by=['start_time'])
 
+        logging.debug(f"{self.username} prompted to select a volunteering session to remove.")
         while True:
             print("Enter [X] to return to the previous menu.")
             print("Your volunteering sessions:")
@@ -1419,6 +1434,7 @@ class Volunteer:
                 print("[" + str(row + 1) + "]", "Start:", start, "\t", "End:", end)
             remove = input("Enter the number of the session you would like to remove: ").strip()
             if remove.upper() == "X":
+                logging.debug("Returning to previous menu.")
                 return
             try:
                 remove = int(remove)
@@ -1426,6 +1442,7 @@ class Volunteer:
                     raise ValueError
             except ValueError:
                 print("Please enter a number corresponding to one of your volunteering sessions.")
+                logging.error("Invalid user input.")
                 continue
 
             # confirmation
@@ -1433,6 +1450,7 @@ class Volunteer:
                 '%d-%m-%Y %H:%M')
             end = datetime.datetime.strptime(cur_user_times['end_time'].iloc[remove-1], '%Y-%m-%d %H:%M').strftime(
                 '%d-%m-%Y %H:%M')
+            logging.debug(f"{self.username} prompted to confirm removal of volunteering session.")
             while True:
                 print("\nAre you sure you would like to remove the following session?")
                 print("Start:", start, "\t", "End:", end)
@@ -1444,15 +1462,19 @@ class Volunteer:
                         raise ValueError
                 except ValueError:
                     print("Please enter a number from the options provided.")
+                    logging.error("Invalid user input.")
                     continue
                 break
             if remove_option == 0:
+                logging.debug("Returning to previous step.")
                 continue
+            logging.debug("Removal of volunteering session confirmed.")
 
             # update csv file
             vol_times = vol_times.drop(vol_times[(vol_times['username'] == self.username) &
                                                  (vol_times['start_time'] == cur_user_times['start_time'].iloc[remove-1])].index)
             vol_times.to_csv('volunteering_times.csv', index=False)
+            logging.debug("volunteering_times.csv updated")
             print("Volunteering session has been removed.")
             return
 
@@ -1473,10 +1495,12 @@ class Volunteer:
         progress = 0
         while progress <= 3:
             if progress == 0:
+                logging.debug(f"{self.username} prompted to enter number of food packets requested.")
                 while True:
                     print("\nEnter [X] to return to the previous menu.")
                     food = input("Enter the number of food packets you are requesting: ")
                     if food.upper() == "X":
+                        logging.debug("Returning to previous menu.")
                         return
                     try:
                         food = int(food)
@@ -1484,17 +1508,21 @@ class Volunteer:
                             raise ValueError
                     except ValueError:
                         print("Please enter a non-negative integer.")
+                        logging.error("Invalid user input.")
                         continue
                     progress += 1
                     break
 
             if progress == 1:
+                logging.debug(f"{self.username} prompted to enter number of water portions requested.")
                 while True:
                     print("\nEnter [X] to return to the previous menu or [B] to return to the previous step.")
                     water = input("Enter the number of water portions you are requesting: ")
                     if water.upper() == "X":
+                        logging.debug("Returning to previous menu.")
                         return
                     if water.upper() == "B":
+                        logging.debug("Returning to previous step.")
                         progress -= 1
                         break
                     try:
@@ -1503,17 +1531,21 @@ class Volunteer:
                             raise ValueError
                     except ValueError:
                         print("Please enter a non-negative integer.")
+                        logging.error("Invalid user input.")
                         continue
                     progress += 1
                     break
 
             if progress == 2:
+                logging.debug(f"{self.username} prompted to enter number of first-aid kits requested.")
                 while True:
                     print("\nEnter [X] to return to the previous menu or [B] to return to the previous step.")
                     kits = input("Enter the number of first-aid kits you are requesting: ")
                     if kits.upper() == "X":
+                        logging.debug("Returning to previous menu.")
                         return
                     if kits.upper() == "B":
+                        logging.debug("Returning to previous step.")
                         progress -= 1
                         break
                     try:
@@ -1522,6 +1554,7 @@ class Volunteer:
                             raise ValueError
                     except ValueError:
                         print("Please enter a non-negative integer.")
+                        logging.error("Invalid user input.")
                         continue
                     progress += 1
                     break
@@ -1529,6 +1562,7 @@ class Volunteer:
             if progress == 3: # check that not all requested resources are 0
                 if food == 0 and water == 0 and kits == 0:
                     print("You cannot request 0 of all resources. Please enter your request again.")
+                    logging.error(f"{self.username} requested 0 of all resources. They will be promoted to re-enter the request.")
                     progress = 0
                 else:
                     progress += 1
@@ -1556,6 +1590,9 @@ class Volunteer:
         # Append the new data
         updated_df = pd.concat([existing_df, df], ignore_index=True)
         updated_df.to_csv('resource_requests.csv', index=False)
+        logging.debug("Resource request complete.")
+        logging.debug("resource_requests.csv updated")
+
         print("\nYour request is recorded successfully.\n"
               "An administrator will respond to your request shortly.")
         return
