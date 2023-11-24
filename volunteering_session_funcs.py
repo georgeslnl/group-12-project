@@ -1,6 +1,8 @@
 import datetime
+import logging
 
 def select_date():
+    logging.debug("User prompted to select date of volunteering session.")
     while True:
         print("You can add volunteering sessions within the next 2 weeks, starting from tomorrow.")
         start_date = datetime.date.today() + datetime.timedelta(days=1)
@@ -16,10 +18,12 @@ def select_date():
             vol_dt = datetime.datetime.strptime(vol_date, "%d-%m-%Y").date()
         except ValueError:
             print("Incorrect date format. Please use the format DD-MM-YYYY (e.g. 18-11-2023).")
+            logging.error("Invalid user input.")
             continue
         if vol_dt < start_date or vol_dt > end_date:
             print("Please enter a date from " + start_date.strftime('%d-%m-%Y') + " to " + end_date.strftime(
                 '%d-%m-%Y') + " (inclusive).")
+            logging.error("Date entered is outside the acceptable range.")
             continue
         return datetime.datetime.strftime(vol_dt, '%Y-%m-%d')  # e.g. 2023-11-18
 
@@ -39,6 +43,7 @@ def select_start_time(vol_date, cur_user_times):
                                   (cur_user_times['end_time'].str.startswith(vol_date)) |
                                   (cur_user_times['end_time'] == prev_day1)]
 
+    logging.debug("User is shown any existing volunteering sessions that affect available start times on the selected date.")
     if len(booked_slots.index) == 0:
         print("\nYou have not added any volunteering sessions on or affecting", vol_date2 + " yet.")
     else:
@@ -57,8 +62,9 @@ def select_start_time(vol_date, cur_user_times):
     print(
         "There must be at least 1 hour between volunteering sessions. Please cancel your existing sessions first if necessary.")
 
-    available = []
+    logging.debug("Generating list of available start times.")
     # generate list of available start times based on conditions above
+    available = []
     for time in [datetime.time(h, m).strftime('%H:%M') for h in range(0, 24) for m in (0, 30)]:
         time_str = vol_date + " " + time  # e.g. 2023-11-18 00:30
         time_d = datetime.datetime.strptime(time_str, "%Y-%m-%d %H:%M")
@@ -71,11 +77,15 @@ def select_start_time(vol_date, cur_user_times):
         else:
             available.append(time)
 
-    start = None
+    if len(available) == 0:
+        print("No available start times on the selected date. Please select another date.")
+        logging.warning("No available start times on the selected date. Returning to previous step.")
+        return "9"
+
+    logging.debug("User prompted to enter start time of volunteering session.")
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-        if start != "1":
-            print("Enter [1] to show all available start times.")
+        print("Enter [1] to show all available start times.")
         start = input(
             "Enter the start time of the volunteering session in the format HH:mm (e.g. 14:00): ").strip()
         if start in ("0", "9"):
@@ -83,9 +93,11 @@ def select_start_time(vol_date, cur_user_times):
         if start == "1":
             print("\nThe following start times are available on", vol_date2 + ":")
             print(", ".join(available))
+            logging.debug("User has chosen to view all available start times.")
             continue
         if start not in available:
             print("Please enter an available start time in the format HH:mm.")
+            logging.error("Invalid user input.")
             continue
         return vol_date + " " + start  # e.g. 2023-11-18 00:30
 
@@ -93,8 +105,9 @@ def select_start_time(vol_date, cur_user_times):
 def select_end_time(start_time, cur_user_times):
     # find next slot booked after start time
     next_slot = cur_user_times[cur_user_times['start_time'] > start_time].head(1)
-    available_end = []
+    logging.debug("Generating list of available start times.")
     # generate list of available end times
+    available_end = []
     st = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M')
     for step in range(1, 11):
         time_d = st + datetime.timedelta(minutes=30 * step)
@@ -104,8 +117,8 @@ def select_end_time(start_time, cur_user_times):
                 break
         time = time_d.strftime('%d-%m-%Y %H:%M')
         available_end.append(time)
-    print(available_end)
 
+    logging.debug("User prompted to select end time of volunteering session.")
     while True:
         print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
         print("Choose the end time of the volunteering session.")
@@ -120,6 +133,7 @@ def select_end_time(start_time, cur_user_times):
                 raise ValueError
         except ValueError:
             print("Please enter a number corresponding to one of the available end times.")
+            logging.error("Invalid user input.")
             continue
         end_time = available_end[end - 1]
         return datetime.datetime.strptime(end_time, '%d-%m-%Y %H:%M').strftime('%Y-%m-%d %H:%M')
@@ -144,6 +158,7 @@ def confirm_slot(start_time, end_time):
         dur_str += " 30 minutes"
     print("Duration:", dur_str)
 
+    logging.debug("User prompted to confirm details of volunteering session to be added.")
     while True:
         print("\nEnter [1] to confirm")
         print("Enter [9] to go back to the previous step")
@@ -154,5 +169,6 @@ def confirm_slot(start_time, end_time):
                 raise ValueError
         except ValueError:
             print("Please enter a number from the options provided.")
+            logging.error("Invalid user input.")
             continue
         return option
