@@ -1,10 +1,12 @@
 '''Run this file in the command line to open the application.'''
-import pandas as pd, numpy as np, re, datetime
+# built-in modules
+import pandas as pd, numpy as np
 import logging
+# custom modules and functions from other files
 import volunteer_funcs
 from volunteer import Volunteer
-from coded_vars import convert_gender
 from admin import Admin
+from coded_vars import convert_gender
 
 logging.basicConfig(level=logging.DEBUG,
                     filename='output.log',

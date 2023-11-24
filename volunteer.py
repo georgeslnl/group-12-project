@@ -1,9 +1,9 @@
+# built-in modules
 import pandas as pd, numpy as np, re, datetime
-import six
-
+import logging
+# custom modules and functions from other files
 from coded_vars import convert_gender, convert_medical_condition
 import refugee_profile_funcs, volunteering_session_funcs
-import logging
 import verify as v
 
 class Volunteer:

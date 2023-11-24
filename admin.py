@@ -1,15 +1,15 @@
+# built-in modules
 import pandas as pd, numpy as np
 from datetime import datetime
-
-import auto_resources
+import logging
+# custom modules and functions from other files
 from humanitarianplan import HumanitarianPlan
 from coded_vars import convert_gender, convert_medical_condition
 from selection import select_plan, select_camp
 from selection_volunteer import select_plan_camp_vol
 from selection_refugees import select_plan_camp_refugee
-import hum_plan_funcs, volunteer_funcs, refugee_profile_funcs, volunteering_session_funcs
+import auto_resources, hum_plan_funcs, volunteer_funcs, refugee_profile_funcs, volunteering_session_funcs
 import verify as v
-import logging
 
 
 class Admin:
