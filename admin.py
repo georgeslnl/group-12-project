@@ -118,7 +118,7 @@ class Admin:
                     print("\nEnter [X] to return to the previous menu.")
                     print("Please note only the description or number of camps of a humanitarian plan can be changed.")
                     plan_index = input('Please enter the index of the humanitarian plan you wish to edit: ')
-                    if plan_index.upper() == "X":
+                    if plan_index.upper() == "X": #if integer is entered, cannot do .upper()
                         logging.debug("Returning to previous menu.")
                         return
                     plan_id = str(hum_plan_df.loc[hum_plan_df.index == plan_index, 'plan_id'])
