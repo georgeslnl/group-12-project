@@ -2,6 +2,7 @@ import re, logging, datetime, pandas as pd
 import verify as v
 
 def add_description():
+    """Prompts the admin to enter the description of the humanitarian plan."""
     logging.debug("Admin prompted to enter description.")
     while True:
         print("\nEnter [0] to return to the previous menu.")
@@ -23,6 +24,10 @@ def add_description():
         return desc
 
 def add_location():
+    """
+    Prompts the admin to enter the location (city) of the humanitarian plan.
+    Checks that the location entered is in the list of valid city names.
+    """
     logging.debug("Admin prompted to enter location.")
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
@@ -44,6 +49,12 @@ def add_location():
         return loc
 
 def add_start_date(location):
+    """
+    Prompts the admin to enter the start date of the humanitarian plan.
+    If the start date is more than 30 days ago, a warning is displayed and the admin is prompted to confirm the date.
+    Using the location parameter, the function checks whether the plan_id (location and start year) already exist for another plan.
+    If so, the admin is returned to the add_location() function.
+    """
     logging.debug("Admin prompted to enter start date of plan.")
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
@@ -67,7 +78,7 @@ def add_start_date(location):
             print("There is already a humanitarian plan with plan ID", new_id + ",",
                   "i.e. location in", location, "and start date in", start_date[6:] + ".",
                   "\nYou will be prompted to re-enter the location.")
-            logging.error("plan_id (location and start date) already exists.")
+            logging.error("plan_id (location and start year) already exists.")
             return "9"
         if start < t - datetime.timedelta(days=30):
             logging.warning("Admin entered a start date more than 30 days in the past.")
@@ -93,6 +104,10 @@ def add_start_date(location):
 
 
 def add_num_camps():
+    """
+    Prompts the admin to enter the number of camps in the humanitarian plan.
+    The maximum number of camps is 15.
+    """
     while True:
         print("\nEnter [X] to return to the previous menu or B] to go back to the previous step.")
         nb_of_camps = input("The maximum number of camps is 15."
@@ -113,6 +128,7 @@ def add_num_camps():
         return nb_of_camps
 
 def edit_description(plan_id, cur_desc):
+    """Prompts the admin to enter the updated description of the selected humanitarian plan."""
     print(f'You have chosen to edit the description of {plan_id}.'
           f'\n The current description is:'
           f'\n {cur_desc}')

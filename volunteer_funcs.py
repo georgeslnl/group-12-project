@@ -3,6 +3,7 @@ from coded_vars import convert_gender
 import logging
 
 def add_plan():
+    """Prompts the user to select an ongoing humanitarian plan."""
     plans = pd.read_csv('humanitarian_plan.csv')
     plans = plans[plans['end_date'].isna()]  # only show plans that haven't been closed
 
@@ -38,6 +39,10 @@ def add_plan():
 
 
 def add_camp(plan_id):
+    """
+    Takes as input the plan_id of an ongoing humanitarian plan.
+    Prompts the user to select a camp at this plan.
+    """
     camps = pd.read_csv(plan_id + '.csv')
 
     logging.debug("User prompted to select camp.")
@@ -70,6 +75,7 @@ def add_camp(plan_id):
 
 
 def add_username():
+    """Prompts the user to enter the volunteer's username."""
     logging.debug("User prompted to enter username.")
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
@@ -98,6 +104,7 @@ def add_username():
 
 
 def add_password():
+    """Prompts the user to enter the volunteer's password."""
     logging.debug("User prompted to enter password.")
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
@@ -118,6 +125,7 @@ def add_password():
 
 
 def add_first_name():
+    """Prompts the user to enter the volunteer's first name."""
     logging.debug("User prompted to enter first name.")
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
@@ -139,6 +147,7 @@ def add_first_name():
 
 
 def add_last_name():
+    """Prompts the user to enter the volunteer's last name."""
     logging.debug("User prompted to enter last name.")
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
@@ -159,6 +168,7 @@ def add_last_name():
 
 
 def add_gender():
+    """Prompts the user to select the volunteer's gender."""
     logging.debug("User prompted to select gender.")
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
@@ -178,6 +188,10 @@ def add_gender():
 
 
 def add_dob():
+    """
+    Prompts the user to enter the volunteer's date of birth.
+    If the volunteer is not aged 18-99, a warning is displayed and the user is given the option to re-enter the date of birth or leave the method.
+    """
     logging.debug("User prompted to enter date of birth.")
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
@@ -217,6 +231,10 @@ def add_dob():
 
 
 def invalid_age_option():
+    """
+    Called when the volunteer's age is not 18-99 when creating an account.
+    The user is given the option to re-enter the date of birth or leave the method.
+    """
     logging.debug("User prompted to choose whether to re-enter date of birth or return to previous menu.")
     while True:
         print("Enter [1] to re-enter date of birth")
@@ -233,6 +251,7 @@ def invalid_age_option():
 
 
 def add_email():
+    """Prompts the user to enter the volunteer's email address."""
     logging.debug("User prompted to enter email address.")
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
@@ -253,6 +272,7 @@ def add_email():
 
 
 def add_phone_num():
+    """Prompts the user to enter the volunteer's phone number."""
     logging.debug("User prompted to enter phone number.")
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
@@ -277,6 +297,7 @@ def add_phone_num():
 ##############################################
 # Functions for admin to edit volunteer details
 def edit_username(username):
+    """Prompts the admin to enter the volunteer's new username."""
     print("\nVolunteer's current username is:", username)
     logging.debug("Admin prompted to enter new username.")
     while True:
@@ -321,6 +342,7 @@ def edit_username(username):
     return
 
 def edit_password(username, password):
+    """Prompts the admin to enter the volunteer's new password."""
     print("\n" + username + "'s current password is:", password)
     logging.debug("Admin prompted to enter new password.")
     while True:
@@ -351,6 +373,7 @@ def edit_password(username, password):
     return
 
 def edit_first_name(username, first_name):
+    """Prompts the admin to enter the volunteer's new first name."""
     print("\n" + username + "'s current first name is:", first_name)
     logging.debug("Admin prompted to enter new first name.")
     while True:
@@ -382,6 +405,7 @@ def edit_first_name(username, first_name):
     return
 
 def edit_last_name(username, last_name):
+    """Prompts the admin to enter the volunteer's new last name."""
     print("\n" + username + "'s current last name is:", last_name)
     logging.debug("Admin prompted to enter new last name.")
     while True:
@@ -413,6 +437,7 @@ def edit_last_name(username, last_name):
     return
 
 def edit_gender(username, gender):
+    """Prompts the admin to select the volunteer's new gender."""
     gender_str = convert_gender(gender)
     print("\n" + username + "'s current gender is:", gender_str)
     logging.debug("Admin prompted to enter new gender.")
@@ -449,6 +474,10 @@ def edit_gender(username, gender):
     return
 
 def edit_dob(username, date_of_birth):
+    """
+    Prompts the admin to enter the volunteer's corrected date of birth.
+    The volunteer must be aged 18-99.
+    """
     print("\n" + username + "'s current date of birth (DD-MM-YYYY) is:", date_of_birth)
     logging.debug("Admin prompted to enter corrected date of birth.")
     while True:
@@ -492,6 +521,7 @@ def edit_dob(username, date_of_birth):
     return
 
 def edit_email(username, email):
+    """Prompts the admin to enter the volunteer's new email address."""
     print("\n" + username + "'s current email address is:", email)
     logging.debug("Admin prompted to enter new email address.")
     while True:
@@ -523,6 +553,7 @@ def edit_email(username, email):
     return
 
 def edit_phone_num(username, phone_number):
+    """Prompts the admin to enter the volunteer's new phone number."""
     print("\n" + username + "'s current phone number is:", phone_number)
     logging.debug("Admin prompted to enter new phone number.")
     while True:

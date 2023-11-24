@@ -2,6 +2,7 @@ import pandas as pd, numpy as np
 import logging
 
 def select_plan():
+    """Prompts the admin to select a humanitarian plan."""
     print("\nSelect a humanitarian plan.")
     plans = pd.read_csv('humanitarian_plan.csv')
     plans = plans[plans['end_date'].isna()]
@@ -26,6 +27,10 @@ def select_plan():
 
 # select camp allowing user to go back to plan selection
 def select_camp(plan_id):
+    """
+    Takes as input the plan_id of a humanitarian plan.
+    Prompts the admin to select a camp at this plan.
+    """
     print("\nSelect a camp.")
     camps = pd.read_csv(plan_id + ".csv")
     print("Camp Name - # Volunteers - # Refugees - Refugee Capacity")

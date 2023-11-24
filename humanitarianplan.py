@@ -10,7 +10,7 @@ class HumanitarianPlan:
 
     When initialised, end_date is set to 'None' and can later be edited with edit_end_date method of Admin class.
 
-    When initialised, a resources csv file is created with a row for the number of camps specified
+    When initialised, a camps csv file is created with a row for the details of each camp in the plan.
     """
 
     def __init__(self, description, location, start_date, nb_of_camps):

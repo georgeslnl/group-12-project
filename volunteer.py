@@ -7,7 +7,7 @@ import verify as v
 class Volunteer:
     """Class for Volunteer users. Initialised when a user successfully logs in as a volunteer."""
     def __init__(self, username, password, first_name, last_name, email, phone_number, gender, date_of_birth, plan_id, camp_name):
-        """Initialise attributes with the user's details."""
+        """Initialises attributes with the user's details."""
         self.username = username
         self.password = password
         self.first_name = first_name
@@ -21,6 +21,7 @@ class Volunteer:
         self.logged_in = True
 
     def volunteer_menu(self):
+        """Main menu when a volunteer logs in, providing options to access sub-menus and methods for the various volunteer functionalities."""
         while self.logged_in:
             print("\n---------------")
             print("Volunteer Menu")
@@ -62,6 +63,7 @@ class Volunteer:
                 self.volunteering_session_menu()
 
     def personal_menu(self):
+        """Sub-menu enabling the volunteer to access functionalities relating to their personal information and camp identification."""
         while True:
             print("\nPersonal Information and Camp Identification")
             while True:
@@ -94,6 +96,8 @@ class Volunteer:
                 self.update_camp()
 
     def refugee_menu(self):
+        """Sub-menu enabling the volunteer to access functionalities relating to refugee profiles.
+        Volunteers must have a camp to access the menu."""
         while True:
             print("\nManage Refugee Profiles")
             if not self.camp_name:
@@ -129,6 +133,10 @@ class Volunteer:
                 self.edit_refugee_profile()
 
     def camp_info_menu(self):
+        """
+        Sub-menu enabling the volunteer to access functionalities relating to their current camp's information (capacity and resources).
+        Volunteers must have a camp to access the menu.
+        """
         while True:
             print("\nCamp Information")
             if not self.camp_name:
@@ -163,6 +171,10 @@ class Volunteer:
                 self.request_resources()
 
     def volunteering_session_menu(self):
+        """
+        Sub-menu enabling the volunteer to access functionalities relating to volunteering sessions.
+        Volunteers must have a camp to access the menu.
+        """
         while True:
             print("\nManage Volunteering Times")
             print("Tell us when you are coming to volunteer.")
@@ -199,11 +211,16 @@ class Volunteer:
                 self.remove_volunteering_session()
 
     def logout(self):
+        """Changes the user's logged_in attribute to False, causing the user to log out."""
         logging.info(f'{self.username} has logged out of their session.')
         self.logged_in = False
         print("You are now logged out. See you again!\n")
 
     def request_deactivation(self):
+        """
+        Enables the volunteer to request for their account to be deactivated.
+        The admin will subsequently be notified of the request.
+        """
         print("\nRequest account deactivation")
         while True:
             print("Are you sure you would like to deactivate your account?")
@@ -239,8 +256,8 @@ class Volunteer:
 
     def view_personal_info(self):
         """
-        Displays the user's details when called, except camp identification and password.
-        Additional option to allow user to view password.
+        Enables the volunteer to view their personal information (excludes camp identification).
+        An additional option is presented for the volunteer to select whether to display their password.
         """
         gender_str = convert_gender(self.gender)
 
@@ -277,7 +294,12 @@ class Volunteer:
         return
 
     def edit_personal_info(self):
+        """
+        Enables the volunteer to edit their personal details (excluding date of birth).
+        A menu enables the volunteer to edit multiple details before leaving the method.
+        """
         def edit_username():
+            """Prompts the volunteer to enter their new username."""
             print("\nYour current username is:", self.username)
             logging.debug(f"{self.username} has been shown their current username.")
             while True:
@@ -306,6 +328,7 @@ class Volunteer:
             return
 
         def edit_password():
+            """Prompts the volunteer to enter their new password."""
             print("\nYour current password is:", self.password)
             while True:
                 print("Enter [0] to return to the previous step.")
@@ -333,6 +356,7 @@ class Volunteer:
             return
 
         def edit_first_name():
+            """Prompts the volunteer to enter their new first name."""
             print("\nYour current first name is:", self.first_name)
             while True:
                 print("Enter [0] to return to the previous step.")
@@ -355,6 +379,7 @@ class Volunteer:
             return
 
         def edit_last_name():
+            """Prompts the volunteer to enter their new last name."""
             print("\nYour current last name is:", self.last_name)
             while True:
                 print("Enter [0] to return to the previous step.")
@@ -375,6 +400,7 @@ class Volunteer:
             return
 
         def edit_gender():
+            """Prompts the volunteer to select their new gender."""
             gender_str = convert_gender(self.gender)
 
             print("\nYour current gender is:", gender_str)
@@ -409,6 +435,7 @@ class Volunteer:
             return
 
         def edit_email():
+            """Prompts the volunteer to enter their new email address."""
             print("\nYour current email address is:", self.email)
             while True:
                 print("Enter [0] to return to the previous step.")
@@ -436,6 +463,7 @@ class Volunteer:
             return
 
         def edit_phone_num():
+            """Prompts the volunteer to enter their new phone number."""
             print("\nYour current phone number is:", self.phone_number)
             while True:
                 print("Enter [0] to return to the previous step.")
@@ -506,7 +534,13 @@ class Volunteer:
 
 
     def update_camp(self):
+        """
+        Enables the volunteer to update their camp identification.
+        If the volunteer currently does not have a camp, they are prompted to select a camp.
+        If the volunteer currently has a camp, they can select whether to change the camp or remove their camp identification.
+        """
         def add_camp(plan_id):
+            """Prompts the volunteer to select a camp if they currently do not have a camp."""
             camps = pd.read_csv(plan_id + '.csv')
             while True:
                 print("\nEnter [X] to return to the previous menu.")
@@ -530,6 +564,7 @@ class Volunteer:
                 return new_camp
 
         def edit_camp(plan_id):
+            """Prompts the volunteer to select a new camp if they currently have a camp."""
             camps = pd.read_csv(plan_id + '.csv')
             if len(camps.index) == 1:
                 print("There is currently only one camp. It is not possible to change camp identification.")
@@ -630,11 +665,11 @@ class Volunteer:
 
     def create_refugee_profile(self):
         """
-        This method lets the volunteer create a new refugee profile.
-        The volunteer needs to input the refugee's name, date of birth, camp, medical condition, no. of family members and any other remarks.
-        The refugee's details are then added to the file 'refugees.csv'.
+        Enables the volunteer to create a refugee profile at their current camp.
+        The volunteer is prompted for the refugee's details one by one.
         """
         def add_name():
+            """Prompts the user to input the refugee's name."""
             while True:
                 print("\nEnter [0] to return to the previous menu.")
                 refugee_name = input("Enter refugee name: ").strip()
@@ -750,9 +785,7 @@ class Volunteer:
         return
 
     def view_refugee_profile(self):
-        """
-        Prompts the user for the refugee ID, then prints the refugee's details.
-        """
+        """Enables the volunteer to view the profile of a selected refugee at their camp."""
         print("\nView refugee profile")
         refugees = pd.read_csv('refugees.csv')
         refugees = refugees[(refugees['plan_id'] == self.plan_id) & (refugees['camp_name'] == self.camp_name)]
@@ -820,6 +853,11 @@ class Volunteer:
         return
 
     def edit_refugee_profile(self):
+        """
+        Enables the volunteer to edit the profile of a selected refugee at their camp.
+        Once a refugee is selected, a menu enables the volunteer to edit multiple details before leaving the method.
+        This includes an option to remove the refugee's profile.
+        """
         print("\nEdit or remove refugee profile")
         refugees = pd.read_csv('refugees.csv')
         refugees = refugees[(refugees['plan_id'] == self.plan_id) & (refugees['camp_name'] == self.camp_name)]
@@ -914,6 +952,10 @@ class Volunteer:
                 return
 
     def display_camp_info(self):
+        """
+        Enables the volunteer to view their camp's information.
+        This includes number of volunteers and refugees, capacity, and resources available.
+        """
         print("\nDisplay camp information")
         camps = pd.read_csv(self.plan_id + '.csv')
         my_camp = camps[camps['camp_name'] == self.camp_name]
@@ -928,7 +970,12 @@ class Volunteer:
         return
 
     def update_camp_info(self):
+        """
+        Enables the volunteer to update their camp's capacity and record consumption of resources.
+        A menu enables the volunteer to update multiple details before leaving the method.
+        """
         def edit_capacity():
+            """Prompts the volunteer to enter the new capacity of their camp."""
             camps = pd.read_csv(self.plan_id + '.csv')
             my_camp = camps[camps['camp_name'] == self.camp_name]
             print("\nCurrent capacity of " + self.camp_name + ": " + str(my_camp.iloc[0]['capacity']))
@@ -961,6 +1008,10 @@ class Volunteer:
             return
 
         def edit_food():
+            """
+            Prompts the volunteer to enter the number of food packets consumed at their camp.
+            The volunteer is asked for confirmation before the update is applied.
+            """
             camps = pd.read_csv(self.plan_id + '.csv')
             my_camp = camps[camps['camp_name'] == self.camp_name]
             cur_food = my_camp.iloc[0]['food']
@@ -1007,6 +1058,10 @@ class Volunteer:
             return
 
         def edit_water():
+            """
+            Prompts the volunteer to enter the number of water portions consumed at their camp.
+            The volunteer is asked for confirmation before the update is applied.
+            """
             camps = pd.read_csv(self.plan_id + '.csv')
             my_camp = camps[camps['camp_name'] == self.camp_name]
             cur_water = my_camp.iloc[0]['water']
@@ -1053,6 +1108,10 @@ class Volunteer:
             return
 
         def edit_medical_supplies():
+            """
+            Prompts the volunteer to enter the number of first-aid kits used at their camp.
+            The volunteer is asked for confirmation before the update is applied.
+            """
             camps = pd.read_csv(self.plan_id + '.csv')
             my_camp = camps[camps['camp_name'] == self.camp_name]
             cur_medical = my_camp.iloc[0]['firstaid_kits']
@@ -1130,6 +1189,10 @@ class Volunteer:
                 edit_medical_supplies()
 
     def add_volunteering_session(self):
+        """
+        Enables the volunteer to add a volunteering session for themselves.
+        The volunteer is prompted for the date, start time and end time of the session.
+        """
         print("\nAdd a volunteering session")
         vol_times = pd.read_csv("volunteering_times.csv")
         cur_user_times = vol_times[vol_times['username'] == self.username]
@@ -1181,6 +1244,7 @@ class Volunteer:
         return
 
     def view_volunteering_sessions(self):
+        """Enables the volunteer to view all volunteering sessions they have scheduled."""
         print("\nView volunteering sessions")
         vol_times = pd.read_csv("volunteering_times.csv")
         cur_user_times = vol_times[vol_times['username'] == self.username]
@@ -1197,6 +1261,7 @@ class Volunteer:
         return
 
     def remove_volunteering_session(self):
+        """Enables the volunteer to remove a volunteering sessions they have scheduled."""
         print("\nRemove a volunteering session")
         vol_times = pd.read_csv("volunteering_times.csv")
         cur_user_times = vol_times[vol_times['username'] == self.username]
@@ -1253,7 +1318,10 @@ class Volunteer:
             return
 
     def request_resources(self):
-        """Store volunteer request in resource_requests.csv"""
+        """
+        Enables the volunteer to send a resource request to the admin.
+        The volunteer is prompted to enter the number of food packets, water portions and first-aid kits requested in turn.
+        """
         print("\nRequest resources for your camp.")
         print("You are requesting resources for", self.camp_name, "at plan", self.plan_id)
         camps = pd.read_csv(self.plan_id + '.csv')
