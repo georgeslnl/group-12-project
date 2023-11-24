@@ -1396,7 +1396,8 @@ class Admin:
     def display_hum_plan(self):
         """
         Prompts the admin to select a humanitarian plan.
-        Displays details of the selected plan and its camps.
+        Displays details of the selected plan.
+        Details of the camps and resources in storage are only displayed if the selected plan is ongoing.
         """
         print("\nDisplay humanitarian plan")
         plans = pd.read_csv('humanitarian_plan.csv')
@@ -1427,25 +1428,30 @@ class Admin:
                 continue
             break
 
+        plan_id = plans.loc[plan_num - 1, 'plan_id']
+        end_date = plans.loc[plan_num - 1, 'end_date']
+        logging.debug(f"Displaying details of {plan_id}.")
         print("\nDetails of humanitarian plan:")
         print("Location:", plans.loc[plan_num - 1, 'location'])
         print("Description:", plans.loc[plan_num - 1, 'description'])
         print("Number of camps:", plans.loc[plan_num - 1, 'number_of_camps'])
         print("Start date:", plans.loc[plan_num - 1, 'start_date'])
-        print("End date:", plans.loc[plan_num - 1, 'end_date'])
-        print("Food packets in storage:", plans.loc[plan_num - 1, 'food_storage'])
-        print("Water portions in storage:", plans.loc[plan_num - 1, 'water_storage'])
-        print("First-aid kits in storage:", plans.loc[plan_num - 1, 'firstaid_kits_storage'])
+        print("End date:", end_date)
+        # only print resources and camp details if plan is ongoing
+        if not end_date:
+            print("Food packets in storage:", plans.loc[plan_num - 1, 'food_storage'])
+            print("Water portions in storage:", plans.loc[plan_num - 1, 'water_storage'])
+            print("First-aid kits in storage:", plans.loc[plan_num - 1, 'firstaid_kits_storage'])
 
-        plan_id = plans.loc[plan_num - 1, 'plan_id']
-        camps = pd.read_csv(plan_id + '.csv')
-        logging.debug(f"Displaying details of {plan_id}.")
-        print("\nCamps in humanitarian plan:")
-        print("Camp Name - # Volunteers - # Refugees - Refugee Capacity")
-        for row in range(len(camps.index)):
-            print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
-                  str(camps['refugees'].iloc[row]) + " refugees", str(camps['capacity'].iloc[row]) + " capacity",
-                  sep=" - ")
+            camps = pd.read_csv(plan_id + '.csv')
+            print("\nCamps in humanitarian plan:")
+            print("Camp Name - # Volunteers - # Refugees - Refugee Capacity")
+            for row in range(len(camps.index)):
+                print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
+                      str(camps['refugees'].iloc[row]) + " refugees", str(camps['capacity'].iloc[row]) + " capacity",
+                      sep=" - ")
+        else:
+            print("This plan has been closed.")
         return
 
     def update_camp_capacity(self):
