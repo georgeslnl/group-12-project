@@ -15,6 +15,10 @@ valid_cities = valid_cities_csv['city'].tolist()
 valid_cities = [city.lower() for city in valid_cities]
 
 def integer(line):
+    """
+    Verify if the input is integer only.
+    User will be requested tp input again if not an integer.
+    """
     while True:
         try:
             _int = input(line).strip()
@@ -29,6 +33,11 @@ def integer(line):
 
 
 def string(line):
+    """
+    Verify if the input is a string only.
+    and rejects pure numbers.
+    User will be requested tp input again if not a string.
+    """
     while True:
         try:
             _str = input(line)
@@ -51,6 +60,11 @@ def string(line):
 
 
 def date(line):
+    """
+    Verify if the input is a date only.
+    it rejects all inputs not in the DD-MM-YYYY format.
+    User will be requested to input again if not an integer.
+    """
     while True:
         _date = input(line).strip()
         if _date == "0":
@@ -97,6 +111,11 @@ def name(line):
             return _name
 
 def username(line):
+    """
+    Verify if the input can be a username.
+    Other than string(), it specifies for username with regular expression.
+    User will be requested to input again if not meeting requirement.
+    """
     while True:
         _username = input(line).strip()
         s = re.search("^[a-zA-Z]+[a-zA-Z0-9_]*$", _username)
@@ -133,6 +152,11 @@ def email(line):
             return _email
 
 def phone_number(line):
+    """
+    Verify if the input can be a phone number.
+    Other than integer(), it specifies for phone number format with regular expression.
+    User will be requested to input again if not meeting requirement.
+    """
     while True:
         _number = input(line).strip()
         s = re.search("^\+?\d{1,3} \d{8,11}$", _number)  # allow starting + to be omitted
