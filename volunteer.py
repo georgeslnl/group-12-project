@@ -337,13 +337,13 @@ class Volunteer:
             while True:
                 print("Enter [0] to return to the previous step.")
                 new_fname = v.name("Enter new first name: ").strip()
-                # Capitalise the first letter instead of requiring input again
-                new_fname = f"{new_fname[0].upper()}{new_fname[1:]}"
                 if new_fname == "0":
                     return
                 elif new_fname == self.first_name:
                     print("New first name is the same as current first name. Please enter a different first name.")
                 else:
+                    # Capitalise the first letter instead of requiring input again
+                    new_fname = f"{new_fname[0].upper()}{new_fname[1:]}"
                     break
             # update csv file
             users = pd.read_csv('users.csv', dtype={'password': str})
