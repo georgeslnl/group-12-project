@@ -1,4 +1,6 @@
 import pandas as pd, re, datetime
+
+import verify
 from coded_vars import convert_gender
 import logging
 
@@ -122,6 +124,7 @@ def add_first_name():
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
         first_name = input("Enter first name: ").strip()
+        first_name = f"{first_name[0].upper()}{first_name[1:]}"
         if first_name in ("0", "9"):
             return first_name
         # validation
@@ -129,7 +132,7 @@ def add_first_name():
             print("Please enter a first name.")
             logging.error("User did not enter a first name.")
             continue
-        s = re.search("^[A-Z][a-zA-Z-' ]*$", first_name)
+        s = re.search("^[a-zA-Z-' ]+$", first_name)
         if not s:
             print(
                 "First name can only contain letters, hyphen (-) and apostrophe ('), and must start with a capital letter.")
@@ -278,51 +281,33 @@ def add_phone_num():
 # Functions for admin to edit volunteer details
 def edit_username(username):
     print("\nVolunteer's current username is:", username)
-    logging.debug("Admin prompted to enter new username.")
     while True:
         print("Enter [0] to return to the previous step.")
-        new_username = input("Enter new username: ").strip()
+        new_username = verify.username("Enter new username: ")
         if new_username == "0":
             return
         if new_username == username:
             print("New username is the same as current username. Please enter a different username.")
-            logging.error("Username is unchanged.")
             continue
-        if new_username == "":
-            print("Please enter a username.")
-            logging.error("Admin did not enter a username.")
-            continue
-        s = re.search("^[a-zA-Z]+[a-zA-Z0-9_]*$", new_username)
-        if not s:
-            print("Username can only contain letters, digits (0-9) and underscore (_), and must start with a letter. Please choose another username.")
-            logging.error("Invalid user input.")
-            continue
-        users = pd.read_csv('users.csv', dtype={'password': str})
-        select_username = users[users['username'] == new_username]
-        if len(select_username.index) > 0:  # username already exists
-            print("Username is taken. Please choose another username.")
-            logging.error("Admin entered a username that already exists.")
-            continue
-        break
+        else:
+            break
     # update csv file
+    users = pd.read_csv('users.csv', dtype={'password': str})
     cur_user = (users['username'] == username)
     users.loc[cur_user, 'username'] = new_username
     users = users.sort_values(by=['username'])  # sort by username before saving
     users.to_csv('users.csv', index=False)
-    logging.debug("users.csv updated")
 
     # also update for volunteering sessions
     vol_times = pd.read_csv("volunteering_times.csv")
     vol_times.loc[vol_times["username"] == username, "username"] = new_username
     vol_times.to_csv('volunteering_times.csv', index=False)
-    logging.debug("volunteering_times.csv updated")
 
     print("Volunteer's new username is:", new_username)
     return
 
 def edit_password(username, password):
     print("\n" + username + "'s current password is:", password)
-    logging.debug("Admin prompted to enter new password.")
     while True:
         print("Enter [0] to return to the previous step.")
         new_password = input("Enter new password: ")
@@ -330,16 +315,13 @@ def edit_password(username, password):
             return
         if new_password == password:
             print("New password is the same as current password. Please enter a different password.")
-            logging.error("Password is unchanged.")
             continue
         if len(new_password) < 3:
             print("Password should be at least 3 characters.")
-            logging.error("Invalid user input.")
             continue
         s = re.search("[, ]", new_password)
         if s:
             print("Password cannot contain commas or spaces. Please choose another password.")
-            logging.error("Invalid user input.")
             continue
         break
     # update csv file
@@ -352,70 +334,49 @@ def edit_password(username, password):
 
 def edit_first_name(username, first_name):
     print("\n" + username + "'s current first name is:", first_name)
-    logging.debug("Admin prompted to enter new first name.")
     while True:
         print("Enter [0] to return to the previous step.")
-        new_fname = input("Enter new first name: ").strip()
+        new_fname = verify.name("Enter new first name: ")
         if new_fname == "0":
             return
-        if new_fname == first_name:
+        elif new_fname == first_name:
             print("New first name is the same as current first name. Please enter a different first name.")
-            logging.error("First name is unchanged.")
             continue
-        if new_fname == "":
-            print("Please enter a first name.")
-            logging.error("Admin did not enter a first name.")
-            continue
-        s = re.search("^[A-Z][a-zA-Z-' ]*$", new_fname)
-        if not s:
-            print("First name can only contain letters, hyphen (-) and apostrophe ('), and must start with a capital letter.")
-            logging.error("Invalid user input.")
-            continue
-        break
+        else:
+            new_fname = f"{new_fname[0].upper()}{new_fname[1:]}"
+            break
     # update csv file
     users = pd.read_csv('users.csv', dtype={'password': str})
     cur_user = (users['username'] == username)
     users.loc[cur_user, 'first_name'] = new_fname
     users.to_csv('users.csv', index=False)
-    logging.debug("users.csv updated")
     print("You have changed " + username + "'s first name to:", new_fname)
     return
 
 def edit_last_name(username, last_name):
     print("\n" + username + "'s current last name is:", last_name)
-    logging.debug("Admin prompted to enter new last name.")
     while True:
         print("Enter [0] to return to the previous step.")
-        new_lname = input("Enter new last name: ").strip()
+        new_lname = verify.name("Enter new last name: ")
         if new_lname == "0":
             return
-        if new_lname == last_name:
+        elif new_lname == last_name:
             print("New last name is the same as current last name. Please enter a different last name.")
-            logging.error("Last name is unchanged.")
             continue
-        if new_lname == "":
-            print("Please enter a last name.")
-            logging.error("Admin did not enter a last name.")
-            continue
-        s = re.search("^[a-zA-Z-' ]+$", new_lname)
-        if not s:
-            print("Last name can only contain letters, hyphen (-) and apostrophe (').")
-            logging.error("Invalid user input.")
-            continue
-        break
+        else:
+            break
     # update csv file
     users = pd.read_csv('users.csv', dtype={'password': str})
     cur_user = (users['username'] == username)
     users.loc[cur_user, 'last_name'] = new_lname
     users.to_csv('users.csv', index=False)
-    logging.debug("users.csv updated")
     print("You have changed " + username + "'s last name to:", new_lname)
     return
 
 def edit_gender(username, gender):
     gender_str = convert_gender(gender)
+
     print("\n" + username + "'s current gender is:", gender_str)
-    logging.debug("Admin prompted to enter new gender.")
     while True:
         print("Enter [0] to return to the previous step.")
         print("New gender:")
@@ -428,13 +389,11 @@ def edit_gender(username, gender):
                 raise ValueError
         except ValueError:
             print("Please enter a number from the options provided.")
-            logging.error("Invalid user input.")
             continue
         if new_gender == 0:
             return
         if new_gender == gender:
             print("New gender is the same as current gender. Please try again or return to the previous step.")
-            logging.error("Gender is unchanged.")
             continue
         break
     # update csv file
@@ -442,7 +401,6 @@ def edit_gender(username, gender):
     cur_user = (users['username'] == username)
     users.loc[cur_user, 'gender'] = new_gender
     users.to_csv('users.csv', index=False)
-    logging.debug("users.csv updated")
 
     new_gender_str = convert_gender(new_gender)
     print("You have changed " + username + "'s gender to:", new_gender_str)
@@ -450,7 +408,6 @@ def edit_gender(username, gender):
 
 def edit_dob(username, date_of_birth):
     print("\n" + username + "'s current date of birth (DD-MM-YYYY) is:", date_of_birth)
-    logging.debug("Admin prompted to enter corrected date of birth.")
     while True:
         print("Enter [0] to return to the previous step.")
         new_dob = input("Enter corrected date of birth: ").strip()
@@ -458,28 +415,23 @@ def edit_dob(username, date_of_birth):
             return
         if new_dob == date_of_birth:
             print("New date of birth is the same as current date of birth. Please try again or return to the previous step.")
-            logging.error("Date of birth is unchanged.")
             continue
         try:
             ndob = datetime.datetime.strptime(new_dob, "%d-%m-%Y").date()
         except ValueError:
             print("Incorrect date format. Please use the format DD-MM-YYYY (e.g. 23-07-1999).")
-            logging.error("Invalid user input.")
             continue
         t = datetime.date.today()
         if ndob > t:
             print("Date of birth cannot be in the future. Please try again.")
-            logging.error("Admin entered a date of birth in the future.")
             continue
         if t.year - ndob.year < 18 or (t.year - ndob.year == 18 and t.month < ndob.month) or (
                 t.year - ndob.year == 18 and t.month == ndob.month and t.day < ndob.day):
             print("Volunteers must be at least 18 years old.")
-            logging.error("Volunteer is less than 18 years old based on date of birth.")
             continue
         if t.year - ndob.year > 100 or (t.year - ndob.year == 100 and t.month > ndob.month) or (
                 t.year - ndob.year == 100 and t.month == ndob.month and t.day >= ndob.day):
             print("Volunteers must be 18-99 years old (inclusive).")
-            logging.error("Volunteer is more than 99 years old based on date of birth.")
             continue
         break
     # update csv file
@@ -487,70 +439,45 @@ def edit_dob(username, date_of_birth):
     cur_user = (users['username'] == username)
     users.loc[cur_user, 'date_of_birth'] = new_dob
     users.to_csv('users.csv', index=False)
-    logging.debug("users.csv updated")
     print("You have corrected " + username + "'s date of birth to:", new_dob)
     return
 
 def edit_email(username, email):
     print("\n" + username + "'s current email address is:", email)
-    logging.debug("Admin prompted to enter new email address.")
     while True:
         print("Enter [0] to return to the previous step.")
-        new_email = input("Enter new email address: ").strip()
+        new_email = verify.email("Enter new email address: ")
         if new_email == "0":
             return
         if new_email == email:
             print("New email is the same as current email. Please enter a different email address.")
-            logging.error("Email address is unchanged.")
             continue
-        if new_email == "":
-            print("Please enter an email address.")
-            logging.error("Admin did not enter an email address.")
-            continue
-        s = re.search("^[A-Za-z0-9_]+@[A-Za-z0-9]+\.[A-Za-z.]+$", new_email)
-        if not s:
-            print("Invalid email address. Please try again.")
-            logging.error("Invalid user input.")
-            continue
-        break
+        else:
+            break
     # update csv file
     users = pd.read_csv('users.csv', dtype={'password': str})
     cur_user = (users['username'] == username)
     users.loc[cur_user, 'email'] = new_email
     users.to_csv('users.csv', index=False)
-    logging.debug("users.csv updated")
     print("You have changed " + username + "'s email address to:", new_email)
     return
 
 def edit_phone_num(username, phone_number):
     print("\n" + username + "'s current phone number is:", phone_number)
-    logging.debug("Admin prompted to enter new phone number.")
     while True:
         print("Enter [0] to return to the previous step.")
-        new_phone_num = input("Enter new phone number: ").strip()
+        new_phone_num = verify.phone_number("Enter new phone number: ")
         if new_phone_num == "0":
             return
         if new_phone_num == phone_number:
             print("New phone number is the same as current phone number. Please enter a different phone number.")
-            logging.error("Phone number is unchanged.")
             continue
-        if new_phone_num == "":
-            print("Please enter a phone number.")
-            logging.error("Admin did not enter a phone number.")
-            continue
-        s = re.search("^\+?\d{1,3} \d{8,11}$", new_phone_num)  # allow starting + to be omitted
-        if not s:
-            print("Incorrect phone number format. Please try again.")
-            logging.error("Invalid user input.")
-            continue
-        if new_phone_num[0] != "+":
-            new_phone_num = "+" + new_phone_num
-        break
+        else:
+            break
     # update csv file
     users = pd.read_csv('users.csv', dtype={'password': str})
     cur_user = (users['username'] == username)
     users.loc[cur_user, 'phone_number'] = new_phone_num
     users.to_csv('users.csv', index=False)
-    logging.debug("users.csv updated")
     print("You have changed " + username + "'s phone number to:", new_phone_num)
     return
