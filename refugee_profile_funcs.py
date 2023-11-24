@@ -153,17 +153,12 @@ def edit_refugee_name(refugee_id, refugee_name):
         new_name = input("Enter refugee's new name: ").strip()
         if new_name == "0":
             return
-        if new_name == refugee_name:
+        elif new_name == refugee_name:
             print("New name is the same as current name. Please enter a different name.")
             continue
-        if new_name == "":
-            print("Please enter a name.")
-            continue
-        s = re.search("^[A-Z][a-zA-Z-' ]*$", refugee_name)
-        if not s:
-            print("Name can only contain letters, hyphen (-) and apostrophe ('), and must start with a capital letter.")
-            continue
-        break
+        else:
+            new_name = f"{new_name[0].upper()}{new_name[1:]}"
+            break
     # update csv file
     refugees = pd.read_csv('refugees.csv')
     cur = (refugees['refugee_id'] == refugee_id)

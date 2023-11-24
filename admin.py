@@ -117,7 +117,7 @@ class Admin:
                 while True:
                     print("\nEnter [X] to return to the previous menu.")
                     print("Please note only the description or number of camps of a humanitarian plan can be changed.")
-                    plan_index = v.integer('Please enter the index of the humanitarian plan you wish to edit: ')
+                    plan_index = input('Please enter the index of the humanitarian plan you wish to edit: ')
                     if plan_index.upper() == "X":
                         logging.debug("Returning to previous menu.")
                         return
