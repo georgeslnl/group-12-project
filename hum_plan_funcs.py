@@ -97,18 +97,19 @@ def add_num_camps():
         print("\nEnter [X] to return to the previous menu or B] to go back to the previous step.")
         nb_of_camps = input("The maximum number of camps is 15."
                             "\nPlease enter the number of camps to set up: ").strip()
-        if nb_of_camps in ("X", "B"):
-            return nb_of_camps
+        if nb_of_camps.upper() in ("X", "B"):
+            return nb_of_camps.upper()
         try:
             nb_of_camps = int(nb_of_camps)
             if nb_of_camps <= 0:
-                raise ValueError
-            elif nb_of_camps > 15:
                 raise ValueError
         except ValueError:
             print("Please enter a positive integer.")
             logging.error("Invalid user input.")
             continue
+        if nb_of_camps > 15:
+            print("Number of camps cannot exceed 15.")
+            logging.error("Number of camps entered is more than 15.")
         return nb_of_camps
 
 def edit_description(plan_id, cur_desc):
@@ -191,6 +192,8 @@ def edit_no_camps(plan_id, plan_index, hum_plan_df, plan_df, num_camps):
                     # remove camp rows for closed camps in plan.csv
                     plan_df = plan_df[-plan_df['camp_name'].isin(closed_camps)]
                     return
+                # not sure if it's a good idea for refugees and resources to just disappear before the plan is closed!
+                # this step could possibly just be a confirmation after reminding the admin that refugees will be reallocated etc?
                 break
         if choice == 'Y':
             refugee_df = pd.read_csv('refugees.csv')
@@ -228,6 +231,7 @@ def edit_no_camps(plan_id, plan_index, hum_plan_df, plan_df, num_camps):
                         plan_df.loc[plan_df.camp_name == camp, 'refugees'] -= refugee_family[1]['family_members']
                         print(refugee_id, reassigned_camp)
             # if family cannot fit into the camp with largest remaining capacity?
+            # -> during loop, if remaining_capacity[reassigned_camp] < refugee_family[1]['family_members']: print message and return
             # volunteer - just change camp name to NaN if volunteer's camp is closed
             print('The camp name of all volunteers in camps that are being closed will be set to [NaN].')
             for camp in closed_camps:
@@ -236,6 +240,7 @@ def edit_no_camps(plan_id, plan_index, hum_plan_df, plan_df, num_camps):
                     if volunteer[1]['camp_name'] == camp:
                         volunteer_df.loc[volunteer_df.username == username, 'camp_name'] = None
                         plan_df.loc[plan_df.camp_name == camp, 'volunteers'] -= 1
+            # TODO: remove all volunteering sessions for the given plan_id and camp here
             # resources - add back to storage
             print('Resources (food packs, water and first-aid kits) of camps being closed will be moved back to storage '
                   'in the same plan.')
@@ -262,6 +267,9 @@ def edit_no_camps(plan_id, plan_index, hum_plan_df, plan_df, num_camps):
             add_camps = open(f"{plan_id}.csv", "a")
             add_camps.write(f"\nCamp {num_camps + i},0,0,0,0,0,0")
         add_camps.close()
+        # should we instead set the new camp numbers to start from 1 more than the current largest camp number?
+        # if a camp was removed previously, so e.g. the remaining camps are 1,2,4,5,
+        # then num_camps + 1 = 5, but Camp 5 is already taken
         new_plan = pd.read_csv(f"{plan_id}.csv")
         print(f'The change has been saved. The updated details of {plan_id} are as follows:'
               f'\n{new_plan}')

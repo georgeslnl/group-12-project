@@ -88,11 +88,11 @@ def name(line):
         if _name == "0":
             return _name
         elif _name == "":
-            logging.error('Entry is empty')
-            print("Entry cannot be empty.")
+            logging.error('User did not enter a name.')
+            print("Please enter a name.")
         if not s:
             logging.error(f'Name {_name} input by user is not in the correct format.')
-            print("Last name can only contain letters, hyphen (-) and apostrophe (').")
+            print("Name can only contain letters, hyphen (-) and apostrophe (').")
         else:
             return _name
 
@@ -110,10 +110,9 @@ def username(line):
         elif not s:
             logging.error(f'Username {_username} input by user is not in the correct format.')
             print("Username can only contain letters, digits (0-9) and underscore (_), and must start with a letter. Please choose another username.")
-        elif _username == "":
-            print("Please enter a username.")
         elif 0 < len(select_username.index):  # username already exists
             print("Username is taken. Please choose another username.")
+            logging.error("User entered a username that already exists.")
         else:
             return _username
 
@@ -125,6 +124,7 @@ def email(line):
         if _email == "0":
             return _email
         elif _email == "":
+            logging.error("User did not enter an email address.")
             print("Please enter an email address.")
         elif not s:
             logging.error(f'Email {_email} input by user is not in the correct format.')
@@ -139,6 +139,7 @@ def phone_number(line):
         if _number == "0":
             return _number
         elif _number == "":
+            logging.error("User did not enter a phone number.")
             print("Please enter a phone number.")
         elif _number[0] != "+":
             _number = f"+{_number}"
