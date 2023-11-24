@@ -2,6 +2,7 @@ import pandas as pd, numpy as np, re, datetime
 from coded_vars import convert_gender, convert_medical_condition
 import refugee_profile_funcs, volunteering_session_funcs
 import logging
+import verify as v
 
 class Volunteer:
     """Class for Volunteer users. Initialised when a user successfully logs in as a volunteer."""
@@ -281,26 +282,15 @@ class Volunteer:
             logging.debug(f"{self.username} has been shown their current username.")
             while True:
                 print("Enter [0] to return to the previous step.")
-                new_username = input("Enter new username: ").strip()
+                new_username = v.username("Enter new username: ").strip()
                 if new_username == "0":
                     return
                 if new_username == self.username:
                     print("New username is the same as current username. Please enter a different username.")
                     continue
-                if new_username == "":
-                    print("Please enter a username.")
-                    continue
-                s = re.search("^[a-zA-Z]+[a-zA-Z0-9_]*$", new_username)
-                if not s:
-                    print("Username can only contain letters, digits (0-9) and underscore (_), and must start with a letter. Please choose another username.")
-                    continue
-                users = pd.read_csv('users.csv', dtype={'password': str})
-                select_username = users[users['username'] == new_username]
-                if len(select_username.index) > 0:  # username already exists
-                    print("Username is taken. Please choose another username.")
-                    continue
                 break
             # update csv file
+            users = pd.read_csv('users.csv', dtype={'password': str})
             cur_user = (users['username'] == self.username)
             users.loc[cur_user, 'username'] = new_username
             users = users.sort_values(by=['username'])  # sort by username before saving
@@ -346,20 +336,15 @@ class Volunteer:
             print("\nYour current first name is:", self.first_name)
             while True:
                 print("Enter [0] to return to the previous step.")
-                new_fname = input("Enter new first name: ").strip()
+                new_fname = v.name("Enter new first name: ").strip()
+                # Capitalise the first letter instead of requiring input again
+                new_fname = f"{new_fname[0].upper()}{new_fname[1:]}"
                 if new_fname == "0":
                     return
-                if new_fname == self.first_name:
+                elif new_fname == self.first_name:
                     print("New first name is the same as current first name. Please enter a different first name.")
-                    continue
-                if new_fname == "":
-                    print("Please enter a first name.")
-                    continue
-                s = re.search("^[A-Z][a-zA-Z-' ]*$", new_fname)
-                if not s:
-                    print("First name can only contain letters, hyphen (-) and apostrophe ('), and must start with a capital letter.")
-                    continue
-                break
+                else:
+                    break
             # update csv file
             users = pd.read_csv('users.csv', dtype={'password': str})
             cur_user = (users['username'] == self.username)
@@ -373,20 +358,13 @@ class Volunteer:
             print("\nYour current last name is:", self.last_name)
             while True:
                 print("Enter [0] to return to the previous step.")
-                new_lname = input("Enter new last name: ").strip()
+                new_lname = v.name("Enter new last name: ").strip()
                 if new_lname == "0":
                     return
-                if new_lname == self.last_name:
+                elif new_lname == self.last_name:
                     print("New last name is the same as current last name. Please enter a different last name.")
-                    continue
-                if new_lname == "":
-                    print("Please enter a last name.")
-                    continue
-                s = re.search("^[a-zA-Z-' ]+$", new_lname)
-                if not s:
-                    print("Last name can only contain letters, hyphen (-) and apostrophe (').")
-                    continue
-                break
+                else:
+                    break
             # update csv file
             users = pd.read_csv('users.csv', dtype={'password': str})
             cur_user = (users['username'] == self.username)
