@@ -1,4 +1,5 @@
 import pandas as pd, numpy as np
+import logging
 
 def select_plan():
     print("\nSelect a humanitarian plan.")
@@ -8,6 +9,7 @@ def select_plan():
     for row in range(len(plans.index)):
         print(row + 1, plans['location'].iloc[row], plans['start_date'].iloc[row], sep=" - ")
 
+    logging.debug("Admin prompted to select humanitarian plan.")
     while True:
         print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
         plan_num = input("Enter the number of your chosen plan: ")
@@ -19,6 +21,7 @@ def select_plan():
                 raise ValueError
         except ValueError:
             print("Please enter a plan number corresponding to a humanitarian plan listed above.")
+            logging.error("Invalid user input.")
             continue
         return plans['plan_id'].iloc[plan_num-1]
 
@@ -27,6 +30,7 @@ def select_camp(plan_id):
     refugees = pd.read_csv('refugees.csv')
     refugees = refugees[refugees['plan_id'] == plan_id]
     if len(refugees.index) == 0:
+        logging.warning("No refugees to select from.")
         print("There are no refugees at the selected plan. Please try again.")
         return "B"
 
@@ -37,6 +41,7 @@ def select_camp(plan_id):
         print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
               str(camps['refugees'].iloc[row]) + " refugees", str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
 
+    logging.debug("Admin prompted to select camp.")
     while True:
         print("\nEnter [X] to return to the previous menu or [B] to go back to plan selection.")
         camp_num = input("Enter the number of your chosen camp: ")
@@ -48,6 +53,7 @@ def select_camp(plan_id):
                 raise ValueError
         except ValueError:
             print("Please enter a camp number corresponding to a camp listed above.")
+            logging.error("Invalid user input.")
             continue
         return camps['camp_name'].iloc[camp_num-1]
 
@@ -59,6 +65,7 @@ def select_refugee(plan_id, camp_name):
         return "B"
 
     print("\nSelect a refugee.")
+    logging.debug("Admin prompted to enter refugee ID.")
     while True:
         print("Enter [X] to return to the previous menu or [B] to go back to camp selection.")
         print("Enter [S] to list all refugees at the selected camp.")
@@ -66,6 +73,7 @@ def select_refugee(plan_id, camp_name):
         if refugee_id.upper() in ("X", "B"):
             return refugee_id.upper()
         if refugee_id.upper() == "S":
+            logging.debug("Admin selected to view all refugees at selected camp.")
             print("Refugees at plan", plan_id + ",", camp_name + ":")
             print("Refugee ID - Refugee Name - Date of Birth - # Family Members")
             for row in range(len(refugees.index)):
@@ -79,7 +87,8 @@ def select_refugee(plan_id, camp_name):
             if refugee_id not in refugees['refugee_id'].values:
                 raise ValueError
         except ValueError:
-            print("Refugee ID not found. Please enter again.\n")
+            print("Refugee ID not found. Please enter again.")
+            logging.error("Invalid user input.")
             continue
         return refugee_id
 
@@ -88,9 +97,11 @@ def initial_selection():
     while True:
         refugees = pd.read_csv('refugees.csv')
         if len(refugees.index) == 0:
+            logging.warning("No refugees to select from.")
             print("There are currently no refugees at humanitarian plans.")
             return 0
 
+        logging.debug("Admin prompted to choose between entering refugee ID directly and selecting plan and camp first.")
         print("\nEnter [1] to select a refugee by entering the refugee ID directly")
         print("Enter [2] to filter by plan and camp before selecting a refugee")
         print("Enter [0] to return to the previous menu")
@@ -100,11 +111,13 @@ def initial_selection():
                 raise ValueError
         except:
             print("Please enter a number from the options provided.")
+            logging.error("Invalid user input.")
             continue
         if option in (0, 2):
             return option
 
         # select refugee directly
+        logging.debug("Admin prompted to enter refugee ID.")
         while True:
             print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
             refugee_id = input("Enter the refugee ID of your chosen refugee: ")
@@ -118,10 +131,12 @@ def initial_selection():
                     raise ValueError
             except ValueError:
                 print("Refugee ID not found. Please enter again.\n")
+                logging.error("Invalid user input.")
                 continue
             break
 
         if refugee_id.upper() == "B":
+            logging.debug("Returning to previous step.")
             continue
         selected = refugees[refugees['refugee_id'] == refugee_id]
         return selected.iloc[0]['plan_id'], selected.iloc[0]['camp_name'], refugee_id
@@ -145,6 +160,7 @@ def select_plan_camp_refugee():
             if plan_id == "X":
                 return 0
             elif plan_id == "B":
+                logging.debug("Returning to previous step.")
                 progress -= 1
             else:
                 progress += 1
@@ -154,6 +170,7 @@ def select_plan_camp_refugee():
             if camp_name == "X":
                 return 0
             elif camp_name == "B":
+                logging.debug("Returning to previous step.")
                 progress -= 1
             else:
                 progress += 1
@@ -163,6 +180,7 @@ def select_plan_camp_refugee():
             if refugee_id == "X":
                 return 0
             elif refugee_id == "B":
+                logging.debug("Returning to previous step.")
                 progress -= 1
             else:
                 progress += 1

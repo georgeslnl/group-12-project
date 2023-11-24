@@ -1,4 +1,5 @@
 import pandas as pd, numpy as np
+import logging
 
 # select plan allowing user to go back to direct username vs plan->camp->volunteer
 def select_plan():
@@ -9,6 +10,7 @@ def select_plan():
     for row in range(len(plans.index)):
         print(row + 1, plans['location'].iloc[row], plans['start_date'].iloc[row], sep=" - ")
 
+    logging.debug("Admin prompted to select humanitarian plan.")
     while True:
         print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
         plan_num = input("Enter the number of your chosen plan: ")
@@ -20,6 +22,7 @@ def select_plan():
                 raise ValueError
         except ValueError:
             print("Please enter a plan number corresponding to a humanitarian plan listed above.")
+            logging.error("Invalid user input.")
             continue
         return plans['plan_id'].iloc[plan_num-1]
 
@@ -33,6 +36,7 @@ def select_camp(plan_id, active):
         users = users[(users['account_type'] == "volunteer") & (users['plan_id'] == plan_id)
                       & (users['camp_name'].notna())]
     if len(users.index) == 0:
+        logging.warning("No volunteers to select from.")
         if active:
             print("There are no camps with active volunteers at the selected plan. Please try again.")
         else:
@@ -47,6 +51,7 @@ def select_camp(plan_id, active):
               str(camps['refugees'].iloc[row]) + " refugees", str(camps['capacity'].iloc[row]) + " capacity",
               sep=" - ")
 
+    logging.debug("Admin prompted to select camp.")
     while True:
         print("\nEnter [X] to return to the previous menu or [B] to go back to plan selection.")
         camp_num = input("Enter the number of your chosen camp: ")
@@ -58,6 +63,7 @@ def select_camp(plan_id, active):
                 raise ValueError
         except ValueError:
             print("Please enter a camp number corresponding to a camp listed above.")
+            logging.error("Invalid user input.")
             continue
         return camps['camp_name'].iloc[camp_num-1]
 
@@ -69,6 +75,7 @@ def select_camp_none(plan_id, active):
     else:
         users = users[(users['account_type'] == "volunteer") & (users['plan_id'] == plan_id)]
     if len(users.index) == 0:
+        logging.warning("No volunteers to select from.")
         if active:
             print("There are no active volunteers at the selected plan. Please try again.")
         else:
@@ -83,6 +90,7 @@ def select_camp_none(plan_id, active):
               str(camps['refugees'].iloc[row]) + " refugees", str(camps['capacity'].iloc[row]) + " capacity",
               sep=" - ")
 
+    logging.debug("Admin prompted to select camp.")
     while True:
         print("\nEnter [X] to return to the previous menu or [B] to go back to plan selection.")
         print("If the volunteer has no camp identification, enter [N].")
@@ -97,6 +105,7 @@ def select_camp_none(plan_id, active):
                 raise ValueError
         except ValueError:
             print("Please enter a camp number corresponding to a camp listed above.")
+            logging.error("Invalid user input.")
             continue
         return camps['camp_name'].iloc[camp_num-1]
 
@@ -112,6 +121,7 @@ def select_volunteer(plan_id, camp_name, active):
     else:
         users = users[users['camp_name'].isna()]
     if len(users.index) == 0:
+        logging.warning("No volunteers to select from.")
         if active and camp_name:
             print("There are no active volunteers at the selected camp. Please try again.")
         elif active and not camp_name:
@@ -123,6 +133,7 @@ def select_volunteer(plan_id, camp_name, active):
         return "9"
 
     print("\nSelect a volunteer.")
+    logging.debug("Admin prompted to enter volunteer's username.")
     while True:
         print("Enter [0] to return to the previous menu or [9] to go back to camp selection.")
         if active:
@@ -133,6 +144,7 @@ def select_volunteer(plan_id, camp_name, active):
         if username in ("0", "9"):
             return username
         if username == "1":
+            logging.debug("Admin selected to view all volunteers at selected camp.")
             if camp_name:
                 print("Volunteers at plan", plan_id + ",", camp_name + ":")
             else:
@@ -152,6 +164,7 @@ def select_volunteer(plan_id, camp_name, active):
             continue
         if username not in users['username'].values:
             print("Username not found. Please enter again.\n")
+            logging.error("Username not found.")
             continue
         return username
 
@@ -167,6 +180,7 @@ def initial_selection(active, none):
         else:
             users = users[users['account_type'] == "volunteer"]
         if len(users.index) == 0:
+            logging.warning("No volunteers to select from.")
             if active and none:
                 print("There are no active volunteer accounts.")
             elif active and not none:
@@ -177,6 +191,7 @@ def initial_selection(active, none):
                 print("There are no camps with volunteer accounts.")
             return 0
 
+        logging.debug("Admin prompted to choose between entering username directly and selecting plan and camp first.")
         print("\nEnter [1] to select a volunteer by entering the username directly")
         print("Enter [2] to filter by plan and camp before selecting a volunteer")
         print("Enter [0] to return to the previous menu")
@@ -186,11 +201,13 @@ def initial_selection(active, none):
                 raise ValueError
         except:
             print("Please enter a number from the options provided.")
+            logging.error("Invalid user input.")
             continue
         if option in (0, 2):
             return option
 
         # select volunteer directly
+        logging.debug("Admin prompted to enter volunteer's username.")
         while True:
             print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
             username = input("Enter the username of your chosen volunteer: ")
@@ -200,10 +217,12 @@ def initial_selection(active, none):
                 break
             if username not in users['username'].values:
                 print("Username not found. Please try again.")
+                logging.error("Username not found.")
                 continue
             break
 
         if username == "9":
+            logging.debug("Returning to previous step.")
             continue
         select_user = users[users['username'] == username]
         return select_user.iloc[0]['plan_id'], select_user.iloc[0]['camp_name'], username
@@ -229,6 +248,7 @@ def select_plan_camp_vol(active, none):
             if plan_id == "X":
                 return 0
             elif plan_id == "B":
+                logging.debug("Returning to previous step.")
                 progress -= 1
             else:
                 progress += 1
@@ -241,6 +261,7 @@ def select_plan_camp_vol(active, none):
             if camp_name == "X":
                 return 0
             elif camp_name == "B":
+                logging.debug("Returning to previous step.")
                 progress -= 1
             else:
                 progress += 1
@@ -250,6 +271,7 @@ def select_plan_camp_vol(active, none):
             if username == "0":
                 return 0
             elif username == "9":
+                logging.debug("Returning to previous step.")
                 progress -= 1
             else:
                 progress += 1

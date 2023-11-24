@@ -34,6 +34,7 @@ class Admin:
             if progress == 0:
                 desc = hum_plan_funcs.add_description()
                 if desc == "0":
+                    logging.debug("Returning to previous menu.")
                     return
                 else:
                     progress += 1
@@ -41,8 +42,10 @@ class Admin:
             if progress == 1:
                 loc = hum_plan_funcs.add_location()
                 if loc == "0":
+                    logging.debug("Returning to previous menu.")
                     return
                 elif loc == "9":
+                    logging.debug("Returning to previous step.")
                     progress -= 1
                 else:
                     progress += 1
@@ -50,8 +53,10 @@ class Admin:
             if progress == 2:
                 start_date = hum_plan_funcs.add_start_date(loc)
                 if start_date == "0":
+                    logging.debug("Returning to previous menu.")
                     return
                 elif start_date == "9":
+                    logging.debug("Returning to previous step.")
                     progress -= 1
                 else:
                     progress += 1
@@ -59,26 +64,31 @@ class Admin:
             if progress == 3:
                 nb_of_camps = hum_plan_funcs.add_num_camps()
                 if nb_of_camps == "X":
+                    logging.debug("Returning to previous menu.")
                     return
                 elif nb_of_camps == "B":
+                    logging.debug("Returning to previous step.")
                     progress -= 1
                 else:
                     progress += 1
 
         # Creating humanitarian plan object
+        logging.debug("Finished entering details of humanitrian plan."
+                      "Creating humanitarian plan object, which will create a csv file for the plan's camps.")
         hu_pl = HumanitarianPlan(desc, loc, start_date, nb_of_camps)
         name = f'{loc}_{start_date[6:]}'
 
         # Opens the csv file and adds the data for this humanitarian plan
         h = open("humanitarian_plan.csv", "a")
         h.write(f'\n{name},{desc},{loc},{start_date},{nb_of_camps},,{1000},{1000},{250}')  # default amount of resources
-        # desc is wrapped in "" because we don't want to csv file to see a "," in the description as a delimitter
+        # desc is wrapped in "" because we don't want to csv file to see a "," in the description as a delimiter
         h.close()
 
         # sort by plan_id after a new plan is added
         plans = pd.read_csv('humanitarian_plan.csv')
         plans = plans.sort_values(by=['plan_id'])
         plans.to_csv('humanitarian_plan.csv', index=False)
+        logging.debug("humanitarian_plan.csv updated")
 
         # Prints out the information about the Humanitarian Plan created
         print(f'A new humanitarian plan has been created with the following information:'
@@ -94,6 +104,7 @@ class Admin:
         hum_plan_df = hum_plan_df[hum_plan_df['end_date'].isna()]
         if len(hum_plan_df.index) == 0:
             print("There are no ongoing humanitarian plans.")
+            logging.warning("No ongoing humanitarian plans. Returning to humanitarian plan menu.")
             return
 
         progress = 0
@@ -102,21 +113,25 @@ class Admin:
               f"\n {hum_plan_df}")
         while progress < 4:
             if progress == 0:
+                logging.debug("Admin prompted to select humanitarian plan.")
                 while True:
                     print("\nEnter [X] to return to the previous menu.")
                     print("Please note only the description or number of camps of a humanitarian plan can be changed.")
                     plan_index = v.integer('Please enter the index of the humanitarian plan you wish to edit: ')
                     if plan_index.upper() == "X":
+                        logging.debug("Returning to previous menu.")
                         return
                     plan_id = str(hum_plan_df.loc[hum_plan_df.index == plan_index, 'plan_id'])
                     plan_id = plan_id.split('\n')[0]
                     plan_id = plan_id[5:]
                     if plan_index not in range(0, len(hum_plan_df.plan_id)):
                         print('The index you entered is outside the range of humanitarian plans.')
+                        logging.error("Invalid user input.")
                         continue
                     break
 
             elif progress == 1:
+                logging.debug("Admin prompted to select what to edit.")
                 while True:
                     print("\nEnter [0] to return to the previous menu or [9] to return to plan selection.")
                     print("Please choose what you would like to edit.")
@@ -127,9 +142,12 @@ class Admin:
                         break
                     else:
                         print('Please enter a number from the options provided.')
+                        logging.error("Invalid user input.")
                 if edit_choice == 0:
+                    logging.debug("Returning to previous menu.")
                     return
                 elif edit_choice == 9:
+                    logging.debug("Returning to previous step.")
                     progress -= 1
                 elif edit_choice == 1 or edit_choice == 2:
                     progress += 1
@@ -143,13 +161,16 @@ class Admin:
 
                     new_desc = hum_plan_funcs.edit_description(plan_id, cur_desc)
                     if new_desc == "0":
+                        logging.debug("Returning to previous menu.")
                         return
                     elif new_desc == "9":
+                        logging.debug("Returning to previous step.")
                         progress -= 1
                     else:
                         plans = pd.read_csv('humanitarian_plan.csv')
                         plans.loc[plans["plan_id"] == plan_id, "description"] = new_desc
                         plans.to_csv('humanitarian_plan.csv', index=False)
+                        logging.debug("humanitarian_plan.csv updated")
                         print(f'The change has been saved. The updated details of {plan_id} are as follows:'
                               f'\n{plans.loc[plans["plan_id"] == plan_id, :]}')
                         progress += 1
@@ -164,6 +185,7 @@ class Admin:
                     progress += 1
 
             elif progress == 3:
+                logging.debug("Admin prompted to select what to do next.")
                 while True:
                     print(f'Enter [1] to edit other details of {plan_id}')
                     print("Enter [2] to edit details of other humanitarian plans")
@@ -171,98 +193,18 @@ class Admin:
                     next = v.integer("Select an option: ")
                     if next in range(0, 3):
                         if next == 0:
+                            logging.debug("Returning to previous menu.")
                             return
                         elif next == 1:
+                            logging.debug("Returning to edit details of the same plan.")
                             progress = 1
                         elif next == 2:
+                            logging.debug("Returning to select another plan to edit.")
                             progress = 0
                         break
                     else:
                         print('Please enter a number from the options provided.')
-
-
-    # def display_hum_plan(self, hum_plan):
-    #     """
-    #     This method displays summary information about the humanitarian plan.
-    #     Information to display:
-    #         - Number of refugees
-    #         - Their camp identification
-    #         - Number of volunteers working at each camp
-    #     """
-    #     hu_pl = pd.read_csv('%s.csv' %(hum_plan))
-    #     print('Total number of refugees: ', sum(hu_pl['refugees']))
-    #     print('Camp ID of camps involved: \n', hu_pl['camp_name'])
-    #     print('Number of volunteers working at each camp: \n', hu_pl[['camp_name', 'volunteers']])
-
-    # def edit_volunteer(self):
-    #     df = pd.read_csv('users.csv')
-    #     # uses pandas to print a table first for selection. So admin doesn't have to type it themselves
-    #     print(df.iloc[1:, 0])
-    #     while True:
-    #         user = v.string('Please enter the username of the volunteer whose account details you would like to modify.')
-    #         if any(df['username'].str.contains(user)) == True: #testing if volunteer account already exists
-    #             break
-    #         else:
-    #             print('Username entered does not match with any volunteer.')
-    #             continue
-    #     while True:
-    #         # a list for admin to choose from, edited to work for the merged 'users' file
-    #         print("Please choose one of the following details you would like to modify."
-    #               "\n 0 for username"
-    #               "\n 1 for password"
-    #               "\n 2 for active status"
-    #               "\n 3 for first name"
-    #               "\n 4 for last name"
-    #               "\n 5 for email address"
-    #               "\n 6 for phone number"
-    #               "\n 7 for gender"
-    #               "\n 8 for date of birth"
-    #               "\n 9 for plan ID"
-    #               "\n 10 for camp name")
-    #         index = int(v.integer(""))
-    #         if index not in range(0, 11):
-    #             print('Please enter an integer from 0-10.')
-    #             continue
-    #         else:
-    #             #This is code to fix the index problem due to using the new 'users' file
-    #             if index==2:
-    #                 index=3
-    #             elif index==0 or index==1:
-    #                 pass
-    #             else:
-    #                 index+=2
-    #             break
-    #     temp_list = ['username', 'password', 'account_type', 'active_status', 'deactivation_requested',
-    #                  'first_name', 'last_name', 'email', 'phone_number', 'gender', 'date_of_birth', 'plan_id', 'camp_name']
-    #     new = input("Please enter a new value: ")  # will be used to input into csv as status
-    #     # and then enter a new value
-    #     # create a dataform without that specific row where username is...
-    #     df.loc[df['username'] == user, temp_list[index]] = new  # modify the dataform
-    #     df.to_csv('users.csv', index=False)  # write it into the .csv file
-    #     updated = df['username'] == user
-    #     print("The updated account details of " + user + "is:\n", df[updated])
-
-    # def create_volunteer(self):
-    #     new = open("users.csv", "a")
-    #
-    #     username = v.string("Please enter an user name: ")
-    #     pw = input("Please enter the password: ") #password should be just '111'
-    #     first_name = v.name("Please enter the first name: ")
-    #     last_name = v.name("Please enter the last name: ")
-    #     email = v.email("PLease enter the email address: ")
-    #     phone = v.integer("Please enter the phone number: ")
-    #     gender = v.integer("Please enter the gender: ")
-    #     DOB = v.date("Please enter the date of birth (DD-MM-YYYY): ")
-    #     plan_id = v.string("Please enter the plan ID: ")
-    #     camp_name = v.string("Please enter the camp name: ")
-    #
-    #     new.write(f'\n{username},{pw},volunteer,1,0,{first_name},{last_name},{email},{phone},{gender},{DOB},{plan_id},{camp_name}')
-    #     new.close()
-    #     print("New user added successfully.")
-    #
-    #     users = pd.read_csv('users.csv')
-    #     new_account = users['username'] == username
-    #     print("The new account details of", username, "is:\n", users[new_account])
+                        logging.error("Invalid user input.")
 
     def create_volunteer(self):
         print("\nCreate volunteer account")
@@ -274,6 +216,7 @@ class Admin:
             if progress == 0:
                 plan_id = volunteer_funcs.add_plan()
                 if plan_id == "X":
+                    logging.debug("Returning to previous menu.")
                     return
                 else:
                     progress += 1
@@ -281,8 +224,10 @@ class Admin:
             elif progress == 1:
                 camp_name = volunteer_funcs.add_camp(plan_id)
                 if camp_name == "X":
+                    logging.debug("Returning to previous menu.")
                     return
                 elif camp_name == "B":
+                    logging.debug("Returning to previous step.")
                     progress -= 1
                 else:
                     progress += 1
@@ -290,8 +235,10 @@ class Admin:
             elif progress == 2:
                 username = volunteer_funcs.add_username()
                 if username == "0":
+                    logging.debug("Returning to previous menu.")
                     return
                 elif username == "9":
+                    logging.debug("Returning to previous step.")
                     progress -= 1
                 else:
                     progress += 1
@@ -299,8 +246,10 @@ class Admin:
             elif progress == 3:
                 password = volunteer_funcs.add_password()
                 if password == "0":
+                    logging.debug("Returning to previous menu.")
                     return
                 elif password == "9":
+                    logging.debug("Returning to previous step.")
                     progress -= 1
                 else:
                     progress += 1
@@ -308,8 +257,10 @@ class Admin:
             elif progress == 4:
                 first_name = volunteer_funcs.add_first_name()
                 if first_name == "0":
+                    logging.debug("Returning to previous menu.")
                     return
                 elif first_name == "9":
+                    logging.debug("Returning to previous step.")
                     progress -= 1
                 else:
                     progress += 1
@@ -317,8 +268,10 @@ class Admin:
             elif progress == 5:
                 last_name = volunteer_funcs.add_last_name()
                 if last_name == "0":
+                    logging.debug("Returning to previous menu.")
                     return
                 elif last_name == "9":
+                    logging.debug("Returning to previous step.")
                     progress -= 1
                 else:
                     progress += 1
@@ -326,8 +279,10 @@ class Admin:
             elif progress == 6:
                 gender = volunteer_funcs.add_gender()
                 if gender == 0:
+                    logging.debug("Returning to previous menu.")
                     return
                 elif gender == 9:
+                    logging.debug("Returning to previous step.")
                     progress -= 1
                 else:
                     progress += 1
@@ -335,8 +290,10 @@ class Admin:
             elif progress == 7:
                 date_of_birth = volunteer_funcs.add_dob()
                 if date_of_birth == "0":
+                    logging.debug("Returning to previous menu.")
                     return
                 elif date_of_birth == "9":
+                    logging.debug("Returning to previous step.")
                     progress -= 1
                 else:
                     progress += 1
@@ -344,8 +301,10 @@ class Admin:
             elif progress == 8:
                 email = volunteer_funcs.add_email()
                 if email == "0":
+                    logging.debug("Returning to previous menu.")
                     return
                 elif email == "9":
+                    logging.debug("Returning to previous step.")
                     progress -= 1
                 else:
                     progress += 1
@@ -353,22 +312,16 @@ class Admin:
             elif progress == 9:
                 phone_number = volunteer_funcs.add_phone_num()
                 if phone_number == "0":
+                    logging.debug("Returning to previous menu.")
                     return
                 elif phone_number == "9":
+                    logging.debug("Returning to previous step.")
                     progress -= 1
                 else:
                     progress += 1
 
-        # Update csv tables
-        # users = open("users.csv", "a")
-        # if camp_name:
-        #     users.write(
-        #         f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},{camp_name}')
-        # else:
-        #     users.write(
-        #         f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},')
-        # users.close()
-
+        logging.debug("Admin has finished entering volunteer details.")
+        # update csv files
         users = pd.read_csv('users.csv', dtype={'password': str})
         new_row = {'username': [username], 'password': [password], 'account_type': ['volunteer'], 'active': [1],
                    'deactivation_requested': [0], 'first_name': [first_name], 'last_name': [last_name],
@@ -378,16 +331,17 @@ class Admin:
         users = pd.concat([users, new], ignore_index=True)
         users = users.sort_values(by=['username'])  # sort by username before saving
         users.to_csv('users.csv', index=False)
+        logging.debug("users.csv updated")
 
         if camp_name:
             camps = pd.read_csv(plan_id + '.csv')
             chosen = (camps['camp_name'] == camp_name)
             camps.loc[chosen, 'volunteers'] = camps.loc[chosen, 'volunteers'] + 1
             camps.to_csv(plan_id + '.csv', index=False)
+            logging.debug("camps csv file updated")
 
         # Print details provided in registration
         gender_str = convert_gender(gender)
-
         print("\n" + username, "has been registered as a volunteer.")
         print("You have entered the following details:")
         print("Plan:", plan_id)
@@ -404,6 +358,7 @@ class Admin:
         print("Select the volunteer whose details you are updating.")
         selected = select_plan_camp_vol(active=0, none=1)  # returns (plan_id, camp_name, username)
         if selected == 0:
+            logging.debug("Returning to previous menu.")
             return
         else:
             username = selected[2]
@@ -422,6 +377,7 @@ class Admin:
         while True:
             # inner loop to catch invalid input
             while True:
+                logging.debug("Admin prompted to select which detail to edit.")
                 print("\nEdit details of", username)
                 print("Enter [1] for username")
                 print("Enter [2] for password")
@@ -438,71 +394,85 @@ class Admin:
                         raise ValueError
                 except ValueError:
                     print("Please enter a number from the options provided.")
+                    logging.error("Invalid user input.")
                     continue
                 break
 
             if option == 0:
+                logging.debug("Finished editing volunteer details. Returning to volunteer accounts menu.")
                 return
             if option == 1:
                 volunteer_funcs.edit_username(username)
+                logging.debug("Username updated successfully")
             if option == 2:
                 volunteer_funcs.edit_password(username, password)
+                logging.debug("Password updated successfully")
             if option == 3:
                 volunteer_funcs.edit_first_name(username, first_name)
+                logging.debug("First name updated successfully")
             if option == 4:
                 volunteer_funcs.edit_last_name(username, last_name)
+                logging.debug("Last name updated successfully")
             if option == 5:
                 volunteer_funcs.edit_gender(username, gender)
+                logging.debug("Gender updated successfully")
             if option == 6:
                 volunteer_funcs.edit_dob(username, date_of_birth)
+                logging.debug("Date of birth updated successfully")
             if option == 7:
                 volunteer_funcs.edit_email(username, email)
+                logging.debug("Email address updated successfully")
             if option == 8:
                 volunteer_funcs.edit_phone_num(username, phone_number)
+                logging.debug("Phone number updated successfully")
 
     def delete_volunteer(self):
         print("\nDelete volunteer account")
         print("Select the volunteer whose account you would like to delete.")
         selected = select_plan_camp_vol(active=0, none=1)  # returns (plan_id, camp_name, username)
         if selected == 0:
+            logging.debug("Returning to previous menu.")
             return
         else:
             plan_id, camp_name, username = selected
 
+        logging.debug(f"Admin prompted to confirm deletion of {username}'s account.")
         while True:
             print("\nAre you sure you would like to delete the account of", username + "?")
             print("Enter [1] to proceed")
             print("Enter [0] to return to the previous menu")
             try:
-                user_input = input("Select an option: ")
-                option = int(user_input)
+                option = int(input("Select an option: "))
                 if option not in (0, 1):
-                    logging.error(
-                        f"Admin has entered {user_input} when trying to delete {username}'s account. ValueError raised.")
                     raise ValueError
             except ValueError:
                 print("Please enter a number from the options provided.")
+                logging.error("Invalid user input.")
                 continue
             break
         if option == 0:
+            logging.debug("Returning to previous menu.")
             return
 
+        logging.debug(f"Admin has deleted {username}'s account.")
         # update csv files
         users = pd.read_csv('users.csv', dtype={'password': str})
         users = users.drop(users[users['username'] == username].index)
         users.to_csv('users.csv', index=False)
+        logging.debug("users.csv updated")
 
         vol_times = pd.read_csv("volunteering_times.csv")
         vol_times = vol_times.drop(vol_times[vol_times['username'] == username].index)
         vol_times.to_csv('volunteering_times.csv', index=False)
+        logging.debug("volunteering_times.csv updated")
 
         if camp_name:
             camps = pd.read_csv(plan_id + '.csv')
             user_camp = (camps['camp_name'] == camp_name)
             camps.loc[user_camp, 'volunteers'] = camps.loc[user_camp, 'volunteers'] - 1
             camps.to_csv(plan_id + '.csv', index=False)
+            logging.debug("volunteering_times.csv updated")
 
-        logging.info(f'{username} has been deleted by admin.')
         print(username + "'s account has been deleted successfully.")
 
     def active_volunteer(self):
@@ -510,6 +480,7 @@ class Admin:
         print("Select the volunteer whose account you would like to deactivate or reactivate.")
         selected = select_plan_camp_vol(active=0, none=1)  # returns (plan_id, camp_name, username)
         if selected == 0:
+            logging.debug("Returning to previous menu.")
             return
         else:
             plan_id, camp_name, username = selected
@@ -518,6 +489,7 @@ class Admin:
         select_user = users[users['username'] == username]
         active = select_user.iloc[0]['active']
 
+        logging.debug("Admin prompted to confirm deactivation/reactivation.")
         while True:
             if active:
                 status = 0
@@ -531,21 +503,24 @@ class Admin:
             print("Enter [1] to proceed")
             print("Enter [0] to return to the previous menu")
             try:
-                user_input = input("Select an option: ")
-                option = int(user_input)
+                option = int(input("Select an option: "))
                 if option not in (0, 1):
                     raise ValueError
             except ValueError:
                 print("Please enter a number from the options provided.")
+                logging.error("Invalid user input.")
                 continue
             break
         if option == 0:
+            logging.debug("Returning to previous menu.")
             return
 
+        logging.debug(f"Admin has {change}d {username}'s account.")
         # update csv files
         users.loc[users['username'] == username, 'deactivation_requested'] = 0
         users.loc[users['username'] == username, 'active'] = status
         users.to_csv('users.csv', index=False)
+        logging.debug("users.csv updated")
 
         # increment or decrement number of volunteers if user has a camp
         if camp_name:
@@ -554,71 +529,18 @@ class Admin:
             if status == 1:
                 camps.loc[user_camp, 'volunteers'] = camps.loc[user_camp, 'volunteers'] + 1
                 camps.to_csv(plan_id + '.csv', index=False)
+                logging.debug("camps csv file updated")
             if status == 0:
                 camps.loc[user_camp, 'volunteers'] = camps.loc[user_camp, 'volunteers'] - 1
                 camps.to_csv(plan_id + '.csv', index=False)
+                logging.debug("camps csv file updated")
                 # if deactivated: delete the user's volunteering sessions
                 vol_times = pd.read_csv("volunteering_times.csv")
                 vol_times = vol_times.drop(vol_times[vol_times['username'] == username].index)
                 vol_times.to_csv('volunteering_times.csv', index=False)
+                logging.debug("volunteering_times.csv updated")
 
         print(username + "'s account has been " + change + "d successfully.")
-
-        # while True:
-        #     status = v.string("Would you like to deactivate or reactivate an user? (D/R)"
-        #                       "\n D for deactivate"
-        #                       "\n R for reactivate")
-        #     if status != "R" and status != "D":
-        #         print("Please enter only D or R.")
-        #     elif status == "R":
-        #         status = 1    #input this into the csv
-        #         request = 0
-        #         _str = "reactivate"
-        #         break
-        #     elif status == "D":
-        #         status = 0
-        #         _str = "deactivate"
-        #         request = 0
-        #         break
-        #
-        # df = pd.read_csv('users.csv', dtype={'password': str})
-        # # uses pandas to print a table first for selection. So admin doesn't have to type it themselves
-        # print(df.iloc[1:, 0])
-        # while True:
-        #     user = v.string(f'Please enter the username you would like to {_str}. ')
-        #     if any(df['username'].str.contains(user)) == False:  # testing if volunteer account already exists
-        #         print("Username not found. Please enter again.")
-        #     else:
-        #         break
-        # df.loc[df['username'] == user, 'deactivation_requested'] = request  # modify the dataform
-        # df.loc[df['username'] == user, 'active'] = status
-        # df.to_csv('users.csv', index=False)  # write it into the .csv file
-        #
-        # # update files for camps and volunteering sessions
-        # # users = pd.read_csv('users.csv', dtype={'password': str})
-        # cur_user = df[df['username'] == user]
-        # cur_user = cur_user.replace({np.nan: None})
-        # camp_name = cur_user.iloc[0]['camp_name']
-        # # increment or decrement number of volunteers if user has a camp
-        # if camp_name:
-        #     plan_id = cur_user.iloc[0]['plan_id']
-        #     camps = pd.read_csv(plan_id + '.csv')
-        #     user_camp = (camps['camp_name'] == camp_name)
-        #     if status == 1:
-        #         camps.loc[user_camp, 'volunteers'] = camps.loc[user_camp, 'volunteers'] + 1
-        #         camps.to_csv(plan_id + '.csv', index=False)
-        #     if status == 0:
-        #         camps.loc[user_camp, 'volunteers'] = camps.loc[user_camp, 'volunteers'] - 1
-        #         camps.to_csv(plan_id + '.csv', index=False)
-        #         # if deactivated: delete the user's volunteering sessions
-        #         vol_times = pd.read_csv("volunteering_times.csv")
-        #         vol_times = vol_times.drop(vol_times[vol_times['username'] == user].index)
-        #         vol_times.to_csv('volunteering_times.csv', index=False)
-        #
-        # print(f'Complete. {user} is now modified.'
-        #       "All status below:")
-        # print(df)
-        # logging.info({f'Admin has {_str}d {user}'})
 
     def low_resources_notification(self):
 
@@ -627,7 +549,6 @@ class Admin:
         plans = []
         for index, row in humani_plan.iterrows():
             plans.append(row["plan_id"])
-        # print(plans)
 
         for plan_id in plans:  # iterate through each humanitarian plan created
             current_plan = pd.read_csv(f'{plan_id}.csv')
@@ -638,7 +559,7 @@ class Admin:
                 camp = current_plan.loc[i, "camp_name"]
                 food_left = refugees * 2 - current_plan.loc[i, "food"]
                 water_left = refugees * 2 - current_plan.loc[i, "water"]
-                firstaid_left = int((refugees * 2) / 3) - current_plan.loc[i, "firstaid_kits"]
+                firstaid_left = auto_resources.med_needed(plan_id, camp)*2 - current_plan.loc[i, "firstaid_kits"]
 
                 # if food_left > 0:  # if there is less than two days' worth of food
                 #     print(f'* Warning: {plan_id}\'s {camp} is running low on food. Please navigate to the '
@@ -657,6 +578,9 @@ class Admin:
                 print(f'* Warning: {plan_id} has {nb_of_camps} camp with low resources. *')
             elif nb_of_camps > 1:
                 print(f'* Warning: {plan_id} has {nb_of_camps} camps with low resources. *')
+            else:
+                logging.debug("No camps with low resources.")
+            logging.debug("Finished checking for camps with low resources.")
 
     def resource_request_notification(self):
         try:
@@ -667,6 +591,7 @@ class Admin:
             # if no new requests have been made, the column 'resolved' should only contain 'yes' values
             nb_of_requests = len(requests[requests["resolved"] == 'no'])
             if nb_of_requests == 0:
+                logging.debug("No resource requests.")
                 return False # returns nothing if no new requests
             elif nb_of_requests == 1:
                 print(f'\n* You have received {nb_of_requests} new request to allocate resources. *')
@@ -681,11 +606,12 @@ class Admin:
         The method will iterate through every resource request that isn't resolved.
         This method uses the resource_requests.csv file to check for requests and amount requested.
         """
-
+        logging.debug("Checking for resource requests.")
         requests = self.resource_request_notification()
         if requests is not False:  # if method above didn't return false
             new_requests = requests[requests["resolved"] == 'no']
             for index, row in new_requests.iterrows():
+                logging.debug("Processing next request.")
                 user = row["username"]
                 plan = row["plan_id"]
                 camp = row["camp_name"]
@@ -694,9 +620,11 @@ class Admin:
                 kit_request = row["firstaid_kits"]
 
                 # Food requests
+                logging.debug("Admin prompted to continue to food portion of request.")
                 while True:
                     option = v.string("\nEnter [C] to continue, or [X] to return to the previous menu: ")
                     if option.upper() == "X":
+                        logging.debug("Returning to previous menu.")
                         return
                     elif option.upper() == "C":
                         if food_request == 0:
@@ -706,11 +634,14 @@ class Admin:
                         break
                     else:
                         print("Please enter either [C] or [X].")
+                        logging.error("Invalid user input.")
 
                 # Water requests
+                logging.debug("Admin prompted to continue to water portion of request.")
                 while True:
                     option = v.string("\nEnter [C] to continue, or [X] to return to the previous menu: ")
                     if option.upper() == "X":
+                        logging.debug("Returning to previous menu.")
                         return
                     elif option.upper() == "C":
                         if water_request == 0:
@@ -720,11 +651,14 @@ class Admin:
                         break
                     else:
                         print("Please enter either [C] or [X].")
+                        logging.error("Invalid user input.")
 
                 # First-aid kit requests
+                logging.debug("Admin prompted to continue to first-aid kit portion of request.")
                 while True:
                     option = v.string("\nEnter [C] to continue, or [X] to return to the previous menu: ")
                     if option.upper() == "X":
+                        logging.debug("Returning to previous menu.")
                         return
                     elif option.upper() == "C":
                         if kit_request == 0:
@@ -734,12 +668,16 @@ class Admin:
                         break
                     else:
                         print("Please enter either [C] or [X]")
+                        logging.error("Invalid user input.")
 
                 # Marking that request as resolved
                 requests.loc[index, "resolved"] = 'yes'
+                logging.debug("Request marked as resolved.")
 
             # Saves to csv after iterating through all the new requests and marking them as resolved.
+            logging.debug("Finished processing resource requests.")
             requests.to_csv('resource_requests.csv', index=False)
+            logging.debug("resource_requests.csv saved")
 
 
     def resource_request_processing(self, requested_nb, resource, user, camp, plan):
@@ -761,8 +699,10 @@ class Admin:
                 print('Amount requested is too high, storage units are too low!')
                 print('Please add more resources to the storage before proceeding')
                 # We could add a call to the add_storage_resource method here once we have it?
+                logging.warning(f"Amount of {resource} requested exceeds storage. Unable to approve request.")
                 return
 
+            logging.debug(f"Admin prompted to approve or decline request for {resource}.")
             while True:
                 print('Enter [1] to approve their request')
                 print('Enter [2] to decline their request')
@@ -772,6 +712,7 @@ class Admin:
                         raise ValueError
                 except ValueError:
                     print("Please enter a number from the options provided.")
+                    logging.error("Invalid user input.")
                     continue
                 break
             if option == 1:
@@ -782,9 +723,11 @@ class Admin:
                 resources_df.to_csv(f'{plan}.csv', index=False)
                 print(f'The {resource} units for {camp} have increased by: {requested_nb}')
                 print('This request has been marked as resolved.')
+                logging.debug("Request approved. humanitarian_plan.csv and camps csv file updated.")
             elif option == 2:
                 print('Request declined: no resource has been reallocated.')
                 print('This request has been marked as resolved.')
+                logging.debug("Request declined.")
 
     def deactivation_request_notification(self):
         """
@@ -797,6 +740,7 @@ class Admin:
         users = pd.read_csv('users.csv', dtype={'password': str})
         nb_of_requests = len(users[users["deactivation_requested"] == 1])
         if nb_of_requests == 0:
+            logging.debug("No deactivation requests.")
             return False  # returns nothing if no new requests
         elif nb_of_requests == 1:
             print(f'\n* You have received {nb_of_requests} new deactivation request. *')
@@ -811,43 +755,50 @@ class Admin:
         account, and informs the Admin of the steps to take.
         This is done by reading the users.csv file and calling the deactivate_account_request() method
         """
+        logging.debug("Checking for deactivation requests.")
         users = self.deactivation_request_notification()
         if users is False:
-            print("\nYou have not received no deactivation requests.")
+            print("\nYou have not received any deactivation requests.")
             print("Returning to previous menu\n")
             return
+
         print("\nRespond to deactivation requests")
         nb_of_requests = len(users[users["deactivation_requested"] == 1])
 
         if nb_of_requests == 1:
-
             # extracts the username of the user who requested deactivation
             user_deactivating = users.loc[users['deactivation_requested'] == 1, 'username'].item()
 
             # calls method to deactivate the account
+            logging.debug("Processing next request.")
             self.deactivate_account_request(df=users, user=user_deactivating)
+            logging.debug("Finished processing deactivation requests.")
 
             # saves changes to the users.csv file
             users.to_csv('users.csv', index=False)
+            logging.debug("users.csv updated")
             print('The deactivation request has been processed!')
             return
 
         else:
-
             # extracts the usernames of users that requested deactivation into a list
             users_deactivating = users.loc[users['deactivation_requested'] == 1, 'username'].tolist()
 
             # calls the deactivation method for each username in the list
             for username in users_deactivating:
+                logging.debug("Processing next request.")
                 self.deactivate_account_request(df=users, user=username)
+            logging.debug("Finished processing deactivation requests.")
 
             # saves the changes to the list
             users.to_csv('users.csv', index=False)
+            logging.debug("users.csv updated")
             print('All deactivation requests have been processed!')
             return
 
     def deactivate_account_request(self, df, user):
         """This method is called when an Admin wants to deactivate a volunteer's account following a request"""
+        logging.debug(f"Admin prompted to confirm {user}'s deactivation request.")
         while True:
             print(f'\nUser {user} has requested to deactivate their account.\n')
             print('Enter [1] to deactivate {user}')
@@ -859,16 +810,18 @@ class Admin:
                     raise ValueError
             except ValueError:
                 print("Please enter a number from the options provided.")
+                logging.error("Invalid user input.")
                 continue
             break
 
         if option == 0:  # admin chose to ignore this request
+            logging.debug("Request ignored.")
             return
 
         elif option == 1: # admin chose to deactivate account
             df.loc[df['username'] == user, ['deactivation_requested', 'active']] = 0
             print(f'You have deactivated {user}')
-            logging.info(f'Admin has deactivated {user}')
+            logging.info(f'Admin has deactivated {user}.')
 
             # decrement number of volunteers in camps file if user has a camp
             users = pd.read_csv('users.csv', dtype={'password': str})
@@ -881,15 +834,17 @@ class Admin:
                 user_camp = (camps['camp_name'] == camp_name)
                 camps.loc[user_camp, 'volunteers'] = camps.loc[user_camp, 'volunteers'] - 1
                 camps.to_csv(plan_id + '.csv', index=False)
+                logging.debug("camps csv file updated")
                 # delete the user's volunteering sessions
                 vol_times = pd.read_csv("volunteering_times.csv")
                 vol_times = vol_times.drop(vol_times[vol_times['username'] == user].index)
                 vol_times.to_csv('volunteering_times.csv', index=False)
+                logging.debug("volunteering_times.csv updated")
 
         else: # admin chose to keep account active
             df.loc[df['username'] == user, 'deactivation_requested'] = 0
             print(f'You have declined this request. {user} will remain active.')
-            logging.info(f'Admin has declined deactivation request from {user}')
+            logging.info(f'Admin has declined deactivation request from {user}.')
 
     def end_event(self):
         """
@@ -901,6 +856,7 @@ class Admin:
         print("\nEnd humanitarian plan")
         if len(plans.index) == 0:
             print("There are no ongoing humanitarian plans.")
+            logging.warning("No ongoing humanitarian plans. Returning to humanitarian plan menu.")
             return
 
         print("The following humanitarian plans are ongoing:")
@@ -909,32 +865,46 @@ class Admin:
             print(row + 1, plans['location'].iloc[row], plans['start_date'].iloc[row], sep=" - ")
 
         while True:
+            logging.debug("Admin prompted to select humanitarian plan.")
             print("\nEnter [0] to return to the previous menu.")
             try:
                 plan_num = int(input("Enter the number of the plan you would like to close: "))
                 if plan_num == 0:
+                    logging.debug("Returning to previous menu.")
                     return
                 if plan_num not in range(1, len(plans.index) + 1):
                     raise ValueError
             except ValueError:
                 print("Please enter a plan number corresponding to a humanitarian plan listed above.")
+                logging.error("Invalid user input.")
                 continue
+
+            plans = pd.read_csv('humanitarian_plan.csv')
+            plans = plans.replace({np.nan: None})
+            start = datetime.strptime(plans['start_date'].iloc[plan_num-1], "%d-%m-%Y").date()
 
             # enter end date
             while True:
+                logging.debug("Admin prompted to enter end date.")
                 print("\nEnter [0] to go back to the previous step.")
                 end_date = input('Please input the end date of the event (DD-MM-YYYY): ')
                 if end_date == "0":
+                    logging.debug("Returning to previous step.")
                     break
                 try:
                     end = datetime.strptime(end_date, "%d-%m-%Y").date()
                 except ValueError:
                     print("Incorrect date format. Please use the format DD-MM-YYYY (e.g. 15-12-2023).")
-                    logging.error('ValueError raised from user input')
+                    logging.error("Invalid user input.")
                     continue
                 t = datetime.now().date()
                 if end > t:
                     print("End date cannot be in the future. Please try again.")
+                    logging.error("Admin entered an end date in the future.")
+                    continue
+                if end < start:
+                    print("End date cannot be earlier than start date. Please try again.")
+                    logging.error("Admin entered an end date before the plan's start date.")
                     continue
                 break
             if end_date == "0":  # return to plan selection
@@ -942,20 +912,22 @@ class Admin:
             break
 
         # update csv files: add end date; remove volunteer accounts and volunteering sessions for that plan
-        plans = pd.read_csv('humanitarian_plan.csv')
-        plans = plans.replace({np.nan: None})
         plans.loc[plan_num - 1, 'end_date'] = end_date
         plan_id = plans['plan_id'].iloc[plan_num - 1]
         plans.to_csv('humanitarian_plan.csv', index=False)
+        logging.debug("humanitarian_plan.csv updated")
 
         users = pd.read_csv('users.csv', dtype={'password': str})
         users = users.drop(users[users['plan_id'] == plan_id].index)
         users.to_csv('users.csv', index=False)
+        logging.debug("users.csv updated")
 
         vol_times = pd.read_csv("volunteering_times.csv")
         vol_times = vol_times.drop(vol_times[vol_times['plan_id'] == plan_id].index)
         vol_times.to_csv('volunteering_times.csv', index=False)
+        logging.debug("volunteering_times.csv updated")
 
+        logging.debug(f"End date added to {plan_id}. The plan has been closed.")
         print("The humanitarian plan", plan_id, "has been closed, with end date", end_date + ".")
         return
 
@@ -1270,7 +1242,7 @@ class Admin:
                 location = plan_id[:-5]
                 print(f"\nYou have selected {plan_id}.\n")
 
-                logging.debug("Admin is prompted to select between all camps or a specific camp.")
+                logging.debug("Admin is prompted to select between allocating to all camps and allocating to a specific camp.")
                 print("\nWould you like to auto-allocate resources to all camps or select a camp?")
                 print("Auto-allocating feature will top up resources to all camps for the following 7 days.")
                 print("Enter [1] to allocate resources to all camps")
@@ -1287,6 +1259,8 @@ class Admin:
                     auto_resources.auto_all(hum_plan, location)
                 if option == 2:
                     auto_resources.auto_one(hum_plan, location)
+                if option == 0:
+                    logging.debug("Returning to the resources menu.")
             if option == 4:
                 logging.debug(f"Admin has chosen to respond to resource requests.")
                 self.resource_request_menu()

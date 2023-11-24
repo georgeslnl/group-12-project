@@ -285,16 +285,17 @@ def volunteer_registration():
     users = pd.concat([users, new], ignore_index=True)
     users = users.sort_values(by=['username'])  # sort by username before saving
     users.to_csv('users.csv', index=False)
+    logging.debug("users.csv updated")
 
     if camp_name:
         camps = pd.read_csv(plan_id + '.csv')
         chosen = (camps['camp_name'] == camp_name)
         camps.loc[chosen, 'volunteers'] = camps.loc[chosen, 'volunteers'] + 1
         camps.to_csv(plan_id + '.csv', index=False)
+        logging.debug("camps csv file updated")
 
     # Print details provided in registration
     gender_str = convert_gender(gender)
-
     print("\nThank you for registering as a volunteer,", first_name, last_name + "!")
     print("Your details are as follows:")
     print("Plan:", plan_id)

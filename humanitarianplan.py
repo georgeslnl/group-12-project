@@ -1,3 +1,4 @@
+import logging
 
 class HumanitarianPlan:
     """
@@ -36,3 +37,5 @@ class HumanitarianPlan:
         add_camps = open(f"{self.name}.csv", "a")
         for i in range(1, self.nb_of_camps + 1):  # starts at 1 since default is 0 and doesn't make sense to have Camp 0
             add_camps.write(f"\nCamp {i},0,0,0,0,0,0")  # at the start, each camp has 0 of every resource type
+
+        logging.debug("Created for csv file for the humanitarian plan's camps.")
