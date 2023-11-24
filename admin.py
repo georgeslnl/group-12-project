@@ -174,6 +174,8 @@ class Admin:
                         plans = pd.read_csv('humanitarian_plan.csv')
                         plans.loc[plans["plan_id"] == plan_id, "description"] = new_desc
                         plans.to_csv('humanitarian_plan.csv', index=False)
+                        # also update hum_plan_df in case other details are updated after this
+                        hum_plan_df.loc[hum_plan_df["plan_id"] == plan_id, "description"] = new_desc
                         logging.debug("humanitarian_plan.csv updated")
                         print(f'The change has been saved. The updated details of {plan_id} are as follows:'
                               f'\n{plans.loc[plans["plan_id"] == plan_id, :]}')
@@ -415,28 +417,20 @@ class Admin:
                 return
             if option == 1:
                 volunteer_funcs.edit_username(username)
-                logging.debug("Username updated successfully")
             if option == 2:
                 volunteer_funcs.edit_password(username, password)
-                logging.debug("Password updated successfully")
             if option == 3:
                 volunteer_funcs.edit_first_name(username, first_name)
-                logging.debug("First name updated successfully")
             if option == 4:
                 volunteer_funcs.edit_last_name(username, last_name)
-                logging.debug("Last name updated successfully")
             if option == 5:
                 volunteer_funcs.edit_gender(username, gender)
-                logging.debug("Gender updated successfully")
             if option == 6:
                 volunteer_funcs.edit_dob(username, date_of_birth)
-                logging.debug("Date of birth updated successfully")
             if option == 7:
                 volunteer_funcs.edit_email(username, email)
-                logging.debug("Email address updated successfully")
             if option == 8:
                 volunteer_funcs.edit_phone_num(username, phone_number)
-                logging.debug("Phone number updated successfully")
 
     def delete_volunteer(self):
         """
@@ -1943,25 +1937,18 @@ class Admin:
                 return
             if option == 1:
                 refugee_profile_funcs.edit_refugee_name(refugee_id, refugee_name)
-                logging.debug("Refugee name updated successfully")
             if option == 2:
                 refugee_profile_funcs.edit_gender(refugee_id, gender)
-                logging.debug("Gender updated successfully")
             if option == 3:
                 refugee_profile_funcs.edit_dob(refugee_id, date_of_birth)
-                logging.debug("Date of birth updated successfully")
             if option == 4:
                 refugee_profile_funcs.edit_medical_cond(refugee_id, medical_cond)
-                logging.debug("Medical condition updated successfully")
             if option == 5:
                 refugee_profile_funcs.edit_family(plan_id, camp_name, refugee_id, family)
-                logging.debug("Family size updated successfully")
             if option == 6:
                 refugee_profile_funcs.edit_remarks(refugee_id, remarks)
-                logging.debug("Remarks updated successfully")
             if option == 9:
                 refugee_profile_funcs.remove_refugee(plan_id, camp_name, refugee_id, refugee_name, family)
-                logging.debug(f"Refugee ID {refugee_id} has been removed.")
                 return
 
     def add_volunteering_session(self):

@@ -192,6 +192,7 @@ def edit_refugee_name(refugee_id, refugee_name):
         print("Enter [0] to return to the previous step.")
         new_name = input("Enter refugee's new name: ").strip()
         if new_name == "0":
+            logging.debug("Returning to previous step.")
             return
         elif new_name == refugee_name:
             print("New name is the same as current name. Please enter a different name.")
@@ -207,6 +208,7 @@ def edit_refugee_name(refugee_id, refugee_name):
     refugees.to_csv('refugees.csv', index=False)
     logging.debug("refugees.csv updated")
     print("Refugee's name has been changed to:", new_name)
+    logging.debug("Refugee name updated successfully")
     return
 
 def edit_gender(refugee_id, gender):
@@ -229,6 +231,7 @@ def edit_gender(refugee_id, gender):
             logging.error("Invalid user input.")
             continue
         if new_gender == 0:
+            logging.debug("Returning to previous step.")
             return
         if new_gender == gender:
             print("New gender is the same as current gender. Please try again or return to the previous step.")
@@ -243,6 +246,7 @@ def edit_gender(refugee_id, gender):
     logging.debug("refugees.csv updated")
     new_gender_str = convert_gender(new_gender)
     print("Refugee's gender has been changed to:", new_gender_str)
+    logging.debug("Gender updated successfully")
     return
 
 def edit_dob(refugee_id, date_of_birth):
@@ -256,6 +260,7 @@ def edit_dob(refugee_id, date_of_birth):
         print("Enter [0] to return to the previous step.")
         new_dob = input("Enter refugee's corrected date of birth: ").strip()
         if new_dob == "0":
+            logging.debug("Returning to previous step.")
             return
         if new_dob == date_of_birth:
             print("New date of birth is the same as current date of birth. Please try again or return to the previous step.")
@@ -302,6 +307,7 @@ def edit_dob(refugee_id, date_of_birth):
     refugees.to_csv('refugees.csv', index=False)
     logging.debug("refugees.csv updated")
     print("Refugee's date of birth has been changed to:", new_dob)
+    logging.debug("Date of birth updated successfully")
     return
 
 def edit_medical_cond(refugee_id, medical_cond):
@@ -328,6 +334,7 @@ def edit_medical_cond(refugee_id, medical_cond):
             logging.error("Invalid user input.")
             continue
         if new_medical_cond == 0:
+            logging.debug("Returning to previous step.")
             return
         if new_medical_cond == medical_cond:
             print("Medical condition is unchanged. Please try again or return to the previous step.")
@@ -342,6 +349,7 @@ def edit_medical_cond(refugee_id, medical_cond):
     logging.debug("refugees.csv updated")
     new_medical_str = convert_medical_condition(new_medical_cond)
     print("Refugee's medical condition has been changed to:", new_medical_str)
+    logging.debug("Medical condition updated successfully")
     return
 
 def edit_family(plan_id, camp_name, refugee_id, family):
@@ -361,6 +369,7 @@ def edit_family(plan_id, camp_name, refugee_id, family):
         print("\nEnter [X] to return to the previous step.")
         new_family = input("New number of family members: ")
         if new_family.upper() == "X":
+            logging.debug("Returning to previous step.")
             return
         try:
             new_family = int(new_family)
@@ -412,6 +421,7 @@ def edit_family(plan_id, camp_name, refugee_id, family):
     camps.loc[chosen, 'refugees'] = camps.loc[chosen, 'refugees'] - family + new_family
     camps.to_csv(plan_id + '.csv', index=False)
     logging.debug("camps csv file updated")
+    logging.debug("Family size updated successfully")
     return
 
 def edit_remarks(refugee_id, remarks):
@@ -423,6 +433,7 @@ def edit_remarks(refugee_id, remarks):
         try:
             new_remarks = input("Enter updated remarks (optional, max 200 characters): ").strip()
             if new_remarks == "0":
+                logging.debug("Returning to previous step.")
                 return
             s = re.search("[a-zA-Z]", new_remarks)
             if new_remarks != "" and not s:
@@ -447,6 +458,7 @@ def edit_remarks(refugee_id, remarks):
     refugees.to_csv('refugees.csv', index=False)
     logging.debug("refugees.csv updated")
     print("Remarks on refugee have been changed to:", new_remarks)
+    logging.debug("Remarks updated successfully")
     return
 
 def remove_refugee(plan_id, camp_name, refugee_id, refugee_name, family):
@@ -483,4 +495,5 @@ def remove_refugee(plan_id, camp_name, refugee_id, refugee_name, family):
     logging.debug("camps csv file updated")
 
     print("Refugee's profile has been removed.")
+    logging.debug(f"Refugee ID {refugee_id} has been removed.")
     return
