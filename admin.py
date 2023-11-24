@@ -1125,7 +1125,7 @@ class Admin:
                     continue
                 break
             if option == 0:
-                logging.debug(f"Admin has logged out of their session.")
+                logging.info(f"Admin has logged out of their session.")
                 self.logout()
             if option == 1:
                 logging.debug(f"Admin has selected the humanitarian plan menu.")
@@ -1502,7 +1502,7 @@ class Admin:
                     if new_capacity < cur_camp.iloc[0]['refugees']:
                         print(
                             "Invalid input: New capacity is less than refugee population. Please try again or return to the previous menu.")
-                        logging.error("Admin entered a capacity lower than the current refugee population.")
+                        logging.error("Capacity entered is less than the current refugee population.")
                         continue
                     if new_capacity == cur_camp.iloc[0]['capacity']:
                         print("Capacity is unchanged. Please try again or return to the previous step.")
@@ -1579,7 +1579,7 @@ class Admin:
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 camp_num = input("Enter the number of the camp the volunteer will join (e.g. [1] for Camp 1): ")
                 if camp_num.upper() == "X":
-                    logging.debug("Returning to previous menu (no updates to be written).")
+                    logging.debug("Returning to previous menu without making changes.")
                     return None
                 try:
                     camp_num = int(camp_num)
@@ -1613,7 +1613,7 @@ class Admin:
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 camp_num = input("Enter the number of the camp the volunteer will join (e.g. [1] for Camp 1): ")
                 if camp_num.upper() == "X":
-                    logging.debug("Returning to previous menu (no updates to be written).")
+                    logging.debug("Returning to previous menu without making changes.")
                     return camp_name
                 try:
                     camp_num = int(camp_num)
@@ -1856,6 +1856,7 @@ class Admin:
         print("Select the refugee whose profile you are viewing.")
         selected = select_plan_camp_refugee()  # returns (plan_id, camp_name, refugee_id)
         if selected == 0:
+            logging.debug("Returning to previous menu.")
             return
         else:
             plan_id, camp_name, refugee_id = selected
@@ -1873,6 +1874,7 @@ class Admin:
         gender_str = convert_gender(gender)
         medical_str = convert_medical_condition(medical_cond)
 
+        logging.debug("Printing details of selected refugee.")
         print("\nDetails of refugee ID:", refugee_id)
         print("Plan ID:", plan_id)
         print("Camp name:", camp_name)
