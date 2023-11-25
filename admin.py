@@ -128,6 +128,7 @@ class Admin:
                         plan_id = plan_id[5:]
                         if plan_index not in range(0, len(hum_plan_df.plan_id)):
                             raise ValueError
+                        progress += 1
                     except ValueError:
                         print('The index you entered is outside the range of humanitarian plans.')
                         logging.error("Invalid user input.")
@@ -184,10 +185,11 @@ class Admin:
                 elif edit_choice == 2:
                     num_camps = hum_plan_df.loc[hum_plan_df.index == plan_index, "number_of_camps"]
                     num_camps = num_camps[5:]
-                    # TODO: add function
+                    plan_df = pd.read_csv(f'{plan_id}.csv')
                     print(f'You have chosen to edit the number of camps of {plan_id}.'
                           f'\n The current number of camps is:'
                           f'\n {num_camps}')
+                    hum_plan_funcs.edit_no_camps(plan_id, plan_index, hum_plan_df, plan_df, num_camps)
                     progress += 1
 
             elif progress == 3:
