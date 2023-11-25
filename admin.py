@@ -1,15 +1,15 @@
+# built-in modules
 import pandas as pd, numpy as np
 from datetime import datetime
-
-import auto_resources
+import logging
+# custom modules and functions from other files
 from humanitarianplan import HumanitarianPlan
 from coded_vars import convert_gender, convert_medical_condition
 from selection import select_plan, select_camp
 from selection_volunteer import select_plan_camp_vol
 from selection_refugees import select_plan_camp_refugee
-import hum_plan_funcs, volunteer_funcs, refugee_profile_funcs, volunteering_session_funcs
+import auto_resources, hum_plan_funcs, volunteer_funcs, refugee_profile_funcs, volunteering_session_funcs
 import verify as v
-import logging
 
 
 class Admin:
@@ -174,6 +174,8 @@ class Admin:
                         plans = pd.read_csv('humanitarian_plan.csv')
                         plans.loc[plans["plan_id"] == plan_id, "description"] = new_desc
                         plans.to_csv('humanitarian_plan.csv', index=False)
+                        # also update hum_plan_df in case other details are updated after this
+                        hum_plan_df.loc[hum_plan_df["plan_id"] == plan_id, "description"] = new_desc
                         logging.debug("humanitarian_plan.csv updated")
                         print(f'The change has been saved. The updated details of {plan_id} are as follows:'
                               f'\n{plans.loc[plans["plan_id"] == plan_id, :]}')
@@ -415,28 +417,20 @@ class Admin:
                 return
             if option == 1:
                 volunteer_funcs.edit_username(username)
-                logging.debug("Username updated successfully")
             if option == 2:
                 volunteer_funcs.edit_password(username, password)
-                logging.debug("Password updated successfully")
             if option == 3:
                 volunteer_funcs.edit_first_name(username, first_name)
-                logging.debug("First name updated successfully")
             if option == 4:
                 volunteer_funcs.edit_last_name(username, last_name)
-                logging.debug("Last name updated successfully")
             if option == 5:
                 volunteer_funcs.edit_gender(username, gender)
-                logging.debug("Gender updated successfully")
             if option == 6:
                 volunteer_funcs.edit_dob(username, date_of_birth)
-                logging.debug("Date of birth updated successfully")
             if option == 7:
                 volunteer_funcs.edit_email(username, email)
-                logging.debug("Email address updated successfully")
             if option == 8:
                 volunteer_funcs.edit_phone_num(username, phone_number)
-                logging.debug("Phone number updated successfully")
 
     def delete_volunteer(self):
         """
@@ -1131,7 +1125,7 @@ class Admin:
                     continue
                 break
             if option == 0:
-                logging.debug(f"Admin has logged out of their session.")
+                logging.info(f"Admin has logged out of their session.")
                 self.logout()
             if option == 1:
                 logging.debug(f"Admin has selected the humanitarian plan menu.")
@@ -1508,7 +1502,7 @@ class Admin:
                     if new_capacity < cur_camp.iloc[0]['refugees']:
                         print(
                             "Invalid input: New capacity is less than refugee population. Please try again or return to the previous menu.")
-                        logging.error("Admin entered a capacity lower than the current refugee population.")
+                        logging.error("Capacity entered is less than the current refugee population.")
                         continue
                     if new_capacity == cur_camp.iloc[0]['capacity']:
                         print("Capacity is unchanged. Please try again or return to the previous step.")
@@ -1585,7 +1579,7 @@ class Admin:
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 camp_num = input("Enter the number of the camp the volunteer will join (e.g. [1] for Camp 1): ")
                 if camp_num.upper() == "X":
-                    logging.debug("Returning to previous menu (no updates to be written).")
+                    logging.debug("Returning to previous menu without making changes.")
                     return None
                 try:
                     camp_num = int(camp_num)
@@ -1619,7 +1613,7 @@ class Admin:
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 camp_num = input("Enter the number of the camp the volunteer will join (e.g. [1] for Camp 1): ")
                 if camp_num.upper() == "X":
-                    logging.debug("Returning to previous menu (no updates to be written).")
+                    logging.debug("Returning to previous menu without making changes.")
                     return camp_name
                 try:
                     camp_num = int(camp_num)
@@ -1862,6 +1856,7 @@ class Admin:
         print("Select the refugee whose profile you are viewing.")
         selected = select_plan_camp_refugee()  # returns (plan_id, camp_name, refugee_id)
         if selected == 0:
+            logging.debug("Returning to previous menu.")
             return
         else:
             plan_id, camp_name, refugee_id = selected
@@ -1879,6 +1874,7 @@ class Admin:
         gender_str = convert_gender(gender)
         medical_str = convert_medical_condition(medical_cond)
 
+        logging.debug("Printing details of selected refugee.")
         print("\nDetails of refugee ID:", refugee_id)
         print("Plan ID:", plan_id)
         print("Camp name:", camp_name)
@@ -1943,25 +1939,18 @@ class Admin:
                 return
             if option == 1:
                 refugee_profile_funcs.edit_refugee_name(refugee_id, refugee_name)
-                logging.debug("Refugee name updated successfully")
             if option == 2:
                 refugee_profile_funcs.edit_gender(refugee_id, gender)
-                logging.debug("Gender updated successfully")
             if option == 3:
                 refugee_profile_funcs.edit_dob(refugee_id, date_of_birth)
-                logging.debug("Date of birth updated successfully")
             if option == 4:
                 refugee_profile_funcs.edit_medical_cond(refugee_id, medical_cond)
-                logging.debug("Medical condition updated successfully")
             if option == 5:
                 refugee_profile_funcs.edit_family(plan_id, camp_name, refugee_id, family)
-                logging.debug("Family size updated successfully")
             if option == 6:
                 refugee_profile_funcs.edit_remarks(refugee_id, remarks)
-                logging.debug("Remarks updated successfully")
             if option == 9:
                 refugee_profile_funcs.remove_refugee(plan_id, camp_name, refugee_id, refugee_name, family)
-                logging.debug(f"Refugee ID {refugee_id} has been removed.")
                 return
 
     def add_volunteering_session(self):
@@ -2052,7 +2041,7 @@ class Admin:
         cur_user_times = vol_times[vol_times['username'] == username]
         if len(cur_user_times.index) == 0:
             print(username, "does not have any volunteering sessions.")
-            logging.warning("No volunteering sessions for the selected volunteer.")
+            logging.info("No volunteering sessions for the selected volunteer.")
             return
 
         logging.debug(f"Displaying volunteering sessions for {username}.")

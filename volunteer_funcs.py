@@ -304,6 +304,7 @@ def edit_username(username):
         print("Enter [0] to return to the previous step.")
         new_username = input("Enter new username: ").strip()
         if new_username == "0":
+            logging.debug("Returning to previous step.")
             return
         if new_username == username:
             print("New username is the same as current username. Please enter a different username.")
@@ -339,6 +340,7 @@ def edit_username(username):
     logging.debug("volunteering_times.csv updated")
 
     print("Volunteer's new username is:", new_username)
+    logging.debug("Username updated successfully")
     return
 
 def edit_password(username, password):
@@ -349,6 +351,7 @@ def edit_password(username, password):
         print("Enter [0] to return to the previous step.")
         new_password = input("Enter new password: ")
         if new_password == "0":
+            logging.debug("Returning to previous step.")
             return
         if new_password == password:
             print("New password is the same as current password. Please enter a different password.")
@@ -370,6 +373,7 @@ def edit_password(username, password):
     users.loc[cur_user, 'password'] = new_password
     users.to_csv('users.csv', index=False)
     print("You have changed " + username + "'s password to:", new_password)
+    logging.debug("Password updated successfully")
     return
 
 def edit_first_name(username, first_name):
@@ -380,6 +384,7 @@ def edit_first_name(username, first_name):
         print("Enter [0] to return to the previous step.")
         new_fname = input("Enter new first name: ").strip()
         if new_fname == "0":
+            logging.debug("Returning to previous step.")
             return
         if new_fname == first_name:
             print("New first name is the same as current first name. Please enter a different first name.")
@@ -402,6 +407,7 @@ def edit_first_name(username, first_name):
     users.to_csv('users.csv', index=False)
     logging.debug("users.csv updated")
     print("You have changed " + username + "'s first name to:", new_fname)
+    logging.debug("First name updated successfully")
     return
 
 def edit_last_name(username, last_name):
@@ -412,6 +418,7 @@ def edit_last_name(username, last_name):
         print("Enter [0] to return to the previous step.")
         new_lname = input("Enter new last name: ").strip()
         if new_lname == "0":
+            logging.debug("Returning to previous step.")
             return
         if new_lname == last_name:
             print("New last name is the same as current last name. Please enter a different last name.")
@@ -434,6 +441,7 @@ def edit_last_name(username, last_name):
     users.to_csv('users.csv', index=False)
     logging.debug("users.csv updated")
     print("You have changed " + username + "'s last name to:", new_lname)
+    logging.debug("Last name updated successfully")
     return
 
 def edit_gender(username, gender):
@@ -456,6 +464,7 @@ def edit_gender(username, gender):
             logging.error("Invalid user input.")
             continue
         if new_gender == 0:
+            logging.debug("Returning to previous step.")
             return
         if new_gender == gender:
             print("New gender is the same as current gender. Please try again or return to the previous step.")
@@ -471,6 +480,7 @@ def edit_gender(username, gender):
 
     new_gender_str = convert_gender(new_gender)
     print("You have changed " + username + "'s gender to:", new_gender_str)
+    logging.debug("Gender updated successfully")
     return
 
 def edit_dob(username, date_of_birth):
@@ -484,6 +494,7 @@ def edit_dob(username, date_of_birth):
         print("Enter [0] to return to the previous step.")
         new_dob = input("Enter corrected date of birth: ").strip()
         if new_dob == "0":
+            logging.debug("Returning to previous step.")
             return
         if new_dob == date_of_birth:
             print("New date of birth is the same as current date of birth. Please try again or return to the previous step.")
@@ -518,6 +529,7 @@ def edit_dob(username, date_of_birth):
     users.to_csv('users.csv', index=False)
     logging.debug("users.csv updated")
     print("You have corrected " + username + "'s date of birth to:", new_dob)
+    logging.debug("Date of birth updated successfully")
     return
 
 def edit_email(username, email):
@@ -528,6 +540,7 @@ def edit_email(username, email):
         print("Enter [0] to return to the previous step.")
         new_email = input("Enter new email address: ").strip()
         if new_email == "0":
+            logging.debug("Returning to previous step.")
             return
         if new_email == email:
             print("New email is the same as current email. Please enter a different email address.")
@@ -550,6 +563,7 @@ def edit_email(username, email):
     users.to_csv('users.csv', index=False)
     logging.debug("users.csv updated")
     print("You have changed " + username + "'s email address to:", new_email)
+    logging.debug("Email address updated successfully")
     return
 
 def edit_phone_num(username, phone_number):
@@ -560,6 +574,7 @@ def edit_phone_num(username, phone_number):
         print("Enter [0] to return to the previous step.")
         new_phone_num = input("Enter new phone number: ").strip()
         if new_phone_num == "0":
+            logging.debug("Returning to previous step.")
             return
         if new_phone_num == phone_number:
             print("New phone number is the same as current phone number. Please enter a different phone number.")
@@ -584,4 +599,5 @@ def edit_phone_num(username, phone_number):
     users.to_csv('users.csv', index=False)
     logging.debug("users.csv updated")
     print("You have changed " + username + "'s phone number to:", new_phone_num)
+    logging.debug("Phone number updated successfully")
     return
