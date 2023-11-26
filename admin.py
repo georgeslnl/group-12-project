@@ -164,6 +164,10 @@ class Admin:
                     # cur_desc = str(hum_plan_df.loc[hum_plan_df.index == plan_index, "description"])
                     # cur_desc = cur_desc.split('\n')[0]
                     # cur_desc = cur_desc[5:]
+                    print(f'\nYou have chosen to edit the description of {plan_id}.'
+                          f'\n The current description is:'
+                          f'\n {cur_desc}')
+                    # edit_description can update its own copy of the csv files and return the updated description
                     new_desc = hum_plan_funcs.edit_description(plan_id, cur_desc)
                     if new_desc == "0":
                         logging.debug("Returning to previous menu.")
@@ -172,12 +176,8 @@ class Admin:
                         logging.debug("Returning to previous step.")
                         progress -= 1
                     else:
-                        plans = pd.read_csv('humanitarian_plan.csv')
-                        plans.loc[plans["plan_id"] == plan_id, "description"] = new_desc
-                        plans.to_csv('humanitarian_plan.csv', index=False)
-                        # also update hum_plan_df in case other details are updated after this
+                        # update hum_plan_df in case other details are updated after this
                         hum_plan_df.loc[hum_plan_df["plan_id"] == plan_id, "description"] = new_desc
-                        logging.debug("humanitarian_plan.csv updated")
                         print('The change has been saved.')
                         progress += 1
 
@@ -188,18 +188,17 @@ class Admin:
                     print(f'\nYou have chosen to edit the number of camps of {plan_id}.'
                           f'\n The current number of camps is:'
                           f'\n {num_camps}')
-
-                    # edit_no_camps can update its own copies of the csv files
-                    # and return the updated hum_plan_df which can be used for subsequent updates
-                    new_hum_plan_df = hum_plan_funcs.edit_no_camps(plan_id, hum_plan_df, num_camps)
-                    if isinstance(new_hum_plan_df, str) and new_hum_plan_df == "X":
+                    # edit_no_camps can update its own copies of the csv files and return the updated no. of camps
+                    new_num = hum_plan_funcs.edit_no_camps(plan_id, hum_plan_df, num_camps)
+                    if new_num == "X":
                         logging.debug("Returning to previous menu.")
                         return
-                    elif isinstance(new_hum_plan_df, str) and new_hum_plan_df == "B":
+                    elif new_num == "B":
                         logging.debug("Returning to previous step.")
                         progress -= 1
                     else:
-                        hum_plan_df = new_hum_plan_df
+                        # update hum_plan_df in case other details are updated after this
+                        hum_plan_df.loc[hum_plan_df["plan_id"] == plan_id, "number_of_camps"] = new_num
                         progress += 1
 
             elif progress == 3:
