@@ -109,7 +109,7 @@ def add_num_camps():
     The maximum number of camps is 15.
     """
     while True:
-        print("\nEnter [X] to return to the previous menu or B] to go back to the previous step.")
+        print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
         nb_of_camps = input("The maximum number of camps is 15."
                             "\nPlease enter the number of camps to set up: ").strip()
         if nb_of_camps.upper() in ("X", "B"):
@@ -129,7 +129,7 @@ def add_num_camps():
 
 def edit_description(plan_id, cur_desc):
     """Prompts the admin to enter the updated description of the selected humanitarian plan."""
-    print(f'You have chosen to edit the description of {plan_id}.'
+    print(f'\nYou have chosen to edit the description of {plan_id}.'
           f'\n The current description is:'
           f'\n {cur_desc}')
     logging.debug("Admin prompted to enter new description.")
@@ -158,7 +158,7 @@ def edit_description(plan_id, cur_desc):
         return new_desc
 
 
-def edit_no_camps(plan_id, plan_index, hum_plan_df, plan_df, num_camps):
+def edit_no_camps(plan_id, hum_plan_df, num_camps):
     '''
    This function allows admin to open or close camps within a humanitarian plan.
    If admin chooses to close camps, they can choose to reallocate refugees, volunteers and resources belonging
@@ -166,25 +166,34 @@ def edit_no_camps(plan_id, plan_index, hum_plan_df, plan_df, num_camps):
    If admin chooses to open camps, they have 0 refugees, volunteers, capacity and resources by default -
    admin can choose to edit these details by choosing from the main menu.
     '''
+    hum_plan_df = pd.read_csv('humanitarian_plan.csv')
+    plan_df = pd.read_csv(f'{plan_id}.csv')
+
     while True:
-        print("\nEnter [0] to return to the previous menu.")
-        new_num = v.integer(f'The maximum number of camps is 15.'
-                            f'\nEnter the new number of camps for {plan_id}: ')
-        if new_num == 0:
+        print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
+        print("The maximum number of camps is 15.")
+        new_num = input(f'Enter the new number of camps for {plan_id}: ')
+        if new_num in ("X", "B"):
             return new_num
-        elif new_num not in range(1, 16):
+        try:
+            new_num = int(new_num)
+            if new_num not in range(1, 16):
+                raise ValueError
+        except ValueError:
             print('Please enter an integer between 1 and 15.')
-        elif new_num == num_camps:
+            continue
+        if new_num == num_camps:
             print('Number entered is equal to the current number of camps. '
                   'Please enter a different integer between 1 and 15.')
-        else:
-            break
-    hum_plan_df.loc[hum_plan_df.index == plan_index, "number_of_camps"] = new_num
-    print(f'The updated details of {plan_id} are as follows:'
-          f'\n{hum_plan_df.loc[hum_plan_df.index == plan_index, :]}')
+            continue
+        break
+
+    hum_plan_df.loc[hum_plan_df["plan_id"] == plan_id, "number_of_camps"] = new_num
     difference = new_num - num_camps
     refugee_df = pd.read_csv('refugees.csv')
     volunteer_df = pd.read_csv('users.csv')
+    volunteering_times = pd.read_csv('volunteering_times.csv')
+
     if difference < 0:
         difference = abs(difference)
         closed_camps_reverse = []
@@ -203,36 +212,44 @@ def edit_no_camps(plan_id, plan_index, hum_plan_df, plan_df, num_camps):
                               f'deleted, \nvolunteers will be disaffiliated with any camps, and resources belonging to '
                               f'these camps will be lost.'
                               f'\n\n Please choose not to only if the area of this plan no longer needs assistance.'
-                              f'\nEnter [Y] for yes, [N] for no.')
+                              f'\nEnter [Y] for yes, [N] for no: ')
             if choice != 'Y' and choice != 'N':
                 print('Please enter [Y] for reallocating refugees, volunteers and resources, [N] for no.')
             else:
                 if choice == 'N':
                     # all refugee profiles will be deleted and volunteers camps removed
                     print('All refugee profiles belonging to those camps will be deleted.')
-                    removed_refugees = []
-                    index = 0
-                    for refugee_family in refugee_df.iterrows():
-                        if refugee_family[1]['plan_id'] == plan_id and refugee_family[1]['camp_name'] in closed_camps:
-                            removed_refugees.append(index)
-                        index += 1
-                    refugee_df = refugee_df[~refugee_df.index.isin(removed_refugees)]
-                    print('The camp name of all volunteers in camps that are being closed will be set to [NaN].')
+                    refugee_df = refugee_df.drop(refugee_df[(refugee_df['plan_id'] == plan_id)
+                                                            & (refugee_df['camp_name'].isin(closed_camps))].index)
+                    # removed_refugees = []
+                    # index = 0
+                    # for refugee_family in refugee_df.iterrows():
+                    #     if refugee_family[1]['plan_id'] == plan_id and refugee_family[1]['camp_name'] in closed_camps:
+                    #         removed_refugees.append(index)
+                    #     index += 1
+                    # refugee_df = refugee_df[~refugee_df.index.isin(removed_refugees)]
+
+                    print('All volunteers at camps that are being closed will have their camp identification removed.')
                     for camp in closed_camps:
-                        for volunteer in volunteer_df.iterrows():
-                            username = volunteer[1]['username']
-                            if volunteer[1]['plan_id'] == plan_id and volunteer[1]['camp_name'] == camp:
-                                volunteer_df.loc[volunteer_df.username == username, 'camp_name'] = None
-                                plan_df.loc[plan_df.camp_name == camp, 'volunteers'] -= 1
+                        volunteer_df.loc[(volunteer_df["plan_id"] == plan_id)
+                                         & (volunteer_df["camp_name"] == camp), "camp_name"] = None
+                        # for volunteer in volunteer_df.iterrows():
+                        #     username = volunteer[1]['username']
+                        #     if volunteer[1]['plan_id'] == plan_id and volunteer[1]['camp_name'] == camp:
+                        #         volunteer_df.loc[volunteer_df.username == username, 'camp_name'] = None
+                        #         plan_df.loc[plan_df.camp_name == camp, 'volunteers'] -= 1
+
                     # remove all volunteering sessions for the given plan_id and camp
-                    volunteering_times = pd.read_csv('volunteering_times.csv')
-                    removed_times = []
-                    index = 0
-                    for time in volunteering_times.iterrows():
-                        if time[1]['plan_id'] == plan_id and time[1]['camp_name'] in closed_camps:
-                            removed_times.append(index)
-                        index += 1
-                    volunteering_times = volunteering_times[~volunteering_times.index.isin(removed_times)]
+                    volunteering_times = volunteering_times.drop(volunteering_times[(volunteering_times['plan_id'] == plan_id)
+                                                            & (volunteering_times['camp_name'].isin(closed_camps))].index)
+                    # removed_times = []
+                    # index = 0
+                    # for time in volunteering_times.iterrows():
+                    #     if time[1]['plan_id'] == plan_id and time[1]['camp_name'] in closed_camps:
+                    #         removed_times.append(index)
+                    #     index += 1
+                    # volunteering_times = volunteering_times[~volunteering_times.index.isin(removed_times)]
+
                     # remove camp rows for closed camps in plan.csv
                     plan_df = plan_df[~plan_df['camp_name'].isin(closed_camps)]
                     refugee_df.to_csv('refugees.csv', index=False)
@@ -241,7 +258,7 @@ def edit_no_camps(plan_id, plan_index, hum_plan_df, plan_df, num_camps):
                     plan_df.to_csv(f'{plan_id}.csv', index=False)
                     hum_plan_df.to_csv('humanitarian_plan.csv', index=False)
                     print('All changes have been saved.')
-                    return
+                    return hum_plan_df[hum_plan_df['end_date'].isna()]
                 elif choice == 'Y':
                     # can't close camps if not enough total remaining capacity
                     closed_camps_df = plan_df[plan_df.camp_name.isin(closed_camps)]
@@ -254,8 +271,8 @@ def edit_no_camps(plan_id, plan_index, hum_plan_df, plan_df, num_camps):
                         print('Total number of displaced refugees is less than the total remaining capacity of the remaining '
                               'camps.'
                               '\nPlease edit the capacity of the remaining camps before closing camps. '
-                              '\nChanges to the camp number have not been saved.')
-                        return
+                              '\nChanges to the number of camps have not been saved.')
+                        return "B"
                     # dict of camps and remaining capacity, sort by highest to lowest capacity, iterate through each family and
                     # allocate each to the camp with highest remaining capacity
                     # if family cannot fit into the camp with largest remaining capacity then return function
@@ -272,7 +289,7 @@ def edit_no_camps(plan_id, plan_index, hum_plan_df, plan_df, num_camps):
                                           'families belonging to camps being closed down.'
                                           '\nPlease increase the capacity of remaining camps or close down fewer camps.'
                                           '\nChanges to the camp number have not been saved.')
-                                    return
+                                    return "B"
                                 else:
                                     refugee_id = refugee_family[1]['refugee_id']
                                     if refugee_family[1]['camp_name'] == camp:
@@ -282,34 +299,44 @@ def edit_no_camps(plan_id, plan_index, hum_plan_df, plan_df, num_camps):
                                             'family_members']
                                         plan_df.loc[plan_df.camp_name == camp, 'refugees'] -= refugee_family[1]['family_members']
                                         print(refugee_id, reassigned_camp)
+
                     # volunteer - just change camp name to NaN if volunteer's camp is closed
-                    print('The camp name of all volunteers in camps that are being closed will be set to [NaN].'
+                    print('All volunteers at camps that are being closed will have their camp identification removed.'
                           '\nAny volunteering sessions for camps that are being closed will be removed.')
                     for camp in closed_camps:
-                        for volunteer in volunteer_df.iterrows():
-                            if volunteer[1]['plan_id'] == plan_id:
-                                username = volunteer[1]['username']
-                                if volunteer[1]['camp_name'] == camp:
-                                    volunteer_df.loc[volunteer_df.username == username, 'camp_name'] = None
-                                    plan_df.loc[plan_df.camp_name == camp, 'volunteers'] -= 1
+                        volunteer_df.loc[(volunteer_df["plan_id"] == plan_id)
+                                         & (volunteer_df["camp_name"] == camp), "camp_name"] = None
+                        # for volunteer in volunteer_df.iterrows():
+                        #     if volunteer[1]['plan_id'] == plan_id:
+                        #         username = volunteer[1]['username']
+                        #         if volunteer[1]['camp_name'] == camp:
+                        #             volunteer_df.loc[volunteer_df.username == username, 'camp_name'] = None
+                        #             plan_df.loc[plan_df.camp_name == camp, 'volunteers'] -= 1
+
                     # remove all volunteering sessions for the given plan_id and camp
-                    volunteering_times = pd.read_csv('volunteering_times.csv')
-                    removed_times = []
-                    index = 0
-                    for time in volunteering_times.iterrows():
-                        if time[1]['plan_id'] == plan_id and time[1]['camp_name'] in closed_camps:
-                            removed_times.append(index)
-                        index += 1
-                    volunteering_times = volunteering_times[~volunteering_times.index.isin(removed_times)]
+                    volunteering_times = volunteering_times.drop(
+                        volunteering_times[(volunteering_times['plan_id'] == plan_id)
+                                           & (volunteering_times['camp_name'].isin(closed_camps))].index)
+                    # removed_times = []
+                    # index = 0
+                    # for time in volunteering_times.iterrows():
+                    #     if time[1]['plan_id'] == plan_id and time[1]['camp_name'] in closed_camps:
+                    #         removed_times.append(index)
+                    #     index += 1
+                    # volunteering_times = volunteering_times[~volunteering_times.index.isin(removed_times)]
+
                     # resources - add back to storage
                     print('Resources (food packs, water and first-aid kits) of camps being closed will be moved back to storage'
                           ' in the same plan.')
                     for camp in closed_camps:
-                        hum_plan_df.iloc[plan_index, -3] += plan_df.loc[plan_df.camp_name == camp, 'food']
+                        # hum_plan_df.iloc[plan_index, -3] += plan_df.loc[plan_df.camp_name == camp, 'food']
+                        hum_plan_df.loc[hum_plan_df["plan_id"] == plan_id, "food_storage"] += plan_df.loc[plan_df.camp_name == camp, 'food']
                         plan_df.loc[plan_df.camp_name == camp, 'food'] = 0
-                        hum_plan_df.iloc[plan_index, -2] += plan_df.loc[plan_df.camp_name == camp, 'water']
+                        # hum_plan_df.iloc[plan_index, -2] += plan_df.loc[plan_df.camp_name == camp, 'water']
+                        hum_plan_df.loc[hum_plan_df["plan_id"] == plan_id, "food_storage"] += plan_df.loc[plan_df.camp_name == camp, 'water']
                         plan_df.loc[plan_df.camp_name == camp, 'water'] = 0
-                        hum_plan_df.iloc[plan_index, -1] += plan_df.loc[plan_df.camp_name == camp, 'firstaid_kits']
+                        # hum_plan_df.iloc[plan_index, -1] += plan_df.loc[plan_df.camp_name == camp, 'firstaid_kits']
+                        hum_plan_df.loc[hum_plan_df["plan_id"] == plan_id, "food_storage"] += plan_df.loc[plan_df.camp_name == camp, 'water']
                         plan_df.loc[plan_df.camp_name == camp, 'firstaid_kits'] = 0
                     # remove camp rows for closed camps in plan.csv
                     plan_df = plan_df[~plan_df['camp_name'].isin(closed_camps)]
@@ -320,7 +347,7 @@ def edit_no_camps(plan_id, plan_index, hum_plan_df, plan_df, num_camps):
                     plan_df.to_csv(f'{plan_id}.csv', index=False)
                     hum_plan_df.to_csv('humanitarian_plan.csv', index=False)
                     print('All changes have been saved.')
-                    return
+                    return hum_plan_df[hum_plan_df['end_date'].isna()]
     elif difference > 0:
         print(f'You have chosen to set the number of camps to {new_num}, '
               f'this means you are opening {difference} camps.'
@@ -330,12 +357,9 @@ def edit_no_camps(plan_id, plan_index, hum_plan_df, plan_df, num_camps):
             add_camps = open(f"{plan_id}.csv", "a")
             add_camps.write(f"\nCamp {num_camps + i},0,0,0,0,0,0")
         add_camps.close()
-        # should we instead set the new camp numbers to start from 1 more than the current largest camp number?
-        # if a camp was removed previously, so e.g. the remaining camps are 1,2,4,5,
-        # then num_camps + 1 = 5, but Camp 5 is already taken
         new_plan = pd.read_csv(f"{plan_id}.csv")
         print(f'The change has been saved. The updated details of {plan_id} are as follows:'
               f'\n{new_plan}')
         hum_plan_df.to_csv('humanitarian_plan.csv', index=False)
         print('All changes have been saved.')
-        return
+        return hum_plan_df[hum_plan_df['end_date'].isna()]

@@ -109,12 +109,12 @@ class Admin:
 
         progress = 0
         edit_choice = None  # remove red underline under progress == 2
-        print(f"Currently, the details of humanitarian plans are as follows:"
-              f"\n {hum_plan_df}")
         while progress < 4:
             if progress == 0:
                 logging.debug("Admin prompted to select humanitarian plan.")
                 while True:
+                    print(f"Currently, the details of humanitarian plans are as follows:"
+                          f"\n {hum_plan_df[['plan_id', 'description', 'location', 'start_date', 'number_of_camps']]}")
                     print("\nEnter [X] to return to the previous menu.")
                     print("Please note only the description or number of camps of a humanitarian plan can be changed.")
                     plan_index = input('Please enter the index of the humanitarian plan you wish to edit: ')
@@ -123,9 +123,10 @@ class Admin:
                         return
                     try:
                         plan_index = int(plan_index)
-                        plan_id = str(hum_plan_df.loc[hum_plan_df.index == plan_index, 'plan_id'])
-                        plan_id = plan_id.split('\n')[0]
-                        plan_id = plan_id[5:]
+                        plan_id = hum_plan_df['plan_id'].iloc[plan_index]
+                        # plan_id = str(hum_plan_df.loc[hum_plan_df.index == plan_index, 'plan_id'])
+                        # plan_id = plan_id.split('\n')[0]
+                        # plan_id = plan_id[5:]
                         if plan_index not in range(0, len(hum_plan_df.plan_id)):
                             raise ValueError
                         progress += 1
@@ -156,14 +157,13 @@ class Admin:
                     progress -= 1
                 elif edit_choice == 1 or edit_choice == 2:
                     progress += 1
-                break
 
             elif progress == 2:
                 if edit_choice == 1:
-                    cur_desc = str(hum_plan_df.loc[hum_plan_df.index == plan_index, "description"])
-                    cur_desc = cur_desc.split('\n')[0]
-                    cur_desc = cur_desc[5:]
-
+                    cur_desc = hum_plan_df['description'].iloc[plan_index]
+                    # cur_desc = str(hum_plan_df.loc[hum_plan_df.index == plan_index, "description"])
+                    # cur_desc = cur_desc.split('\n')[0]
+                    # cur_desc = cur_desc[5:]
                     new_desc = hum_plan_funcs.edit_description(plan_id, cur_desc)
                     if new_desc == "0":
                         logging.debug("Returning to previous menu.")
@@ -178,24 +178,34 @@ class Admin:
                         # also update hum_plan_df in case other details are updated after this
                         hum_plan_df.loc[hum_plan_df["plan_id"] == plan_id, "description"] = new_desc
                         logging.debug("humanitarian_plan.csv updated")
-                        print(f'The change has been saved. The updated details of {plan_id} are as follows:'
-                              f'\n{plans.loc[plans["plan_id"] == plan_id, :]}')
+                        print('The change has been saved.')
                         progress += 1
 
                 elif edit_choice == 2:
-                    num_camps = hum_plan_df.loc[hum_plan_df.index == plan_index, "number_of_camps"]
-                    num_camps = num_camps[5:]
-                    plan_df = pd.read_csv(f'{plan_id}.csv')
-                    print(f'You have chosen to edit the number of camps of {plan_id}.'
+                    num_camps = hum_plan_df['number_of_camps'].iloc[plan_index]
+                    # num_camps = hum_plan_df.loc[hum_plan_df.index == plan_index, "number_of_camps"]
+                    # num_camps = num_camps[5:]
+                    print(f'\nYou have chosen to edit the number of camps of {plan_id}.'
                           f'\n The current number of camps is:'
                           f'\n {num_camps}')
-                    hum_plan_funcs.edit_no_camps(plan_id, plan_index, hum_plan_df, plan_df, num_camps)
-                    progress += 1
+
+                    # edit_no_camps can update its own copies of the csv files
+                    # and return the updated hum_plan_df which can be used for subsequent updates
+                    new_hum_plan_df = hum_plan_funcs.edit_no_camps(plan_id, hum_plan_df, num_camps)
+                    if isinstance(new_hum_plan_df, str) and new_hum_plan_df == "X":
+                        logging.debug("Returning to previous menu.")
+                        return
+                    elif isinstance(new_hum_plan_df, str) and new_hum_plan_df == "B":
+                        logging.debug("Returning to previous step.")
+                        progress -= 1
+                    else:
+                        hum_plan_df = new_hum_plan_df
+                        progress += 1
 
             elif progress == 3:
                 logging.debug("Admin prompted to select what to do next.")
                 while True:
-                    print(f'Enter [1] to edit other details of {plan_id}')
+                    print(f'\nEnter [1] to edit other details of {plan_id}')
                     print("Enter [2] to edit details of other humanitarian plans")
                     print("Enter [0] to exit the edit humanitarian plan function and return to the previous menu")
                     next = v.integer("Select an option: ")
