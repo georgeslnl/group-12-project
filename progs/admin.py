@@ -102,6 +102,7 @@ class Admin:
         print("\nEdit humanitarian plan")
         hum_plan_df = pd.read_csv(os.path.join('data', 'humanitarian_plan.csv'))
         hum_plan_df = hum_plan_df[hum_plan_df['end_date'].isna()]
+        hum_plan_df = hum_plan_df.reset_index(drop=True)
         if len(hum_plan_df.index) == 0:
             print("There are no ongoing humanitarian plans.")
             logging.warning("No ongoing humanitarian plans. Returning to humanitarian plan menu.")
