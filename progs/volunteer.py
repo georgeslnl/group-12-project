@@ -26,23 +26,23 @@ class Volunteer:
         """Main menu when a volunteer logs in, providing options to access sub-menus and methods for the various volunteer functionalities."""
         while self.logged_in:
             logging.debug(f"{self.username} has entered the volunteer menu.")
-            print("\n---------------")
-            print("Volunteer Menu")
-            print("---------------")
+            print("\n--------------------------------------------")
+            print("\t\tVOLUNTEER MENU")
+            print("Welcome,", self.first_name, self.last_name)
             while True:
-                print("What would you like to do,", self.first_name, self.last_name + "?")
+                print("What would you like to do?")
                 print("Enter [1] for personal information and camp identification")
                 print("Enter [2] to create, view, edit or remove a refugee profile")
                 print("Enter [3] to display or update your camp's information (including resource requests)")
                 print("Enter [4] to request account deactivation")
                 print("Enter [5] to add, view or remove volunteering sessions")
-                print("Enter [0] to logout")
+                print("Enter [0] to logout\n")
                 try:
-                    option = int(input("Select an option: "))
+                    option = int(input(">>Enter your option: "))
                     if option not in range(6):
                         raise ValueError
                 except ValueError:
-                    print("Please enter a number from the options provided.\n")
+                    print("\nPlease enter a number from the options provided.\n")
                     logging.error("Invalid user input.")
                     continue
                 break
@@ -69,18 +69,19 @@ class Volunteer:
         """Sub-menu enabling the volunteer to access functionalities relating to their personal information and camp identification."""
         while True:
             logging.debug(f"{self.username} has entered the personal information menu.")
-            print("\nPersonal Information and Camp Identification")
+            print("\n--------------------------------------------")
+            print(" PERSONAL INFORMATION & CAMP IDENTIFICATION")
             while True:
                 print("Enter [1] to view your personal information")
                 print("Enter [2] to edit your personal information")
                 print("Enter [3] to update your camp identification")
-                print("Enter [0] to return to the volunteer menu")
+                print("Enter [0] to return to the volunteer menu\n")
                 try:
-                    option = int(input("Select an option: "))
+                    option = int(input(">>Enter your option: "))
                     if option not in range(4):
                         raise ValueError
                 except ValueError:
-                    print("Please enter a number from the options provided.\n")
+                    print("\nPlease enter a number from the options provided.")
                     logging.error("Invalid user input.")
                     continue
                 break
@@ -102,23 +103,26 @@ class Volunteer:
         Volunteers must have a camp to access the menu."""
         while True:
             logging.debug(f"{self.username} has entered the refugee profile menu.")
-            print("\nManage Refugee Profiles")
+            print("\n--------------------------------------------")
+            print("\tMANAGE REFUGEE PROFILES")
             if not self.camp_name:
                 logging.debug(f"{self.username} does not have a camp on their profile.")
-                print("\nVolunteers can only manage refugee profiles for their current camp. Please add your camp identification.")
+                print("\nVolunteers can only manage refugee profiles for their current camp. "
+                      "\nYou currently have no camp to work on."
+                      "\nPlease update your camp identification.")
                 return
 
             while True:
                 print("Enter [1] to create a new refugee profile")
                 print("Enter [2] to view a refugee profile")
                 print("Enter [3] to edit or remove a refugee profile")
-                print("Enter [0] to return to the volunteer menu")
+                print("Enter [0] to return to the volunteer menu\n")
                 try:
-                    option = int(input("Select an option: "))
+                    option = int(input(">>Enter your option: "))
                     if option not in range(4):
                         raise ValueError
                 except ValueError:
-                    print("Please enter a number from the options provided.\n")
+                    print("\nPlease enter a number from the options provided.\n")
                     logging.error("Invalid user input.")
                     continue
                 break
@@ -142,22 +146,24 @@ class Volunteer:
         """
         while True:
             logging.debug(f"{self.username} has entered the camp information menu.")
-            print("\nCamp Information")
+            print("\n--------------------------------------------")
+            print("\t\tCAMP INFORMATION")
             if not self.camp_name:
-                print("\nPlease add your camp identification in order to display or update camp information.")
+                print("\nYou currently have no camp to work on."
+                      "\nPlease add your camp identification in order to display or update camp information.")
                 return
 
             while True:
                 print("Enter [1] to display your camp's information")
                 print("Enter [2] to update your camp's information")
                 print("Enter [3] to request resources for your camp")
-                print("Enter [0] to return to the volunteer menu")
+                print("Enter [0] to return to the volunteer menu\n")
                 try:
-                    option = int(input("Select an option: "))
+                    option = int(input(">>Enter you option: "))
                     if option not in range(4):
                         raise ValueError
                 except ValueError:
-                    print("Please enter a number from the options provided.\n")
+                    print("\nPlease enter a number from the options provided.\n")
                     logging.error("Invalid user input.")
                     continue
                 break
@@ -181,10 +187,12 @@ class Volunteer:
         """
         while True:
             logging.debug(f"{self.username} has entered the volunteering sessions menu.")
-            print("\nManage Volunteering Sessions")
+            print("\n--------------------------------------------")
+            print("\t\tMANAGE VOLUNTEERING SESSIONS")
             print("Tell us when you are coming to volunteer.")
             if not self.camp_name:
-                print("\nPlease add your camp identification in order to manage volunteering sessions.")
+                print("\nYou currently have no camp to work on."
+                      "\nPlease add your camp identification in order to manage volunteering sessions.")
                 return
 
             while True:
@@ -193,12 +201,12 @@ class Volunteer:
                 print("Enter [3] to remove a volunteering session")
                 print("Enter [0] to return to the volunteer menu")
                 try:
-                    user_input = input("Select an option: ")
+                    user_input = input(">>Enter your option: ")
                     option = int(user_input)
                     if option not in range(4):
                         raise ValueError
                 except ValueError:
-                    print("Please enter a number from the options provided.\n")
+                    print("\nPlease enter a number from the options provided.\n")
                     logging.error("Invalid user input.")
                     continue
                 break
@@ -225,22 +233,24 @@ class Volunteer:
         Enables the volunteer to request for their account to be deactivated.
         The admin will subsequently be notified of the request.
         """
-        print("\nRequest account deactivation")
+        print("\n--------------------------------------------")
+        print("\tREQUEST ACCOUNT DEACTIVATION")
         logging.debug(f'{self.username} prompted to confirm deactivation request.')
         while True:
             print("Are you sure you would like to deactivate your account?")
-            print("If your request is approved, you will no longer be able to volunteer at humanitarian plans or login to the system.")
+            print("If your request is approved, you will no longer be able to "
+                  "volunteer at any humanitarian plans or login to the system.")
             print("To reactivate your account subsequently, you will need to contact an administrator.")
             print("Enter [1] to proceed")
-            print("Enter [0] to return to the volunteer menu")
+            print("Enter [0] to return to the volunteer menu\n")
             try:
-                user_input = input("Select an option: ")
+                user_input = input(">>Enter your option: ")
                 option = int(user_input)
                 if option not in (0, 1):
                     logging.error(f'{self.username} has entered {user_input} when trying to deactivate their account. ValueError raised.')
                     raise ValueError
             except ValueError:
-                print("Please enter a number from the options provided.\n")
+                print("\nPlease enter a number from the options provided.\n")
                 logging.error("Invalid user input.")
                 continue
             break
@@ -256,7 +266,7 @@ class Volunteer:
         users.to_csv(os.path.join('data', 'users.csv'), index=False)
         logging.info("users.csv updated")
 
-        print("Your request to deactivate your account has been registered.")
+        print("\nYour request to deactivate your account has been registered.")
         print("An administrator will respond to your request shortly.")
         return
 
@@ -267,7 +277,8 @@ class Volunteer:
         """
         gender_str = convert_gender(self.gender)
 
-        print("\nView personal information")
+        print("\n--------------------------------------------")
+        print("\tVIEW PERSONAL INFORMATION")
         print("Your details are as follows:")
         print("Username:", self.username)
         print("First name:", self.first_name)
@@ -284,17 +295,17 @@ class Volunteer:
             print("\nEnter [1] if you would like to view your password. The password will appear in plain text.")
             print("Enter [0] to return to the previous menu")
             try:
-                option = int(input("Select an option: "))
+                option = int(input(">>Enter your option: "))
                 if option not in (0, 1):
                     raise ValueError
             except ValueError:
-                print("Please enter a number from the options provided.")
+                print("\nPlease enter a number from the options provided.")
                 logging.error("Invalid user input.")
                 continue
             break
         if option == 1:
             logging.debug(f"{self.username} has chosen to view their password.")
-            print("Your password is:", self.password)
+            print("\nYour password is:", self.password)
         else:
             logging.debug(f"{self.username} has chosen not to view their password.")
         return
@@ -309,19 +320,21 @@ class Volunteer:
             print("\nYour current username is:", self.username)
             logging.debug(f"{self.username} prompted to enter new username.")
             while True:
-                print("Enter [0] to return to the previous step.")
-                new_username = v.username("Enter new username: ").strip()
+                print("Enter [0] to return to the previous step.\n")
+                new_username = v.username(">>Enter new username: ").strip()
                 if new_username == "0":
                     logging.debug("Returning to previous step.")
                     return
                 if new_username == self.username:
-                    print("New username is the same as current username. Please enter a different username.")
+                    print("\nNew username is the same as current username. "
+                          "\nPlease enter a different username.\n")
                     logging.error("Invalid user input.")
                     continue
                 users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
                 select_username = users[users['username'] == new_username]
                 if len(select_username.index) > 0:  # username already exists
-                    print("Username is taken. Please choose another username.")
+                    print('\nUsername "' + new_username + '"is taken. '
+                                                          '\nPlease choose another username.\n')
                     logging.error(f"{self.username} entered a username that already exists.")
                     continue
                 break
@@ -337,7 +350,7 @@ class Volunteer:
             vol_times.loc[vol_times["username"] == self.username, "username"] = new_username
             vol_times.to_csv(os.path.join('data', 'volunteering_times.csv'), index=False)
             logging.debug("volunteering_times.csv updated")
-
+            print("\nUsername updated successfully!")
             print("Your new username is:", new_username)
             self.username = new_username
             logging.debug("Username updated successfully")
@@ -347,22 +360,24 @@ class Volunteer:
             """Prompts the volunteer to enter their new password."""
             print("\nYour current password is:", self.password)
             while True:
-                print("Enter [0] to return to the previous step.")
-                new_password = input("Enter new password: ")
+                print("Enter [0] to return to the previous step.\n")
+                new_password = input(">>Enter new password: ")
                 if new_password == "0":
                     logging.debug("Returning to previous step.")
                     return
                 if new_password == self.password:
-                    print("New password is the same as current password. Please enter a different password.")
+                    print("\nNew password is the same as current password. "
+                          "\nPlease enter a different password.\n")
                     logging.error("Password is unchanged.")
                     continue
                 if len(new_password) < 3:
-                    print("Password should be at least 3 characters.")
+                    print("\nPassword should be at least 3 characters.\n")
                     logging.error("Invalid user input.")
                     continue
                 s = re.search("[, ]", new_password)
                 if s:
-                    print("Password cannot contain commas or spaces. Please choose another password.")
+                    print("\nPassword cannot contain commas or spaces. "
+                          "\nPlease choose another password.\n")
                     logging.error("Invalid user input.")
                     continue
                 break
@@ -372,6 +387,7 @@ class Volunteer:
             users.loc[cur_user, 'password'] = new_password
             users.to_csv(os.path.join('data', 'users.csv'), index=False)
             logging.debug("users.csv updated")
+            print("\nPassword updated successfully!")
             print("Your new password is:", new_password)
             self.password = new_password
             logging.debug("Password updated successfully")
@@ -382,13 +398,13 @@ class Volunteer:
             print("\nYour current first name is:", self.first_name)
             logging.debug(f"{self.username} prompted to enter new first name.")
             while True:
-                print("Enter [0] to return to the previous step.")
-                new_fname = v.name("Enter new first name: ").strip()
+                print("Enter [0] to return to the previous step.\n")
+                new_fname = v.name(">>Enter new first name: ").strip()
                 if new_fname == "0":
                     logging.debug("Returning to previous step.")
                     return
                 elif new_fname == self.first_name:
-                    print("New first name is the same as current first name. Please enter a different first name.")
+                    print("New first name is the same as current first name. ")
                 else:
                     # Capitalise the first letter instead of requiring input again
                     new_fname = f"{new_fname[0].upper()}{new_fname[1:]}"
@@ -399,6 +415,7 @@ class Volunteer:
             users.loc[cur_user, 'first_name'] = new_fname
             users.to_csv(os.path.join('data', 'users.csv'), index=False)
             logging.debug("users.csv updated")
+            print("\nFirst name updated successfully!")
             print("You have changed your first name to:", new_fname)
             self.first_name = new_fname
             logging.debug("First name updated successfully")
@@ -409,13 +426,13 @@ class Volunteer:
             print("\nYour current last name is:", self.last_name)
             logging.debug(f"{self.username} prompted to enter new last name.")
             while True:
-                print("Enter [0] to return to the previous step.")
-                new_lname = v.name("Enter new last name: ").strip()
+                print("Enter [0] to return to the previous step.\n")
+                new_lname = v.name(">>Enter new last name: ").strip()
                 if new_lname == "0":
                     logging.debug("Returning to previous step.")
                     return
                 elif new_lname == self.last_name:
-                    print("New last name is the same as current last name. Please enter a different last name.")
+                    print("New last name is the same as current last name.")
                 else:
                     break
             # update csv file
@@ -424,6 +441,7 @@ class Volunteer:
             users.loc[cur_user, 'last_name'] = new_lname
             users.to_csv(os.path.join('data', 'users.csv'), index=False)
             logging.debug("users.csv updated")
+            print("\nLast name updated successfully!")
             print("You have changed your last name to:", new_lname)
             self.last_name = new_lname
             logging.debug("Last name updated successfully")
@@ -439,20 +457,21 @@ class Volunteer:
                 print("New gender:")
                 print("Enter [1] for male")
                 print("Enter [2] for female")
-                print("Enter [3] for non-binary")
+                print("Enter [3] for non-binary\n")
                 try:
-                    new_gender = int(input("Select an option: "))
+                    new_gender = int(input(">>Select an option: "))
                     if new_gender not in range(4):
                         raise ValueError
                 except ValueError:
-                    print("Please enter a number from the options provided.")
+                    print("\nPlease enter a number from the options provided.\n")
                     logging.error("Invalid user input.")
                     continue
                 if new_gender == 0:
                     logging.debug("Returning to previous step.")
                     return
                 if new_gender == self.gender:
-                    print("New gender is the same as current gender. Please try again or return to the previous step.")
+                    print("\nYour selection is the same as current gender."
+                          "\nPlease try again or return to the previous step.\n")
                     logging.error("Gender is unchanged.")
                     continue
                 break
@@ -464,6 +483,7 @@ class Volunteer:
             logging.debug("users.csv updated")
 
             new_gender_str = convert_gender(new_gender)
+            print("\nGender updated successfully!")
             print("You have changed your gender to:", new_gender_str)
             self.gender = new_gender
             logging.debug("Gender updated successfully")
@@ -474,22 +494,22 @@ class Volunteer:
             print("\nYour current email address is:", self.email)
             logging.debug(f"{self.username} prompted to enter new email address.")
             while True:
-                print("Enter [0] to return to the previous step.")
-                new_email = input("Enter new email address: ").strip()
+                print("Enter [0] to return to the previous step.\n")
+                new_email = input(">>Enter new email address: ").strip()
                 if new_email == "0":
                     logging.debug("Returning to previous step.")
                     return
                 if new_email == self.email:
-                    print("New email is the same as current email. Please enter a different email address.")
+                    print("\nNew email is the same as current email.\n")
                     logging.error("Email address is unchanged.")
                     continue
                 if new_email == "":
-                    print("Please enter an email address.")
+                    print("\nPlease enter an email address.\n")
                     logging.error(f"{self.username} did not enter an email address.")
                     continue
                 s = re.search("^[A-Za-z0-9_]+@[A-Za-z0-9]+\.[A-Za-z.]+$", new_email)
                 if not s:
-                    print("Invalid email address. Please try again.")
+                    print("\nInvalid email address. Please try again.\n")
                     logging.error("Invalid user input.")
                     continue
                 break
@@ -499,6 +519,7 @@ class Volunteer:
             users.loc[cur_user, 'email'] = new_email
             users.to_csv(os.path.join('data', 'users.csv'), index=False)
             logging.debug("users.csv updated")
+            print("\nEmail address updated successfully!")
             print("You have changed your email address to:", new_email)
             self.email = new_email
             logging.debug("Email address updated successfully")
@@ -509,22 +530,22 @@ class Volunteer:
             print("\nYour current phone number is:", self.phone_number)
             logging.debug(f"{self.username} prompted to enter new phone number.")
             while True:
-                print("Enter [0] to return to the previous step.")
-                new_phone_num = input("Enter new phone number: ").strip()
+                print("Enter [0] to return to the previous step.\n")
+                new_phone_num = input(">>Enter new phone number: ").strip()
                 if new_phone_num == "0":
                     logging.debug("Returning to previous step.")
                     return
                 if new_phone_num == self.phone_number:
-                    print("New phone number is the same as current phone number. Please enter a different phone number.")
+                    print("\nNew phone number is the same as current phone number.")
                     logging.error("Phone number is unchanged.")
                     continue
                 if new_phone_num == "":
-                    print("Please enter a phone number.")
+                    print("\nPlease enter a phone number.\n")
                     logging.error(f"{self.username} did not enter a phone number.")
                     continue
                 s = re.search("^\+?\d{1,3} \d{8,11}$", new_phone_num)  # allow starting + to be omitted
                 if not s:
-                    print("Incorrect phone number format. Please try again.")
+                    print("\nIncorrect phone number format. Please try again.\n")
                     logging.error("Invalid user input.")
                     continue
                 if new_phone_num[0] != "+":
@@ -536,6 +557,7 @@ class Volunteer:
             users.loc[cur_user, 'phone_number'] = new_phone_num
             users.to_csv(os.path.join('data', 'users.csv'), index=False)
             logging.debug("users.csv updated")
+            print("\nPhone number updated successfully!")
             print("You have changed your phone number to:", new_phone_num)
             self.phone_number = new_phone_num
             logging.debug("Phone number updated successfully")
@@ -543,10 +565,11 @@ class Volunteer:
 
         # outer loop to edit multiple attributes, exit if 0 is entered
         while True:
+            print("\n--------------------------------------------")
+            print("\tEDIT PERSONAL INFORMATION")
             # inner loop to catch invalid input
             while True:
                 logging.debug(f"{self.username} prompted to select which detail to edit.")
-                print("\nEdit personal information")
                 print("Which details would you like to update?")
                 print("Enter [1] for username")
                 print("Enter [2] for password")
@@ -555,13 +578,13 @@ class Volunteer:
                 print("Enter [5] for gender")
                 print("Enter [6] for email")
                 print("Enter [7] for phone number")
-                print("Enter [0] to return to the previous menu")
+                print("Enter [0] to return to the previous menu\n")
                 try:
-                    option = int(input("Select an option: "))
+                    option = int(input(">>Enter your option: "))
                     if option not in range(8):
                         raise ValueError
                 except ValueError:
-                    print("Please enter a number from the options provided.")
+                    print("\nPlease enter a number from the options provided.\n")
                     logging.error("Invalid user input.")
                     continue
                 break

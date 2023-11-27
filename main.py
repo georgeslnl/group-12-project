@@ -182,7 +182,7 @@ def volunteer_registration():
     """
     logging.debug("User has entered volunteer registration.")
     print("\n--------------------------------------------")
-    print("VOLUNTEER REGISTRATION")
+    print("\t\tVOLUNTEER REGISTRATION")
     print("You will be prompted to enter details for registration.")
 
     progress = 0
