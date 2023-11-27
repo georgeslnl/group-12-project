@@ -886,8 +886,8 @@ class Volunteer:
         gender_str = convert_gender(gender)
         medical_str = convert_medical_condition(medical_cond)
 
-        print("\nRefugee profile created! The refugee and their family members have been added to " + self.camp_name + ".")
-        print("You have entered the following details:")
+        print("\nRefugee profile created! The refugee and their family have been added to " + self.camp_name + ".")
+        print("Refugee ID: ", refugee_id)
         print("Refugee name:", refugee_name)
         print("Gender:", gender_str)
         print("Date of birth:", date_of_birth)

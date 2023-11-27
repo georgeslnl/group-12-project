@@ -2016,7 +2016,7 @@ class Admin:
         medical_str = convert_medical_condition(medical_cond)
 
         print("\nRefugee profile created!")
-        print("You have entered the following details:")
+        print("Refugee ID: ", refugee_id)
         print("Refugee name:", refugee_name)
         print("Plan ID:", plan_id)
         print("Camp name:", camp_name)
