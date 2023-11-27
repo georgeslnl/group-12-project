@@ -324,8 +324,7 @@ class Volunteer:
                     logging.debug("Returning to previous step.")
                     return
                 if new_username == self.username:
-                    print("\nNew username is the same as current username. "
-                          "\nPlease enter a different username.\n")
+                    print("\nNew username is the same as current username.\n")
                     logging.error("Invalid user input.")
                     continue
                 users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
@@ -617,14 +616,15 @@ class Volunteer:
             camps = pd.read_csv(os.path.join('data', plan_id + '.csv'))
             logging.debug(f"{self.username} currently has no camp and is prompted to select a camp.")
             while True:
-                print("\nEnter [X] to return to the previous menu.")
-                print("Choose a camp.")
+                print("\nPlease choose a camp from the list below.")
                 print("Camp Name - # Volunteers - # Refugees - Capacity")
                 for row in range(len(camps.index)):
                     print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
                           str(camps['refugees'].iloc[row]) + " refugees",
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
-                camp_num = input("Enter the number of the camp you would like to join (e.g. [1] for Camp 1): ")
+                print("Enter [X] to return to the previous menu.\n")
+                camp_num = input(">>Enter the number corresponding to the camp you would like to join "
+                                 "(e.g. [1] for Camp 1): ")
                 if camp_num.upper() == "X":
                     logging.debug("Returning to previous menu without making changes.")
                     return None
@@ -633,7 +633,7 @@ class Volunteer:
                     if camp_num not in range(1, len(camps.index) + 1):
                         raise ValueError
                 except ValueError:
-                    print("Please enter the number of a camp from the list displayed.")
+                    print("\nPlease enter the number of a camp from the list displayed.")
                     logging.error("Invalid user input.")
                     continue
                 new_camp = "Camp " + str(camp_num)
@@ -644,20 +644,22 @@ class Volunteer:
             """Prompts the volunteer to select a new camp if they currently have a camp."""
             camps = pd.read_csv(os.path.join('data', plan_id + '.csv'))
             if len(camps.index) == 1:
-                print("There is currently only one camp. It is not possible to change camp identification.")
+                print("There is currently only one camp in your plan. "
+                      "\nUnable to change your camp identification now.")
                 logging.warning(f"There is only one camp at {self.plan_id}. Not possible to change camps.")
                 return self.camp_name
 
             logging.debug(f"{self.username} prompted to select new camp.")
             while True:
-                print("\nEnter [X] to return to the previous menu.")
-                print("Choose a new camp.")
+                print("\nPlease choose a new camp from the list below.")
                 print("Camp Name - # Volunteers - # Refugees - Capacity")
                 for row in range(len(camps.index)):
                     print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
                           str(camps['refugees'].iloc[row]) + " refugees",
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
-                camp_num = input("Enter the number of the camp you would like to join (e.g. [1] for Camp 1): ")
+                print("Enter [X] to return to the previous menu.\n")
+                camp_num = input(">>Enter the number corresponding to the camp you would like to join "
+                                 "(e.g. [1] for Camp 1): ")
                 if camp_num.upper() == "X":
                     logging.debug("Returning to previous menu without making changes.")
                     return self.camp_name
@@ -666,18 +668,21 @@ class Volunteer:
                     if camp_num not in range(1, len(camps.index) + 1):
                         raise ValueError
                 except ValueError:
-                    print("Please enter the number of a camp from the list displayed.")
+                    print("\nPlease enter the number of a camp from the list displayed.")
                     logging.error("Invalid user input.")
                     continue
                 new_camp = "Camp " + str(camp_num)
                 if new_camp == self.camp_name:
-                    print("New camp is the same as current camp. Please try again or return to the previous menu.")
+                    print("\nNew camp is the same as current camp. "
+                          "\nPlease try again or return to the previous menu.")
                     logging.error("Camp is unchanged.")
                     continue
                 logging.debug(f"{self.username} has changed to {new_camp}.")
                 return new_camp
 
-        print("\nYou are volunteering at plan ID:", self.plan_id)
+        print("\n--------------------------------------------")
+        print("\tUPDATE CAMP IDENTIFICATION")
+        print("You are volunteering at plan ID:", self.plan_id)
         print("Your current camp is:", self.camp_name)
         if not self.camp_name:
             new_camp = add_camp(self.plan_id)
@@ -686,13 +691,13 @@ class Volunteer:
             while True:
                 print("Enter [1] to update camp identification")
                 print("Enter [2] to remove camp identification")
-                print("Enter [0] to return to the previous menu")
+                print("Enter [0] to return to the previous menu\n")
                 try:
-                    option = int(input("Select an option: "))
+                    option = int(input(">>Enter your option: "))
                     if option not in range(3):
                         raise ValueError
                 except ValueError:
-                    print("Please enter a number from the options provided.")
+                    print("\nPlease enter a number from the options provided.\n")
                     logging.error("Invalid user input.")
                     continue
 
@@ -704,16 +709,16 @@ class Volunteer:
                 if option == 2:
                     logging.debug(f"{self.username} prompted to confirm removal of camp identification.")
                     while True:
-                        print("Are you sure you would like to remove your camp identification?")
-                        print("All your volunteering sessions will be erased.")
+                        print("\nAre you sure you would like to remove your camp identification and leave this camp?")
+                        print("All your volunteering sessions at this camp will be erased.")
                         print("Enter [1] to proceed")
-                        print("Enter [0] to go back to the previous step")
+                        print("Enter [0] to go back to the previous step\n")
                         try:
-                            remove_option = int(input("Select an option: "))
+                            remove_option = int(input(">>Select an option: "))
                             if remove_option not in (0, 1):
                                 raise ValueError
                         except ValueError:
-                            print("Please enter a number from the options provided.\n")
+                            print("\nPlease enter a number from the options provided.\n")
                             logging.error("Invalid user input.")
                             continue
                         break
@@ -753,6 +758,7 @@ class Volunteer:
                 vol_times.to_csv(os.path.join('data', 'volunteering_times.csv'), index=False)
                 logging.debug("volunteering_times.csv updated")
 
+            print("\nCamp identification updated successfully!")
             print("Your new camp is:", new_camp)
             self.camp_name = new_camp
         return
