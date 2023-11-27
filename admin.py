@@ -967,233 +967,160 @@ class Admin:
 
     def update_resources_in_storage(self):
         """
-        This method requires a Humanitarian Plan object as argument and allows the admin
-        to update the current resources that are in storage.
+        This method allows the admin to request for additional resources to be added to storage.
         """
-        plan_id = select_plan() #user selects which plan they would like to update
+        print("\nRequest resources for storage")
+        plan_id = select_plan()  # user selects which plan they would like to update
+        if plan_id == 0:
+            logging.debug("Returning to resources menu.")
+            return
+
         location = plan_id[:-5]
         plans_overview = pd.read_csv("humanitarian_plan.csv") #calls the humanitarian plan csv
-        plan_info = plans_overview.loc[plans_overview.location == location, ['location', 'food_storage', 'water_storage', 'firstaid_kits_storage']]
-
+        # plan_info = plans_overview.loc[plans_overview.location == location, ['location', 'food_storage', 'water_storage', 'firstaid_kits_storage']]
 
         print(f"\nCurrently, the resources in storage are as follows:"
               f"\n{plans_overview.loc[plans_overview.location == location, ['location', 'start_date', 'food_storage', 'water_storage', 'firstaid_kits_storage']]}\n")
         logging.debug("Admin has been shown a summary of information contained in humanitarian plan csv.")
 
-
-        print("\nWhich resources would you like to request more of?")
-        print("Enter [1] to request extra food.")
-        print("Enter [2] to request extra water.")
-        print("Enter [3] to request extra first aid kits.")
-        print("Enter [0] to return to the previous menu.")
-        logging.debug("Admin asked to select which resource they would like to restock.")
-
         while True:
-            try:
-                resource_choice = int(input('Select an option: '))
-                if resource_choice < 0 or resource_choice > 4:
-                    print("Invalid input. Please ensure you enter a positive integer from the options listed.")
-                else:
-                    break
-            except ValueError:
-                logging.error('ValueError raised from admin input.')
-                print('\nPlease enter a number from the options provided.')
-                continue
+            chosen_plan = plans_overview[plans_overview['plan_id'] == plan_id]
+            current_food_storage = chosen_plan.iloc[0]['food_storage']
+            current_water_storage = chosen_plan.iloc[0]['water_storage']
+            current_aid_storage = chosen_plan.iloc[0]['firstaid_kits_storage']
+            logging.debug("Admin prompted to select which resource they would like to restock.")
+            while True:
+                print("\nWhich resources would you like to request more of?")
+                print("Enter [1] to request extra food.")
+                print("Enter [2] to request extra water.")
+                print("Enter [3] to request extra first-aid kits.")
+                print("Enter [0] to return to the previous menu.")
+                try:
+                    resource_choice = int(input('Select an option: '))
+                    if resource_choice not in range(4):
+                        raise ValueError
+                except ValueError:
+                    logging.error('Invalid user input.')
+                    print('Please enter a number from the options provided.')
+                    continue
+                break
 
-        # user can update food, water and first aid kit storage
-        while resource_choice in range(4):
-            while resource_choice == 0:
-                logging.debug("Admin returned to resources menu.")
+            if resource_choice == 0:
+                logging.debug("Finished requesting resources for storage. Returning to resources menu.")
                 return
 
-            while resource_choice == 1:
+            if resource_choice == 1:
                 logging.debug("Admin has chosen to request more food resources.")
-                current_food_storage = plan_info.iloc[0,1]
                 print(f"\n{plan_id} currently has {current_food_storage} food packets in storage.")
-
-                #asks user for how much more food they would like, checks this is a positive integer
-                amount_requested = input(f'\nEnter the number of additional food packets you would like to request for {plan_id}, '
-                                         f'\nOR Enter [B] to return to the resources menu : ')
-                logging.debug(f"When asked how many additional food packets are needed for {plan_id}, admin input {amount_requested}.")
-
-                if amount_requested == "B":
-                    logging.debug("Admin has returned back to the resources menu.")
-                    resource_choice = 10
-                    break
-                try:
-                    amount = int(amount_requested)
-                    logging.debug(f"Admin has requested {amount} more food packets for {plan_id}.")
-                    if amount <= 0:
-                        logging.error(f"Admin has not requested a positive amount of food packets.")
-                        raise ValueError
-                except ValueError:
-                    logging.debug(f"Admin has been asked to clarify their request for food packets.")
-                    print("Please enter a positive integer.")
-                    continue
-
-                # checks the total food in storage is a positive value, tells user that request for more food has been processed
-                logging.debug(f"The current amount of food in storage at {plan_id} is {current_food_storage}.")
-                total_food = current_food_storage + amount
-                logging.debug(f"Admin has requested an additional {amount} food packets, bringing the total for {plan_id} to {total_food}.")
-                #if total_food >10000:
-                    #print(f"\n{plan_id} has a capacity of 10,000 for food storage. Your request will bring the total to {total_food}, please reduce your request.")
-                    #logging.info(f"Admin has requested an amount of food packets that will exceed current storage capabilities. They have been asked to re-enter how many they would like.")
-                    #resource_choice = 1
-                    #continue
-                if total_food<0:
-                    print(f"\n{plan_id} still has insufficient food supplies, please request more.")
-                    resource_choice = 1
-                    continue
-                else:
-                    plans_overview.loc[plans_overview['location'] == location, 'food_storage'] = int(total_food)
-                    plans_overview.to_csv("humanitarian_plan.csv", index=False)
-                    print(f"\nProcessing your request for an additional {amount} food packets ... \n"
-                          f"\n{plan_id} now has a total of {total_food} food packets.")
-                    progress = 0
-
-                # user can decide whether they would like to update water or first aid kits in storage, or return to resources menu
-                while progress == 0:
-                    next_step = input("\nTo continue please choose an option from the list below: \n"
-                                      "Enter [1] to update the quantity of water bottles in storage.\n"
-                                      "Enter [2] to update the quantity of first aid kits in storage.\n"
-                                      "Enter [0] to return to the resources menu.\n"
-                                      "Select an option: ")
-                    if next_step == str(1):
-                        resource_choice = 2
-                        progress += 1
+                # asks user for how much more food they would like, checks this is a positive integer
+                logging.debug(f"Admin prompted to enter number of additional food packets needed for {plan_id}.")
+                while True:
+                    print("\nEnter [B] to return to the previous step.")
+                    amount_requested = input(f"Enter the number of additional food packets you would like to request for {plan_id}: ")
+                    if amount_requested == "B":
+                        logging.debug("Returning to previous step.")
+                        break
+                    try:
+                        amount = int(amount_requested)
+                        if amount <= 0:
+                            raise ValueError
+                    except ValueError:
+                        logging.error("Invalid user input.")
+                        print("Please enter a positive integer.")
                         continue
-                    elif next_step == str(2):
-                        resource_choice = 3
-                        progress += 1
+
+                    # checks the total food in storage is a positive value, tells user that request for more food has been processed
+                    total_food = current_food_storage + amount
+                    #if total_food >10000:
+                        #print(f"\n{plan_id} has a capacity of 10,000 for food storage. Your request will bring the total to {total_food}, please reduce your request.")
+                        #logging.info(f"Admin has requested an amount of food packets that will exceed current storage capabilities. They have been asked to re-enter how many they would like.")
+                        #resource_choice = 1
+                        #continue
+                    if total_food < 0:
+                        print(f"\n{plan_id} still has insufficient food supplies. Please request more.")
                         continue
-                    elif next_step == str(0):
-                        progress +=1
-                        return
                     else:
-                        print("\nEnsure your input is a valid positive integer from the list provided:")
+                        logging.debug(
+                            f"Admin has requested an additional {amount} food packets, bringing the total for {plan_id} to {total_food}.")
+                        plans_overview.loc[plans_overview['location'] == location, 'food_storage'] = int(total_food)
+                        plans_overview.to_csv("humanitarian_plan.csv", index=False)
+                        logging.debug("humanitarian_plan.csv updated")
+                        print(f"\nProcessing your request for an additional {amount} food packets ... \n"
+                              f"\n{plan_id} now has a total of {total_food} food packets.")
+                    break  # goes back to selection of resource from here
 
-
-            while resource_choice == 2:
+            if resource_choice == 2:
                 logging.debug("Admin has chosen to request more water resources.")
-                current_water_storage = plan_info.iloc[0, 2]
-                print(f"\n{plan_id} currently has {current_water_storage} water bottles in storage.")
+                print(f"\n{plan_id} currently has {current_water_storage} water portions in storage.")
 
                 # asks user for how much more water they would like, checks this is a positive integer
-                amount_requested = input(   f'\nEnter the number of additional water bottles you would like to request for {plan_id}, '
-                                            f'\nOR Enter [B] to return to the resources menu : ')
-                logging.debug(f"When asked how many additional water bottles are needed for {plan_id}, admin input {amount_requested}.")
-
-                if amount_requested == "B":
-                    logging.debug("Admin has returned back to the resources menu.")
-                    resource_choice = 10
-                    break
-                try:
-                    amount = int(amount_requested)
-                    logging.debug(f"Admin has requested {amount} more water bottles for {plan_id}.")
-                    if amount <= 0:
-                        logging.error(f"Admin has not requested a positive amount of water bottles.")
-                        raise ValueError
-                except ValueError:
-                    logging.debug(f"Admin has been asked to clarify their request for water bottles.")
-                    print("Please enter a positive integer.")
-                    continue
-
-                # checks the total water in storage is a positive value, tells user that request for more food has been processed
-                logging.debug(f"The current amount of water in storage at {plan_id} is {current_water_storage}.")
-                total_water = current_water_storage + amount
-                logging.debug(f"Admin has requested an additional {amount} water bottles, bringing the total for {plan_id} to {total_water}.")
-                if total_water < 0:
-                    print(f"\n{plan_id} still has insufficient water bottles, please request more.")
-                    resource_choice = 2
-                    continue
-                else:
-                    plans_overview.loc[plans_overview['location'] == location, 'water_storage'] = int(total_water)
-                    plans_overview.to_csv("humanitarian_plan.csv", index=False)
-                    print(f"\nProcessing your request for an additional {amount} water bottles ... \n"
-                          f"\n{plan_id} now has a total of {total_water} water bottles.")
-                    progress = 0
-
-                # user can decide whether they would like to update water or first aid kits in storage, or return to resources menu
-                while progress == 0:
-                    next_step = input("\nTo continue please choose an option from the list below: \n"
-                                      "Enter [1] to update the quantity of food packets in storage.\n"
-                                      "Enter [2] to update the quantity of first aid kits in storage.\n"
-                                      "Enter [0] to return to the resources menu.\n"
-                                      "Select an option: ")
-                    if next_step == str(1):
-                        resource_choice = 1
-                        progress += 1
+                logging.debug(f"Admin prompted to enter number of additional water portions needed for {plan_id}.")
+                while True:
+                    print("\nEnter [B] to return to the previous step.")
+                    amount_requested = input(f'Enter the number of additional water portions you would like to request for {plan_id}: ')
+                    if amount_requested == "B":
+                        logging.debug("Returning to previous step.")
+                        break
+                    try:
+                        amount = int(amount_requested)
+                        if amount <= 0:
+                            raise ValueError
+                    except ValueError:
+                        logging.error("Invalid user input.")
+                        print("Please enter a positive integer.")
                         continue
-                    elif next_step == str(2):
-                        resource_choice = 3
-                        progress += 1
+
+                    # checks the total water in storage is a positive value, tells user that request for more food has been processed
+                    total_water = current_water_storage + amount
+                    if total_water < 0:
+                        print(f"\n{plan_id} still has insufficient water supplies. Please request more.")
                         continue
-                    elif next_step == str(0):
-                        progress += 1
-                        return
                     else:
-                        print("\nEnsure your input is a valid positive integer from the list provided:")
-            while resource_choice == 3:
-                logging.debug("Admin has chosen to request more first aid kits.")
-                current_aid_storage = plan_info.iloc[0, 3]
-                print(f"\n{plan_id} currently has {current_aid_storage} first aid kits in storage.")
+                        logging.debug(
+                            f"Admin has requested an additional {amount} water bottles, bringing the total for {plan_id} to {total_water}.")
+                        plans_overview.loc[plans_overview['location'] == location, 'water_storage'] = int(total_water)
+                        plans_overview.to_csv("humanitarian_plan.csv", index=False)
+                        logging.debug("humanitarian_plan.csv updated")
+                        print(f"\nProcessing your request for an additional {amount} water portions ... \n"
+                              f"\n{plan_id} now has a total of {total_water} water portions.")
+                    break
+
+            if resource_choice == 3:
+                logging.debug("Admin has chosen to request more first-aid kits.")
+                print(f"\n{plan_id} currently has {current_aid_storage} first-aid kits in storage.")
 
                 # asks user for how many more first aid kits they would like, checks this is a positive integer
-                amount_requested = input(f'\nEnter the number of additional first aid kits you would like to request for {plan_id}, '
-                    f'\nOR Enter [B] to return to the resources menu : ')
-                logging.debug(f"When asked how many additional first aid kits are needed for {plan_id}, admin input {amount_requested}.")
-
-                if amount_requested == "B":
-                    logging.debug("Admin has returned back to the resources menu.")
-                    resource_choice = 10
-                    break
-                try:
-                    amount = int(amount_requested)
-                    logging.debug(f"Admin has requested {amount} more first aid kits for {plan_id}.")
-                    if amount <= 0:
-                        logging.error(f"Admin has not requested a positive amount of first aid kits.")
-                        raise ValueError
-                except ValueError:
-                    logging.debug(f"Admin has been asked to clarify their request for first aid kits.")
-                    print("Please enter a positive integer.")
-                    continue
-
-                # checks the total first aid kits in storage is a positive value, tells user that request for more first aid kits has been processed
-                logging.debug(f"The current amount of first aid kits in storage at {plan_id} is {current_aid_storage}.")
-                total_aid= current_aid_storage + amount
-                logging.debug(f"Admin has requested an additional {amount} first aid kits, bringing the total for {plan_id} to {total_aid}.")
-                if total_aid < 0:
-                    print(f"\n{plan_id} still has insufficient food supplies, please request more.")
-                    resource_choice = 3
-                    continue
-                else:
-                    plans_overview.loc[plans_overview['location'] == location, 'firstaid_kits_storage'] = int(total_aid)
-                    plans_overview.to_csv("humanitarian_plan.csv", index=False)
-                    print(f"\nProcessing your request for an additional {amount} first aid kits ... \n"
-                          f"\n{plan_id} now has a total of {total_aid} first aid kits.")
-                    progress = 0
-
-                # user can decide whether they would like to update water or food packets in storage, or return to resources menu
-                while progress == 0:
-                    next_step = input("\nTo continue please choose an option from the list below: \n"
-                                      "Enter [1] to update the quantity of food packets in storage.\n"
-                                      "Enter [2] to update the quantity of water bottles in storage.\n"
-                                      "Enter [0] to return to the resources menu.\n"
-                                      "Select an option: ")
-                    if next_step == str(1):
-                        resource_choice = 1
-                        progress += 1
+                logging.debug(f"Admin prompted to enter number of additional first-aid kits needed for {plan_id}.")
+                while True:
+                    print("\nEnter [B] to return to the previous step.")
+                    amount_requested = input(
+                        f'Enter the number of additional first-aid kits you would like to request for {plan_id}: ')
+                    if amount_requested == "B":
+                        logging.debug("Returning to previous step.")
+                        break
+                    try:
+                        amount = int(amount_requested)
+                        if amount <= 0:
+                            raise ValueError
+                    except ValueError:
+                        logging.error("Invalid user input.")
+                        print("Please enter a positive integer.")
                         continue
-                    elif next_step == str(2):
-                        resource_choice = 2
-                        progress += 1
+
+                    # checks the total first aid kits in storage is a positive value, tells user that request for more first aid kits has been processed
+                    total_aid = current_aid_storage + amount
+                    if total_aid < 0:
+                        print(f"\n{plan_id} still has insufficient first-aid kits. Please request more.")
                         continue
-                    elif next_step == str(0):
-                        progress += 1
-                        return
                     else:
-                        print("\nEnsure your input is a valid positive integer from the list provided:")
-
+                        logging.debug(
+                            f"Admin has requested an additional {amount} first aid kits, bringing the total for {plan_id} to {total_aid}.")
+                        plans_overview.loc[plans_overview['location'] == location, 'firstaid_kits_storage'] = int(total_aid)
+                        plans_overview.to_csv("humanitarian_plan.csv", index=False)
+                        logging.debug("humanitarian_plan.csv updated")
+                        print(f"\nProcessing your request for an additional {amount} first aid kits ... \n"
+                              f"\n{plan_id} now has a total of {total_aid} first aid kits.")
+                    break
 
 
     def allocate_resources(self, hum_plan, location):
@@ -1483,7 +1410,7 @@ class Admin:
                 print("Enter [2] to manually allocate resources to camps in a humanitarian plan")
                 print("Enter [3] to use auto-allocating feature")
                 print("Enter [4] to respond to resource requests from volunteers")
-                print("Enter [5] to request additional resources be added to storage.")
+                print("Enter [5] to request additional resources be added to storage")
                 print("Enter [0] to return to the admin menu")
                 try:
                     user_input = input("Select an option: ")
@@ -1557,7 +1484,7 @@ class Admin:
                 logging.debug(f"Admin has chosen to respond to resource requests.")
                 self.resource_request_menu()
             if option == 5:
-                logging.debug("Admin has decided to request more resources for a humanitarian plan.")
+                logging.debug("Admin has chosen to request more resources for a humanitarian plan.")
                 self.update_resources_in_storage()
 
     def refugee_menu(self):
