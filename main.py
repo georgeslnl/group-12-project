@@ -1,6 +1,6 @@
 '''Run this file in the command line to open the application.'''
 # built-in modules
-import pandas as pd, numpy as np, os
+import pandas as pd, numpy as np, datetime, os
 import logging
 # custom modules and functions from other files
 from progs import volunteer_funcs
@@ -351,4 +351,11 @@ print("│     Authors: Elsie BROWN, Georges LINEL, Jasmine CHAU,           │"
 print("│              Matthew GOH, Victor CHAN, and Ying HUANG            │")
 print("---------------------------------------------------------------------")
 print("           WELCOME TO HUMANITARIAN MANAGEMENT SYSTEM!\n")
+
+# When application starts, delete all volunteering sessions that ended in the past
+vol_times = pd.read_csv(os.path.join('data', 'volunteering_times.csv'))
+n = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+vol_times = vol_times.drop(vol_times[vol_times['end_time'] < n].index)
+vol_times.to_csv(os.path.join('data', 'volunteering_times.csv'), index=False)
+
 main_menu()
