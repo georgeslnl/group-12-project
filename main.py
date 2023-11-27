@@ -21,6 +21,7 @@ def main_menu():
     """
     while True:
         logging.debug("User has entered main menu.")
+        print("----------------------------------")
         print("Main menu: Please login.")
         print("Enter [1] to login as Admin")
         print("Enter [2] to login or register as Volunteer")
@@ -334,7 +335,15 @@ def volunteer_registration():
 
 
 # Run the program
-print("-----------------")
-print("Welcome to the Humanitarian Management System")
-print("-----------------")
+print("---------------------------------------------------------------------")
+print("│          ╦ ╦ ┬ ┬ ┌┬┐ ┌─┐ ┌┐┌ ┬ ┌┬┐ ┌─┐ ┬─┐ ┬ ┌─┐ ┌┐┌             │")
+print("│          ╠═╣ │ │ │││ ├─┤ │││ │  │  ├─┤ ├┬┘ │ ├─┤ │││             │")
+print("│          ╩ ╩ └─┘ ┴ ┴ ┴ ┴ ┘└┘ ┴  ┴  ┴ ┴ ┴└─ ┴ ┴ ┴ ┘└┘             │")
+print("│ ╔╦╗ ┌─┐ ┌┐┌ ┌─┐ ┌─┐ ┌─┐ ┌┬┐ ┌─┐ ┌┐┌ ┌┬┐  ╔═╗ ┬ ┬ ┌─┐ ┌┬┐ ┌─┐ ┌┬┐ │")
+print("│ ║║║ ├─┤ │││ ├─┤ │ ┬ ├┤  │││ ├┤  │││  │   ╚═╗ └┬┘ └─┐  │  ├┤  │││ │")
+print("│ ╩ ╩ ┴ ┴ ┘└┘ ┴ ┴ └─┘ └─┘ ┴ ┴ └─┘ ┘└┘  ┴   ╚═╝  ┴  └─┘  ┴  └─┘ ┴ ┴ │")
+print("│     Authors: Elsie BROWN, Georges LINEL, Jasmin CHAU,            │")
+print("│              Matthew GOH, Victor CHAN, and Ying HUANG            │")
+print("---------------------------------------------------------------------")
+print("           WELCOME TO HUMANITARIAN MANAGEMENT SYSTEM!\n")
 main_menu()
