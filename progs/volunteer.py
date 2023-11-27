@@ -711,7 +711,7 @@ class Volunteer:
             users.to_csv(os.path.join('data', 'users.csv'), index=False)
             logging.debug("users.csv updated")
 
-            camps = pd.read_csv(os.path.join('data', self.plan_id + '.csv') + '.csv')
+            camps = pd.read_csv(os.path.join('data', self.plan_id + '.csv'))
             if new_camp:
                 chosen = (camps['camp_name'] == new_camp)
                 camps.loc[chosen, 'volunteers'] = camps.loc[chosen, 'volunteers'] + 1
