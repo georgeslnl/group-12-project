@@ -56,7 +56,7 @@ def admin_login():
     print("\t\tADMIN LOGIN")
     while True:
         logging.debug("User has entered admin login.")
-        username = input(">>Username(enter 0 to go back to main menu): ")
+        username = input(">>Username (enter [0] to go back to main menu): ")
         if username == "0":
             print("")
             return
@@ -64,7 +64,7 @@ def admin_login():
             print("Please enter a username.")
             logging.warning("User did not enter a username.")
             continue
-        password = input(">>Password(enter 0 to go back to username): ")
+        password = input(">>Password (enter [0] to go back to username): ")
         if password == "0":
             continue
 
@@ -111,7 +111,7 @@ def main_menu_vol():
             continue
 
         if login_option_vol == 0:
-            logging.debug("\nReturning to main menu.")
+            logging.debug("Returning to main menu.")
             print("")
             return
         elif login_option_vol == 1:
@@ -131,14 +131,14 @@ def volunteer_login():
     print("\t\tVOLUNTEER LOGIN")
     while True:
         logging.debug("User has entered volunteer login.")
-        username = input(">>Username(enter 0 to go back to previous page): ")
+        username = input(">>Username (enter [0] to go back to previous menu): ")
         if username == "0":
             return
         elif username.strip() == "":
             print("\nPlease enter a username.")
             logging.warning("User did not enter a username.")
             continue
-        password = input(">>Password(enter 0 to go back to username): ")
+        password = input(">>Password (enter [0] to go back to username): ")
         if password == "0":
             continue
 
