@@ -967,7 +967,8 @@ class Admin:
 
     def update_resources_in_storage(self):
         """
-        This method allows the admin to request for additional resources to be added to storage.
+        This method allows the admin to request for additional resources to be added to storage for a selected humanitarian plan.
+        A menu enables the admin to request for multiple resources before leaving the method.
         """
         print("\nRequest resources for storage")
         plan_id = select_plan()  # user selects which plan they would like to update
@@ -991,10 +992,10 @@ class Admin:
             logging.debug("Admin prompted to select which resource they would like to restock.")
             while True:
                 print("\nWhich resources would you like to request more of?")
-                print("Enter [1] to request extra food.")
-                print("Enter [2] to request extra water.")
-                print("Enter [3] to request extra first-aid kits.")
-                print("Enter [0] to return to the previous menu.")
+                print("Enter [1] to request extra food")
+                print("Enter [2] to request extra water")
+                print("Enter [3] to request extra first-aid kits")
+                print("Enter [0] to return to the previous menu")
                 try:
                     resource_choice = int(input('Select an option: '))
                     if resource_choice not in range(4):
