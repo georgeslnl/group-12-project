@@ -108,8 +108,8 @@ class Volunteer:
             if not self.camp_name:
                 logging.debug(f"{self.username} does not have a camp on their profile.")
                 print("\nVolunteers can only manage refugee profiles for their current camp. "
-                      "\nYou currently have no camp to work on."
-                      "\nPlease update your camp identification.")
+                      "\nYou are currently not assigned to a camp."
+                      "\nPlease add your camp identification.")
                 return
 
             while True:
@@ -149,7 +149,7 @@ class Volunteer:
             print("\n--------------------------------------------")
             print("\t\tCAMP INFORMATION")
             if not self.camp_name:
-                print("\nYou currently have no camp to work on."
+                print("\nYou are currently not assigned to a camp."
                       "\nPlease add your camp identification in order to display or update camp information.")
                 return
 
@@ -191,7 +191,7 @@ class Volunteer:
             print("\t\tMANAGE VOLUNTEERING SESSIONS")
             print("Tell us when you are coming to volunteer.")
             if not self.camp_name:
-                print("\nYou currently have no camp to work on."
+                print("\nYou are currently not assigned to a camp."
                       "\nPlease add your camp identification in order to manage volunteering sessions.")
                 return
 
@@ -244,10 +244,8 @@ class Volunteer:
             print("Enter [1] to proceed")
             print("Enter [0] to return to the volunteer menu\n")
             try:
-                user_input = input(">>Enter your option: ")
-                option = int(user_input)
+                option = int(input(">>Enter your option: "))
                 if option not in (0, 1):
-                    logging.error(f'{self.username} has entered {user_input} when trying to deactivate their account. ValueError raised.')
                     raise ValueError
             except ValueError:
                 print("\nPlease enter a number from the options provided.\n")
