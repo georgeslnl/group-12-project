@@ -3,7 +3,8 @@ import logging
 import pandas as pd, re, datetime
 
 
-"""This is a function set that verify all the inputs to include all exception handling.
+"""
+This is a function set that verify all the inputs to include all exception handling.
 You can simply use them to replace the input() functions.
 """
 
@@ -46,13 +47,13 @@ def string(line):
             _str[0]
             try:
                 float(_str)
-                print('Please make sure data entered is of correct data type.')
+                print('\nPlease make sure data entered is of correct data type.\n')
             except ValueError:
                 logging.error('ValueError raised from user input')
                 break
         except IndexError:
             logging.error('IndexError raised from user input')
-            print('No data was entered.')
+            print('\nNo data was entered.\n')
         except Exception as e:
             logging.error(f'Error raised from user input: {e}')
             print(e)
@@ -70,14 +71,14 @@ def date(line):
         if _date == "0":
             return _date
         if not _date:
-            print("No data was entered. Please enter a date.")
+            print("\nNo data was entered.\nPlease enter a date.\n")
             continue
         try:
             _date = datetime.datetime.strptime(_date, "%d-%m-%Y")
             return _date.date()
         except ValueError:
             logging.error('ValueError raised from user input')
-            print("Date must be in (DD-MM-YYYY) format. Please try again.")
+            print("\nDate must be in (DD-MM-YYYY) format. Please try again.\n")
 
 
 def location(line):
@@ -91,7 +92,7 @@ def location(line):
                 return _location
             else:
                 logging.error(f'Location {_location} input by user is not a valid city in the database.')
-                print("Location needs to be a valid city. Please try again.")
+                print("\nLocation needs to be a valid city. Please try again.\n")
 
 
 def name(line):
@@ -103,10 +104,10 @@ def name(line):
             return _name
         elif _name == "":
             logging.error('User did not enter a name.')
-            print("Please enter a name.")
+            print("\nPlease enter a name.\n")
         if not s:
             logging.error(f'Name {_name} input by user is not in the correct format.')
-            print("Name can only contain letters, hyphen (-) and apostrophe (').")
+            print("\nName can only contain letters, hyphen (-) and apostrophe (').\n")
         else:
             return _name
 
@@ -125,12 +126,13 @@ def username(line):
             return _username
         elif _username == "":
             logging.error("User did not enter a username.")
-            print("Please enter a username.")
+            print("\nPlease enter a username.\n")
         elif not s:
             logging.error(f'Username {_username} input by user is not in the correct format.')
-            print("Username can only contain letters, digits (0-9) and underscore (_), and must start with a letter. Please choose another username.")
+            print("\nUsername can only contain letters, digits (0-9) and underscore (_), and must start with a letter. "
+                  "\nPlease choose another username.\n")
         elif 0 < len(select_username.index):  # username already exists
-            print("Username is taken. Please choose another username.")
+            print("\nUsername is taken.\nPlease choose another username.\n")
             logging.error("User entered a username that already exists.")
         else:
             return _username
@@ -144,10 +146,10 @@ def email(line):
             return _email
         elif _email == "":
             logging.error("User did not enter an email address.")
-            print("Please enter an email address.")
+            print("\nPlease enter an email address.\n")
         elif not s:
             logging.error(f'Email {_email} input by user is not in the correct format.')
-            print("Please make sure email is in this format: example@email.com.")
+            print("\nPlease make sure email is in this format: example@email.com.\n")
         else:
             return _email
 
