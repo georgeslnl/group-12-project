@@ -772,33 +772,34 @@ class Volunteer:
             """Prompts the user to input the refugee's name."""
             logging.debug("User prompted to enter refugee name.")
             while True:
-                print("\nEnter [0] to return to the previous menu.")
-                refugee_name = input("Enter refugee name: ").strip()
+                print("Enter [0] to return to the previous menu.\n")
+                refugee_name = input(">>Enter refugee's name: ").strip()
                 if refugee_name == "0":
                     return refugee_name
                 # validation
                 if refugee_name == "":
-                    print("Please enter a refugee name.")
+                    print("\nPlease enter a refugee name.\n")
                     logging.error("User did not enter a name.")
                     continue
                 s = re.search("^[A-Z][a-zA-Z-' ]*$", refugee_name)
                 if not s:
-                    print(
-                        "Name can only contain letters, hyphen (-) and apostrophe ('), and must start with a capital letter.")
+                    print("\nName can only contain letters, hyphen (-) and apostrophe ('), "
+                          "and must start with a capital letter.\n")
                     logging.error("Invalid user input.")
                     continue
                 return refugee_name
 
-        print("\nAdd refugee profile")
+        print("\n--------------------------------------------")
+        print("\tCREATE REFUGEE PROFILE")
         camps = pd.read_csv(os.path.join('data', self.plan_id + '.csv'))
         cur_camp = camps[camps['camp_name'] == self.camp_name]
         remaining_cap = cur_camp.iloc[0]['capacity'] - cur_camp.iloc[0]['refugees']
 
         if remaining_cap == 0:
-            print("\nYour camp has reached its maximum capacity. Unable to add new refugees.")
+            print("Your camp has reached its maximum capacity. Unable to add new refugees.")
             logging.warning(f"{self.username}'s camp is full. Returning to previous menu.")
             return
-        print("\nYour camp's remaining capacity is " + str(remaining_cap) + ".")
+        print("Your camp's remaining capacity is " + str(remaining_cap) + ".")
         print("Please return to the previous menu if the refugee's family is larger than this number.")
 
         progress = 0
@@ -892,7 +893,7 @@ class Volunteer:
         gender_str = convert_gender(gender)
         medical_str = convert_medical_condition(medical_cond)
 
-        print("\nRefugee profile created! The refugee and their family have been added to " + self.camp_name + ".")
+        print("\nNew refugee profile is created successfully!")
         print("Refugee ID: ", refugee_id)
         print("Refugee name:", refugee_name)
         print("Gender:", gender_str)
@@ -900,31 +901,32 @@ class Volunteer:
         print("Medical condition:", medical_str)
         print("No. of family members:", family)
         print("Additional remarks:", remarks)
+        print("The refugee and their family members have now been added to " + self.camp_name + ".")
         return
 
     def view_refugee_profile(self):
         """Enables the volunteer to view the profile of a selected refugee at their camp."""
-        print("\nView refugee profile")
+        print("\n--------------------------------------------")
+        print("\tVIEW REFUGEE PROFILE")
         refugees = pd.read_csv(os.path.join('data', 'refugees.csv'))
         refugees = refugees[(refugees['plan_id'] == self.plan_id) & (refugees['camp_name'] == self.camp_name)]
         if len(refugees.index) == 0:
-            print("There are no refugees at your current camp.")
+            print("There is no refugee at your camp now.")
             logging.warning(f"No refugees at {self.username}'s camp. Returning to previous menu.")
             return
 
         refugees = refugees.replace({np.nan: None})
-        print("You will be prompted for the refugee ID of the refugee whose profile you would like to view.")
         logging.debug(f"{self.username} prompted to select a refugee.")
         while True:
-            print("Enter [1] to proceed")
+            print("Enter [1] to enter the refugee ID you would like to view")
             print("Enter [2] to list all refugees at your current camp")
-            print("Enter [0] to return to the previous menu")
+            print("Enter [0] to return to the previous menu\n")
             try:
-                option = int(input("Select an option: "))
+                option = int(input(">>Select an option: "))
                 if option not in (0, 1, 2):
                     raise ValueError
             except ValueError:
-                print("Please enter a number from the options provided.")
+                print("\nPlease enter a number from the options provided.\n")
                 logging.error("Invalid user input.")
                 continue
             break
@@ -941,16 +943,16 @@ class Volunteer:
 
         # Obtain refugee ID
         while True:
-            print("\nEnter [0] to return to the previous menu.")
+            print("\nEnter [0] to return to the previous menu.\n")
             try:
-                refugee_id = int(input("Enter refugee ID: "))
+                refugee_id = int(input(">>Enter refugee ID you would like to view: "))
                 if refugee_id == 0:
                     logging.debug("Returning to previous menu.")
                     return
                 if refugee_id not in refugees['refugee_id'].values:
                     raise ValueError
             except ValueError:
-                print("Please enter a refugee ID corresponding to a refugee in your camp.")
+                print("\nPlease enter a refugee ID corresponding to a refugee in your camp.")
                 logging.error("Invalid user input.")
                 continue
             break
@@ -968,7 +970,7 @@ class Volunteer:
         medical_str = convert_medical_condition(medical_cond)
 
         logging.debug("Printing details of selected refugee.")
-        print("Details of refugee ID:", refugee_id)
+        print("\nDetails of refugee ID:", refugee_id)
         print("Camp name:", self.camp_name)
         print("Refugee name:", refugee_name)
         print("Gender:", gender_str)
@@ -984,27 +986,27 @@ class Volunteer:
         Once a refugee is selected, a menu enables the volunteer to edit multiple details before leaving the method.
         This includes an option to remove the refugee's profile.
         """
-        print("\nEdit or remove refugee profile")
+        print("\n--------------------------------------------")
+        print("    EDIT OR REMOVE REFUGEE PROFILE")
         refugees = pd.read_csv(os.path.join('data', 'refugees.csv'))
         refugees = refugees[(refugees['plan_id'] == self.plan_id) & (refugees['camp_name'] == self.camp_name)]
         if len(refugees.index) == 0:
-            print("There are no refugees at your current camp.")
+            print("There is no refugee at your camp now.")
             logging.warning(f"No refugees at {self.username}'s camp. Returning to previous menu.")
             return
 
         refugees = refugees.replace({np.nan: None})
-        print("You will be prompted for the refugee ID of the refugee whose profile you would like to edit.")
         logging.debug(f"{self.username} prompted to select a refugee.")
         while True:
-            print("Enter [1] to proceed")
+            print("Enter [1] to enter the refugee ID you would like to edit")
             print("Enter [2] to list all refugees at your current camp")
-            print("Enter [0] to return to the previous menu")
+            print("Enter [0] to return to the previous menu\n")
             try:
-                option = int(input("Select an option: "))
+                option = int(input(">>Select an option: "))
                 if option not in (0, 1, 2):
                     raise ValueError
             except ValueError:
-                print("Please enter a number from the options provided.")
+                print("\nPlease enter a number from the options provided.\n")
                 continue
             break
         if option == 0:
@@ -1019,16 +1021,16 @@ class Volunteer:
 
         # Obtain refugee ID
         while True:
-            print("\nEnter [0] to return to the previous menu.")
+            print("\nEnter [0] to return to the previous menu.\n")
             try:
-                refugee_id = int(input("Enter refugee ID: "))
+                refugee_id = int(input(">>Enter refugee ID you would like to edit: "))
                 if refugee_id == 0:
                     logging.debug("Returning to previous menu.")
                     return
                 if refugee_id not in refugees['refugee_id'].values:
                     raise ValueError
             except ValueError:
-                print("Please enter a refugee ID corresponding to a refugee in your camp.")
+                print("\nPlease enter a refugee ID corresponding to a refugee in your camp.\n")
                 logging.error("Invalid user input.")
                 continue
             break
@@ -1055,9 +1057,9 @@ class Volunteer:
                 print("Enter [5] for no. of family members")
                 print("Enter [6] for remarks")
                 print("Enter [9] to remove the refugee's profile")
-                print("Enter [0] to return to the previous menu")
+                print("Enter [0] to return to the previous menu\n")
                 try:
-                    option = int(input("Select an option: "))
+                    option = int(input(">>Select an option: "))
                     if option not in (0,1,2,3,4,5,6,9):
                         raise ValueError
                 except ValueError:

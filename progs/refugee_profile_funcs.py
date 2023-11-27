@@ -6,19 +6,19 @@ def add_name():
     """Prompts the user to enter the refugee's name."""
     logging.debug("User prompted to enter refugee name.")
     while True:
-        print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-        refugee_name = input("Enter refugee name: ").strip()
+        print("\nEnter [0] to return to the previous menu or [9] to go back one step.\n")
+        refugee_name = input(">>Enter refugee's name: ").strip()
         if refugee_name in ("0", "9"):
             return refugee_name
         # validation
         if refugee_name == "":
-            print("Please enter a refugee name.")
+            print("\nPlease enter a refugee name.\n")
             logging.error("User did not enter a name.")
             continue
         s = re.search("^[A-Z][a-zA-Z-' ]*$", refugee_name)
         if not s:
-            print(
-                "Name can only contain letters, hyphen (-) and apostrophe ('), and must start with a capital letter.")
+            print("\nName can only contain letters, hyphen (-) and apostrophe ('), "
+                  "and must start with a capital letter.\n")
             logging.error("Invalid user input.")
             continue
         return refugee_name
@@ -28,17 +28,17 @@ def add_gender():
     """Prompts the user to select the refugee's gender."""
     logging.debug("User prompted to select gender.")
     while True:
-        print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-        print("Gender:")
+        print("\nGender:")
         print("Enter [1] for male")
         print("Enter [2] for female")
         print("Enter [3] for non-binary")
+        print("Enter [0] to return to the previous menu or [9] to go back to the previous step.\n")
         try:
-            gender = int(input("Select an option: "))
+            gender = int(input(">>Select an option: "))
             if gender not in (0, 1, 2, 3, 9):
                 raise ValueError
         except ValueError:
-            print("Please enter a number from the options provided.")
+            print("\nPlease enter a number from the options provided.")
             logging.error("Invalid user input.")
             continue
         return gender
@@ -51,19 +51,19 @@ def add_dob():
     """
     logging.debug("User prompted to enter date of birth.")
     while True:
-        print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-        date_of_birth = input("Enter refugee's date of birth in the format DD-MM-YYYY: ").strip()
+        print("\nEnter [0] to return to the previous menu or [9] to go back one step.\n")
+        date_of_birth = input(">>Enter refugee's date of birth in the format DD-MM-YYYY: ").strip()
         if date_of_birth in ("0", "9"):
             return date_of_birth
         try:
             dob = datetime.datetime.strptime(date_of_birth, "%d-%m-%Y").date()
         except ValueError:
-            print("Incorrect date format. Please use the format DD-MM-YYYY (e.g. 23-07-1999).")
+            print("\nIncorrect date format. Please use the format DD-MM-YYYY (e.g. 23-07-1999).")
             logging.error("Invalid user input.")
             continue
         t = datetime.date.today()
         if dob > t:
-            print("Date of birth cannot be in the future. Please try again.")
+            print("\nDate of birth cannot be in the future. Please try again.")
             logging.error("User entered a date of birth in the future.")
             continue
         if t.year - dob.year > 121 or (t.year - dob.year == 121 and t.month > dob.month) or (
@@ -74,13 +74,13 @@ def add_dob():
                 print("\nWarning: Refugee is over 120 years old based on date of birth.")
                 print("Do you wish to proceed?")
                 print("Enter [1] to proceed")
-                print("Enter [9] to re-enter date of birth")
+                print("Enter [9] to re-enter date of birth\n")
                 try:
-                    overage_option = int(input("Select an option: "))
+                    overage_option = int(input(">>Select an option: "))
                     if overage_option not in (1, 9):
                         raise ValueError
                 except ValueError:
-                    print("Please enter a number from the options provided.")
+                    print("\nPlease enter a number from the options provided.")
                     logging.error("Invalid user input.")
                     continue
                 break
@@ -95,8 +95,7 @@ def add_medical_cond():
     """Prompts the user to select the refugee's medical condition."""
     logging.debug("User prompted to select medical condition.")
     while True:
-        print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-        print("Medical condition:")
+        print("\nMedical condition:")
         print("Enter [1] for Healthy")
         print("Enter [2] for Minor illness with no injuries")
         print("Enter [3] for Major illness with no injuries")
@@ -104,12 +103,14 @@ def add_medical_cond():
         print("Enter [5] for Major injury with no illness")
         print("Enter [6] for Illness and injury (non-critical)")
         print("Enter [7] for Critical condition (illness and/or injury)")
+        print("Enter [0] to return to the previous menu or [9] to go back one step.\n")
+
         try:
-            medical_cond = int(input("Select an option: "))
+            medical_cond = int(input(">>Select an option: "))
             if medical_cond not in (0, 1, 2, 3, 4, 5, 6, 7, 9):
                 raise ValueError
         except ValueError:
-            print("Please enter a number from the options provided.")
+            print("\nPlease enter a number from the options provided.")
             logging.error("Invalid user input.")
             continue
         return medical_cond
@@ -122,8 +123,8 @@ def add_family(remaining_cap):
     """
     logging.debug("User prompted to enter number of family members.")
     while True:
-        print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
-        family = input("Number of family members: ")
+        print("\nEnter [X] to return to the previous menu or [B] to go back one step.\n")
+        family = input(">>Number of family members: ")
         if family.upper() in ("X", "B"):
             return family.upper()
         try:
@@ -131,11 +132,11 @@ def add_family(remaining_cap):
             if family < 1:
                 raise ValueError
         except ValueError:
-            print("Please enter a positive integer.")
+            print("\nPlease enter a positive integer.")
             logging.error("Invalid user input.")
             continue
         if family > remaining_cap:
-            print("Number of family members exceeds camp's capacity. Please re-enter or return to the previous menu.")
+            print("\nNumber of family members exceeds camp's capacity. Please re-enter or return to the previous menu.")
             logging.error("Camp has insufficient capacity for the number of family members entered.")
             continue
         if family > 12:
@@ -145,13 +146,13 @@ def add_family(remaining_cap):
                 print("\nWarning: Refugee's family has more than 12 members based on input.")
                 print("Do you wish to proceed?")
                 print("Enter [1] to proceed")
-                print("Enter [9] to re-enter number of family members")
+                print("Enter [9] to re-enter number of family members\n")
                 try:
-                    largefam_option = int(input("Select an option: "))
+                    largefam_option = int(input(">>Select an option: "))
                     if largefam_option not in (1, 9):
                         raise ValueError
                 except ValueError:
-                    print("Please enter a number from the options provided.")
+                    print("\nPlease enter a number from the options provided.")
                     continue
                 break
             if largefam_option == 9:
@@ -165,20 +166,20 @@ def add_remarks():
     """Prompts the user to enter any additional remarks on the refugee."""
     logging.debug("User prompted to enter optional remarks.")
     while True:
-        print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
+        print("\nEnter [0] to return to the previous menu or [9] to go back one step.\n")
         try:
-            remarks = input("Enter additional remarks (optional, max 200 characters): ").strip()
+            remarks = input(">>Enter additional remarks (optional, max 200 characters): ").strip()
             if remarks in ("0", "9"):
                 return remarks
             s = re.search("[a-zA-Z]", remarks)
             if remarks != "" and not s:
                 raise ValueError
         except ValueError:
-            print("Please ensure remarks contain text.")
+            print("\nPlease ensure remarks contain text.")
             logging.error("Invalid user input.")
             continue
         if len(remarks) > 200:
-            print("Remarks cannot exceed 200 characters.")
+            print("\nRemarks cannot exceed 200 characters.")
             logging.error("Remarks entered are too long.")
             continue
         return remarks
