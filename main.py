@@ -21,13 +21,14 @@ def main_menu():
     """
     while True:
         logging.debug("User has entered main menu.")
-        print("----------------------------------")
-        print("Main menu: Please login.")
-        print("Enter [1] to login as Admin")
-        print("Enter [2] to login or register as Volunteer")
-        print("Enter [0] to exit the application")
+        print("--------------------------------------------")
+        print("\t\tMAIN MENU")
+        print("Please choose your user type.")
+        print("Enter [1] for Admin")
+        print("Enter [2] for Volunteer")
+        print("Enter [0] to exit the application\n")
         try:
-            login_option = int(input("Select an option: "))
+            login_option = int(input(">>Select your option: "))
             if login_option not in (0, 1, 2):
                 raise ValueError
         except ValueError:
@@ -51,11 +52,11 @@ def admin_login():
     Prompts the user to enter the admin's username and password.
     If the correct details are entered, an admin object is created and the user logs in as an admin.
     """
-    print("\n-----------------")
-    print("Admin Login")
+    print("\n--------------------------------------------")
+    print("\t\tADMIN LOGIN")
     while True:
         logging.debug("User has entered admin login.")
-        username = input("Username (enter 0 to go back): ")
+        username = input(">>Username(enter 0 to go back to main menu): ")
         if username == "0":
             print("")
             return
@@ -63,7 +64,7 @@ def admin_login():
             print("Please enter a username.")
             logging.warning("User did not enter a username.")
             continue
-        password = input("Password (enter 0 to go back): ")
+        password = input(">>Password(enter 0 to go back to username): ")
         if password == "0":
             continue
 
@@ -72,16 +73,16 @@ def admin_login():
 
         select_user = users[(users['username'] == username) & (users['account_type'] == "admin")]
         if len(select_user.index) == 0:  # username not registered
-            print("Username not found. Please try again.\n")
+            print("\nUsername not found. Please try again.\n")
             logging.warning("Username entered by user was not found.")
             continue
 
         if select_user.iloc[0]['password'] != password:  # password incorrect
-            print("Incorrect password. Please try again.\n")
+            print("\nIncorrect password. Please try again.\n")
             logging.warning("User entered incorrect password.")
             continue
 
-        print("Login successful!")
+        print("\nLogin successful!")
         logging.info("User logged in as: Admin")
         # create admin object
         a = Admin(username, password)
