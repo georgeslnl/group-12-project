@@ -28,11 +28,11 @@ def main_menu():
         print("Enter [2] for Volunteer")
         print("Enter [0] to exit the application\n")
         try:
-            login_option = int(input(">>Select your option: "))
+            login_option = int(input(">>Enter your option: "))
             if login_option not in (0, 1, 2):
                 raise ValueError
         except ValueError:
-            print("Please enter a number from the options provided.\n")
+            print("\nPlease enter a number from the options provided.\n")
             logging.error("Invalid user input.")
             continue
 
@@ -96,20 +96,22 @@ def main_menu_vol():
     """
     while True:
         logging.debug("User has entered main menu preceding volunteer login.")
-        print("\nEnter [1] to register as a new volunteer")
+        print("\n--------------------------------------------")
+        print("\t\tVOLUNTEER")
+        print("Enter [1] to register as a new volunteer")
         print("Enter [2] to login as Volunteer")
-        print("Enter [0] to return to main menu")
+        print("Enter [0] to return to main menu\n")
         try:
-            login_option_vol = int(input("Select an option: "))
+            login_option_vol = int(input(">>Enter your option: "))
             if login_option_vol not in (0, 1, 2):
                 raise ValueError
         except ValueError:
-            print("Please enter a number from the options provided.")
+            print("\nPlease enter a number from the options provided.")
             logging.error("Invalid user input.")
             continue
 
         if login_option_vol == 0:
-            logging.debug("Returning to main menu.")
+            logging.debug("\nReturning to main menu.")
             print("")
             return
         elif login_option_vol == 1:
@@ -125,17 +127,18 @@ def volunteer_login():
     If the correct details are entered but the user's account has been deactivated,
     the user is informed of this and returned to the previous menu.
     """
-    print("\nVolunteer Login")
+    print("\n--------------------------------------------")
+    print("\t\tVOLUNTEER LOGIN")
     while True:
         logging.debug("User has entered volunteer login.")
-        username = input("Username (enter 0 to go back): ")
+        username = input(">>Username(enter 0 to go back to previous page): ")
         if username == "0":
             return
         elif username.strip() == "":
-            print("Please enter a username.")
+            print("\nPlease enter a username.")
             logging.warning("User did not enter a username.")
             continue
-        password = input("Password (enter 0 to go back): ")
+        password = input(">>Password(enter 0 to go back to username): ")
         if password == "0":
             continue
 
@@ -144,22 +147,22 @@ def volunteer_login():
 
         select_user = users[(users['username'] == username) & (users['account_type'] == "volunteer")]
         if len(select_user.index) == 0:  # username not registered
-            print("Username not found. Please try again.\n")
+            print("\nUsername not found. Please try again.\n")
             logging.warning("Username entered by user was not found.")
             continue
 
         if select_user.iloc[0]['password'] != password:  # password incorrect
-            print("Incorrect password. Please try again.\n")
+            print("\nIncorrect password. Please try again.\n")
             logging.warning("User entered incorrect password.")
             continue
 
         if select_user.iloc[0]['active'] == 0:  # user has been deactivated
-            print("Your account has been deactivated. Please contact system administrator.\n")
+            print("\nYour account has been deactivated. Please contact system administrator.\n")
             logging.warning("User attempted to login but account is deactivated.")
             return
 
         # Login successful, initialise volunteer object and go to volunteer menu
-        print("Login successful!")
+        print("\nLogin successful!")
         logging.info("User logged in as: Volunteer")
         select_user = select_user.replace({np.nan: None})
         v = Volunteer(select_user.iloc[0]['username'], select_user.iloc[0]['password'],
@@ -178,7 +181,8 @@ def volunteer_registration():
     The user is prompted for their details one by one.
     """
     logging.debug("User has entered volunteer registration.")
-    print("\nVolunteer Registration")
+    print("\n--------------------------------------------")
+    print("VOLUNTEER REGISTRATION")
     print("You will be prompted to enter details for registration.")
 
     progress = 0
