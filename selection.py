@@ -1,6 +1,8 @@
 import pandas as pd, numpy as np
+import logging
 
 def select_plan():
+    """Prompts the admin to select a humanitarian plan."""
     print("\nSelect a humanitarian plan.")
     plans = pd.read_csv('humanitarian_plan.csv')
     plans = plans[plans['end_date'].isna()]
@@ -8,6 +10,7 @@ def select_plan():
     for row in range(len(plans.index)):
         print(row + 1, plans['location'].iloc[row], plans['start_date'].iloc[row], sep=" - ")
 
+    logging.debug("Admin prompted to select humanitarian plan.")
     while True:
         print("\nEnter [0] to return to the previous menu.")
         try:
@@ -18,11 +21,16 @@ def select_plan():
                 raise ValueError
         except ValueError:
             print("Please enter a plan number corresponding to a humanitarian plan listed above.")
+            logging.error("Invalid user input.")
             continue
         return plans['plan_id'].iloc[plan_num-1]
 
 # select camp allowing user to go back to plan selection
 def select_camp(plan_id):
+    """
+    Takes as input the plan_id of a humanitarian plan.
+    Prompts the admin to select a camp at this plan.
+    """
     print("\nSelect a camp.")
     camps = pd.read_csv(plan_id + ".csv")
     print("Camp Name - # Volunteers - # Refugees - Refugee Capacity")
@@ -30,16 +38,18 @@ def select_camp(plan_id):
         print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
               str(camps['refugees'].iloc[row]) + " refugees", str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
 
+    logging.debug("Admin prompted to select camp.")
     while True:
         print("\nEnter [X] to return to the previous menu or [B] to go back to plan selection.")
         camp_num = input("Enter the number of your chosen camp: ")
-        if camp_num in ("X", "B"):
-            return camp_num
+        if camp_num.upper() in ("X", "B"):
+            return camp_num.upper()
         try:
             camp_num = int(camp_num)
             if camp_num not in range(1, len(camps.index) + 1):
                 raise ValueError
         except ValueError:
             print("Please enter a camp number corresponding to a camp listed above.")
+            logging.error("Invalid user input.")
             continue
         return camps['camp_name'].iloc[camp_num-1]

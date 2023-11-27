@@ -1,10 +1,12 @@
 '''Run this file in the command line to open the application.'''
-import pandas as pd, numpy as np, re, datetime
+# built-in modules
+import pandas as pd, numpy as np
 import logging
+# custom modules and functions from other files
 import volunteer_funcs
 from volunteer import Volunteer
-from coded_vars import convert_gender
 from admin import Admin
+from coded_vars import convert_gender
 
 logging.basicConfig(level=logging.DEBUG,
                     filename='output.log',
@@ -13,10 +15,15 @@ logging.basicConfig(level=logging.DEBUG,
 
 
 def main_menu():
+    """
+    The main menu that runs when the application is first started.
+    Gives the user options to login as an admin or volunteer (including volunteer registration).
+    """
     while True:
+        logging.debug("User has entered main menu.")
         print("Main menu: Please login.")
-        print("Enter [1] for Admin")
-        print("Enter [2] for Volunteer")
+        print("Enter [1] to login as Admin")
+        print("Enter [2] to login or register as Volunteer")
         print("Enter [0] to exit the application")
         try:
             login_option = int(input("Select an option: "))
@@ -24,7 +31,7 @@ def main_menu():
                 raise ValueError
         except ValueError:
             print("Please enter a number from the options provided.\n")
-            logging.error("ValueError raised from user input")
+            logging.error("Invalid user input.")
             continue
 
         if login_option == 0:
@@ -39,15 +46,21 @@ def main_menu():
 
 
 def admin_login():
+    """
+    Prompts the user to enter the admin's username and password.
+    If the correct details are entered, an admin object is created and the user logs in as an admin.
+    """
     print("\n-----------------")
     print("Admin Login")
     while True:
+        logging.debug("User has entered admin login.")
         username = input("Username (enter 0 to go back): ")
         if username == "0":
             print("")
             return
         elif username == "":
             print("Please enter a username.")
+            logging.warning("User did not enter a username.")
             continue
         password = input("Password (enter 0 to go back): ")
         if password == "0":
@@ -59,10 +72,12 @@ def admin_login():
         select_user = users[(users['username'] == username) & (users['account_type'] == "admin")]
         if len(select_user.index) == 0:  # username not registered
             print("Username not found. Please try again.\n")
+            logging.warning("Username entered by user was not found.")
             continue
 
         if select_user.iloc[0]['password'] != password:  # password incorrect
             print("Incorrect password. Please try again.\n")
+            logging.warning("User entered incorrect password.")
             continue
 
         print("Login successful!")
@@ -74,7 +89,11 @@ def admin_login():
 
 
 def main_menu_vol():
+    """
+    This menu prompts the user to choose whether to login or register as a volunteer.
+    """
     while True:
+        logging.debug("User has entered main menu preceding volunteer login.")
         print("\nEnter [1] to register as a new volunteer")
         print("Enter [2] to login as Volunteer")
         print("Enter [0] to return to main menu")
@@ -84,9 +103,11 @@ def main_menu_vol():
                 raise ValueError
         except ValueError:
             print("Please enter a number from the options provided.")
+            logging.error("Invalid user input.")
             continue
 
         if login_option_vol == 0:
+            logging.debug("Returning to main menu.")
             print("")
             return
         elif login_option_vol == 1:
@@ -96,13 +117,21 @@ def main_menu_vol():
 
 
 def volunteer_login():
+    """
+    Prompts the user to enter their username and password to login as a volunteer.
+    If the correct details are entered and the user's account is active, a volunteer object is created and the user logs in.
+    If the correct details are entered but the user's account has been deactivated,
+    the user is informed of this and returned to the previous menu.
+    """
     print("\nVolunteer Login")
     while True:
+        logging.debug("User has entered volunteer login.")
         username = input("Username (enter 0 to go back): ")
         if username == "0":
             return
         elif username.strip() == "":
             print("Please enter a username.")
+            logging.warning("User did not enter a username.")
             continue
         password = input("Password (enter 0 to go back): ")
         if password == "0":
@@ -114,14 +143,17 @@ def volunteer_login():
         select_user = users[(users['username'] == username) & (users['account_type'] == "volunteer")]
         if len(select_user.index) == 0:  # username not registered
             print("Username not found. Please try again.\n")
+            logging.warning("Username entered by user was not found.")
             continue
 
         if select_user.iloc[0]['password'] != password:  # password incorrect
             print("Incorrect password. Please try again.\n")
+            logging.warning("User entered incorrect password.")
             continue
 
         if select_user.iloc[0]['active'] == 0:  # user has been deactivated
             print("Your account has been deactivated. Please contact system administrator.\n")
+            logging.warning("User attempted to login but account is deactivated.")
             return
 
         # Login successful, initialise volunteer object and go to volunteer menu
@@ -139,6 +171,11 @@ def volunteer_login():
 
 
 def volunteer_registration():
+    """
+    Enables the user to create a new volunteer account at a selected humanitarian plan.
+    The user is prompted for their details one by one.
+    """
+    logging.debug("User has entered volunteer registration.")
     print("\nVolunteer Registration")
     print("You will be prompted to enter details for registration.")
 
@@ -147,7 +184,8 @@ def volunteer_registration():
     while progress < 10:
         if progress == 0:
             plan_id = volunteer_funcs.add_plan()
-            if plan_id == "B":
+            if plan_id == "X":
+                logging.debug("Returning to previous menu.")
                 return
             else:
                 progress += 1
@@ -155,8 +193,10 @@ def volunteer_registration():
         elif progress == 1:
             camp_name = volunteer_funcs.add_camp(plan_id)
             if camp_name == "X":
+                logging.debug("Returning to previous menu.")
                 return
             elif camp_name == "B":
+                logging.debug("Returning to previous step.")
                 progress -= 1
             else:
                 progress += 1
@@ -164,8 +204,10 @@ def volunteer_registration():
         elif progress == 2:
             username = volunteer_funcs.add_username()
             if username == "0":
+                logging.debug("Returning to previous menu.")
                 return
             elif username == "9":
+                logging.debug("Returning to previous step.")
                 progress -= 1
             else:
                 progress += 1
@@ -173,8 +215,10 @@ def volunteer_registration():
         elif progress == 3:
             password = volunteer_funcs.add_password()
             if password == "0":
+                logging.debug("Returning to previous menu.")
                 return
             elif password == "9":
+                logging.debug("Returning to previous step.")
                 progress -= 1
             else:
                 progress += 1
@@ -182,8 +226,10 @@ def volunteer_registration():
         elif progress == 4:
             first_name = volunteer_funcs.add_first_name()
             if first_name == "0":
+                logging.debug("Returning to previous menu.")
                 return
             elif first_name == "9":
+                logging.debug("Returning to previous step.")
                 progress -= 1
             else:
                 progress += 1
@@ -191,8 +237,10 @@ def volunteer_registration():
         elif progress == 5:
             last_name = volunteer_funcs.add_last_name()
             if last_name == "0":
+                logging.debug("Returning to previous menu.")
                 return
             elif last_name == "9":
+                logging.debug("Returning to previous step.")
                 progress -= 1
             else:
                 progress += 1
@@ -200,8 +248,10 @@ def volunteer_registration():
         elif progress == 6:
             gender = volunteer_funcs.add_gender()
             if gender == 0:
+                logging.debug("Returning to previous menu.")
                 return
             elif gender == 9:
+                logging.debug("Returning to previous step.")
                 progress -= 1
             else:
                 progress += 1
@@ -209,8 +259,10 @@ def volunteer_registration():
         elif progress == 7:
             date_of_birth = volunteer_funcs.add_dob()
             if date_of_birth == "0":
+                logging.debug("Returning to previous menu.")
                 return
             elif date_of_birth == "9":
+                logging.debug("Returning to previous step.")
                 progress -= 1
             else:
                 progress += 1
@@ -218,8 +270,10 @@ def volunteer_registration():
         elif progress == 8:
             email = volunteer_funcs.add_email()
             if email == "0":
+                logging.debug("Returning to previous menu.")
                 return
             elif email == "9":
+                logging.debug("Returning to previous step.")
                 progress -= 1
             else:
                 progress += 1
@@ -227,12 +281,15 @@ def volunteer_registration():
         elif progress == 9:
             phone_number = volunteer_funcs.add_phone_num()
             if phone_number == "0":
+                logging.debug("Returning to previous menu.")
                 return
             elif phone_number == "9":
+                logging.debug("Returning to previous step.")
                 progress -= 1
             else:
                 progress += 1
 
+    logging.debug("User has finished entering details for volunteer registration.")
     # Update csv files
     # users = open("users.csv", "a")
     # if camp_name:
@@ -252,16 +309,17 @@ def volunteer_registration():
     users = pd.concat([users, new], ignore_index=True)
     users = users.sort_values(by=['username'])  # sort by username before saving
     users.to_csv('users.csv', index=False)
+    logging.debug("users.csv updated")
 
     if camp_name:
         camps = pd.read_csv(plan_id + '.csv')
         chosen = (camps['camp_name'] == camp_name)
         camps.loc[chosen, 'volunteers'] = camps.loc[chosen, 'volunteers'] + 1
         camps.to_csv(plan_id + '.csv', index=False)
+        logging.debug("camps csv file updated")
 
     # Print details provided in registration
     gender_str = convert_gender(gender)
-
     print("\nThank you for registering as a volunteer,", first_name, last_name + "!")
     print("Your details are as follows:")
     print("Plan:", plan_id)
