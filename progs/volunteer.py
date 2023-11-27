@@ -26,23 +26,23 @@ class Volunteer:
         """Main menu when a volunteer logs in, providing options to access sub-menus and methods for the various volunteer functionalities."""
         while self.logged_in:
             logging.debug(f"{self.username} has entered the volunteer menu.")
-            print("\n---------------")
-            print("Volunteer Menu")
-            print("---------------")
+            print("\n--------------------------------------------")
+            print("\t\tVOLUNTEER MENU")
+            print("Welcome,", self.first_name, self.last_name)
             while True:
-                print("What would you like to do,", self.first_name, self.last_name + "?")
+                print("\nWhat would you like to do?")
                 print("Enter [1] for personal information and camp identification")
                 print("Enter [2] to create, view, edit or remove a refugee profile")
                 print("Enter [3] to display or update your camp's information (including resource requests)")
                 print("Enter [4] to request account deactivation")
                 print("Enter [5] to add, view or remove volunteering sessions")
-                print("Enter [0] to logout")
+                print("Enter [0] to logout\n")
                 try:
-                    option = int(input("Select an option: "))
+                    option = int(input(">>Enter your option: "))
                     if option not in range(6):
                         raise ValueError
                 except ValueError:
-                    print("Please enter a number from the options provided.\n")
+                    print("\nPlease enter a number from the options provided.")
                     logging.error("Invalid user input.")
                     continue
                 break
@@ -69,18 +69,19 @@ class Volunteer:
         """Sub-menu enabling the volunteer to access functionalities relating to their personal information and camp identification."""
         while True:
             logging.debug(f"{self.username} has entered the personal information menu.")
-            print("\nPersonal Information and Camp Identification")
+            print("\n--------------------------------------------")
+            print(" PERSONAL INFORMATION & CAMP IDENTIFICATION")
             while True:
                 print("Enter [1] to view your personal information")
                 print("Enter [2] to edit your personal information")
                 print("Enter [3] to update your camp identification")
-                print("Enter [0] to return to the volunteer menu")
+                print("Enter [0] to return to the volunteer menu\n")
                 try:
-                    option = int(input("Select an option: "))
+                    option = int(input(">>Enter your option: "))
                     if option not in range(4):
                         raise ValueError
                 except ValueError:
-                    print("Please enter a number from the options provided.\n")
+                    print("\nPlease enter a number from the options provided.")
                     logging.error("Invalid user input.")
                     continue
                 break
@@ -102,23 +103,26 @@ class Volunteer:
         Volunteers must have a camp to access the menu."""
         while True:
             logging.debug(f"{self.username} has entered the refugee profile menu.")
-            print("\nManage Refugee Profiles")
+            print("\n--------------------------------------------")
+            print("MANAGE REFUGEE PROFILES")
             if not self.camp_name:
                 logging.debug(f"{self.username} does not have a camp on their profile.")
-                print("\nVolunteers can only manage refugee profiles for their current camp. Please add your camp identification.")
+                print("\nVolunteers can only manage refugee profiles for their current camp. "
+                      "\nYou currently have no camp to work on."
+                      "\nPlease update your camp identification.")
                 return
 
             while True:
                 print("Enter [1] to create a new refugee profile")
                 print("Enter [2] to view a refugee profile")
                 print("Enter [3] to edit or remove a refugee profile")
-                print("Enter [0] to return to the volunteer menu")
+                print("Enter [0] to return to the volunteer menu\n")
                 try:
-                    option = int(input("Select an option: "))
+                    option = int(input(">>Enter your option: "))
                     if option not in range(4):
                         raise ValueError
                 except ValueError:
-                    print("Please enter a number from the options provided.\n")
+                    print("\nPlease enter a number from the options provided.\n")
                     logging.error("Invalid user input.")
                     continue
                 break
