@@ -1,5 +1,5 @@
-import re, logging, datetime, pandas as pd
-import verify as v
+import re, logging, datetime, pandas as pd, os
+from progs import verify as v
 
 def add_description():
     """Prompts the admin to enter the description of the humanitarian plan."""
@@ -73,7 +73,7 @@ def add_start_date(location):
             logging.error("Admin entered a start date in the future.")
             continue
         new_id = location + "_" + start_date[6:]
-        plans = pd.read_csv("humanitarian_plan.csv")
+        plans = pd.read_csv(os.path.join('data', 'humanitarian_plan.csv'))
         if new_id in plans['plan_id'].values:
             print("There is already a humanitarian plan with plan ID", new_id + ",",
                   "i.e. location in", location, "and start date in", start_date[6:] + ".",
@@ -153,14 +153,14 @@ def edit_description(plan_id, cur_desc):
             continue
         break
     # update csv file
-    hum_plan_df = pd.read_csv('humanitarian_plan.csv')
+    hum_plan_df = pd.read_csv(os.path.join('data', 'humanitarian_plan.csv'))
     hum_plan_df.loc[hum_plan_df["plan_id"] == plan_id, "description"] = new_desc
-    hum_plan_df.to_csv('humanitarian_plan.csv', index=False)
+    hum_plan_df.to_csv(os.path.join('data', 'humanitarian_plan.csv'), index=False)
     logging.debug("humanitarian_plan.csv updated")
     return new_desc
 
 
-def edit_no_camps(plan_id, hum_plan_df, num_camps):
+def edit_no_camps(plan_id, num_camps):
     '''
    This function allows admin to open or close camps within a humanitarian plan.
    If admin chooses to close camps, they can choose to reallocate refugees, volunteers and resources belonging
@@ -168,8 +168,8 @@ def edit_no_camps(plan_id, hum_plan_df, num_camps):
    If admin chooses to open camps, they have 0 refugees, volunteers, capacity and resources by default -
    admin can choose to edit these details by choosing from the main menu.
     '''
-    hum_plan_df = pd.read_csv('humanitarian_plan.csv')
-    plan_df = pd.read_csv(f'{plan_id}.csv')
+    hum_plan_df = pd.read_csv(os.path.join('data', 'humanitarian_plan.csv'))
+    plan_df = pd.read_csv(os.path.join('data', plan_id + '.csv'))
 
     logging.debug("Admin prompted to enter new number of camps.")
     while True:
@@ -195,9 +195,9 @@ def edit_no_camps(plan_id, hum_plan_df, num_camps):
 
     hum_plan_df.loc[hum_plan_df["plan_id"] == plan_id, "number_of_camps"] = new_num
     difference = new_num - num_camps
-    refugee_df = pd.read_csv('refugees.csv')
-    volunteer_df = pd.read_csv('users.csv')
-    volunteering_times = pd.read_csv('volunteering_times.csv')
+    refugee_df = pd.read_csv(os.path.join('data', 'refugees.csv'))
+    volunteer_df = pd.read_csv(os.path.join('data', 'users.csv'))
+    volunteering_times = pd.read_csv(os.path.join('data', 'volunteering_times.csv'))
 
     if difference < 0:
         difference = abs(difference)
@@ -263,11 +263,11 @@ def edit_no_camps(plan_id, hum_plan_df, num_camps):
 
                     # remove camp rows for closed camps in plan.csv
                     plan_df = plan_df[~plan_df['camp_name'].isin(closed_camps)]
-                    refugee_df.to_csv('refugees.csv', index=False)
-                    volunteer_df.to_csv('users.csv', index=False)
-                    volunteering_times.to_csv('volunteering_times.csv', index=False)
-                    plan_df.to_csv(f'{plan_id}.csv', index=False)
-                    hum_plan_df.to_csv('humanitarian_plan.csv', index=False)
+                    refugee_df.to_csv(os.path.join('data', 'refugees.csv'), index=False)
+                    volunteer_df.to_csv(os.path.join('data', 'users.csv'), index=False)
+                    volunteering_times.to_csv(os.path.join('data', 'volunteering_times.csv'), index=False)
+                    plan_df.to_csv(os.path.join('data', plan_id + '.csv'), index=False)
+                    hum_plan_df.to_csv(os.path.join('data', 'humanitarian_plan.csv'), index=False)
                     logging.debug("All csv files updated.")
                     print('All changes have been saved.')
                     return new_num
@@ -361,11 +361,11 @@ def edit_no_camps(plan_id, hum_plan_df, num_camps):
                     # remove camp rows for closed camps in plan.csv
                     plan_df = plan_df[~plan_df['camp_name'].isin(closed_camps)]
                     # saving to csv files
-                    refugee_df.to_csv('refugees.csv', index=False)
-                    volunteer_df.to_csv('users.csv', index=False)
-                    volunteering_times.to_csv('volunteering_times.csv', index=False)
-                    plan_df.to_csv(f'{plan_id}.csv', index=False)
-                    hum_plan_df.to_csv('humanitarian_plan.csv', index=False)
+                    refugee_df.to_csv(os.path.join('data', 'refugees.csv'), index=False)
+                    volunteer_df.to_csv(os.path.join('data', 'users.csv'), index=False)
+                    volunteering_times.to_csv(os.path.join('data', 'volunteering_times.csv'), index=False)
+                    plan_df.to_csv(os.path.join('data', plan_id + '.csv'), index=False)
+                    hum_plan_df.to_csv(os.path.join('data', 'humanitarian_plan.csv'), index=False)
                     logging.debug("All csv files updated.")
                     print('All changes have been saved.')
                     return new_num
@@ -376,13 +376,13 @@ def edit_no_camps(plan_id, hum_plan_df, num_camps):
               f'\nPlease note new camps have 0 refugees, volunteers, capacity and resources.'
               f'You can change this by choosing to do so on the main menu.')
         for i in range(1, difference + 1):
-            add_camps = open(f"{plan_id}.csv", "a")
+            add_camps = open(os.path.join('data', plan_id + '.csv'), "a")
             add_camps.write(f"\nCamp {num_camps + i},0,0,0,0,0,0")
         add_camps.close()
-        new_plan = pd.read_csv(f"{plan_id}.csv")
+        new_plan = pd.read_csv(os.path.join('data', plan_id + '.csv'))
         print(f'The change has been saved. The updated details of {plan_id} are as follows:'
               f'\n{new_plan}')
-        hum_plan_df.to_csv('humanitarian_plan.csv', index=False)
+        hum_plan_df.to_csv(os.path.join('data', 'humanitarian_plan.csv'), index=False)
         logging.debug("All csv files updated.")
         print('All changes have been saved.')
         return new_num

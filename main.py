@@ -1,12 +1,12 @@
 '''Run this file in the command line to open the application.'''
 # built-in modules
-import pandas as pd, numpy as np
+import pandas as pd, numpy as np, os
 import logging
 # custom modules and functions from other files
-import volunteer_funcs
-from volunteer import Volunteer
-from admin import Admin
-from coded_vars import convert_gender
+from progs import volunteer_funcs
+from progs.volunteer import Volunteer
+from progs.admin import Admin
+from progs.coded_vars import convert_gender
 
 logging.basicConfig(level=logging.DEBUG,
                     filename='output.log',
@@ -67,7 +67,7 @@ def admin_login():
             continue
 
         # check login details against users table
-        users = pd.read_csv('users.csv', dtype={'password': str})
+        users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
 
         select_user = users[(users['username'] == username) & (users['account_type'] == "admin")]
         if len(select_user.index) == 0:  # username not registered
@@ -138,7 +138,7 @@ def volunteer_login():
             continue
 
         # check login details against users table
-        users = pd.read_csv('users.csv', dtype={'password': str})
+        users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
 
         select_user = users[(users['username'] == username) & (users['account_type'] == "volunteer")]
         if len(select_user.index) == 0:  # username not registered
@@ -300,7 +300,7 @@ def volunteer_registration():
     #         f'\n{username},{password},volunteer,1,0,{first_name},{last_name},{email},{phone_number},{gender},{date_of_birth},{plan_id},')
     # users.close()
 
-    users = pd.read_csv('users.csv', dtype={'password': str})
+    users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
     new_row = {'username': [username], 'password': [password], 'account_type': ['volunteer'], 'active': [1],
                'deactivation_requested': [0], 'first_name': [first_name], 'last_name': [last_name], 'email': [email],
                'phone_number': [phone_number], 'gender': [gender], 'date_of_birth': [date_of_birth],
@@ -308,14 +308,14 @@ def volunteer_registration():
     new = pd.DataFrame(new_row)
     users = pd.concat([users, new], ignore_index=True)
     users = users.sort_values(by=['username'])  # sort by username before saving
-    users.to_csv('users.csv', index=False)
+    users.to_csv(os.path.join('data', 'users.csv'), index=False)
     logging.debug("users.csv updated")
 
     if camp_name:
-        camps = pd.read_csv(plan_id + '.csv')
+        camps = pd.read_csv(os.path.join('data', plan_id + '.csv'))
         chosen = (camps['camp_name'] == camp_name)
         camps.loc[chosen, 'volunteers'] = camps.loc[chosen, 'volunteers'] + 1
-        camps.to_csv(plan_id + '.csv', index=False)
+        camps.to_csv(os.path.join('data', plan_id + '.csv'), index=False)
         logging.debug("camps csv file updated")
 
     # Print details provided in registration

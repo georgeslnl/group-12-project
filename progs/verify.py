@@ -1,6 +1,6 @@
-import datetime
+import datetime, os
 import logging
-import pandas as pd, numpy as np, re, datetime
+import pandas as pd, re, datetime
 
 
 """This is a function set that verify all the inputs to include all exception handling.
@@ -10,7 +10,7 @@ You can simply use them to replace the input() functions.
 # Creating list of valid cities in the world.
 # The csv file comes from the World Cities Database by SimpleMaps.com, last updated: March 31, 2023.
 # The file contains data for about 43 thousand cities.
-valid_cities_csv = pd.read_csv('worldcities.csv')
+valid_cities_csv = pd.read_csv(os.path.join('data', 'worldcities.csv'))
 valid_cities = valid_cities_csv['city'].tolist()
 valid_cities = [city.lower() for city in valid_cities]
 
@@ -119,7 +119,7 @@ def username(line):
     while True:
         _username = input(line).strip()
         s = re.search("^[a-zA-Z]+[a-zA-Z0-9_]*$", _username)
-        users = pd.read_csv('users.csv', dtype={'password': str})
+        users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
         select_username = users[users['username'] == _username]
         if _username == "0":
             return _username

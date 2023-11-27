@@ -1,10 +1,10 @@
-import pandas as pd, re, datetime
-from coded_vars import convert_gender
+import pandas as pd, re, datetime, os
 import logging
+from progs.coded_vars import convert_gender
 
 def add_plan():
     """Prompts the user to select an ongoing humanitarian plan."""
-    plans = pd.read_csv('humanitarian_plan.csv')
+    plans = pd.read_csv(os.path.join('data', 'humanitarian_plan.csv'))
     plans = plans[plans['end_date'].isna()]  # only show plans that haven't been closed
 
     if len(plans.index) == 0:
@@ -43,7 +43,7 @@ def add_camp(plan_id):
     Takes as input the plan_id of an ongoing humanitarian plan.
     Prompts the user to select a camp at this plan.
     """
-    camps = pd.read_csv(plan_id + '.csv')
+    camps = pd.read_csv(os.path.join('data', plan_id + '.csv'))
 
     logging.debug("User prompted to select camp.")
     while True:
@@ -94,7 +94,7 @@ def add_username():
                 "and must start with a letter. Please choose another username.")
             logging.error("Invalid user input.")
             continue
-        users = pd.read_csv('users.csv', dtype={'password': str})
+        users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
         select_username = users[users['username'] == username]
         if len(select_username.index) > 0:  # username already exists
             print("Username is taken. Please choose another username.")
@@ -319,7 +319,7 @@ def edit_username(username):
             print("Username can only contain letters, digits (0-9) and underscore (_), and must start with a letter. Please choose another username.")
             logging.error("Invalid user input.")
             continue
-        users = pd.read_csv('users.csv', dtype={'password': str})
+        users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
         select_username = users[users['username'] == new_username]
         if len(select_username.index) > 0:  # username already exists
             print("Username is taken. Please choose another username.")
@@ -330,13 +330,13 @@ def edit_username(username):
     cur_user = (users['username'] == username)
     users.loc[cur_user, 'username'] = new_username
     users = users.sort_values(by=['username'])  # sort by username before saving
-    users.to_csv('users.csv', index=False)
+    users.to_csv(os.path.join('data', 'users.csv'), index=False)
     logging.debug("users.csv updated")
 
     # also update for volunteering sessions
-    vol_times = pd.read_csv("volunteering_times.csv")
+    vol_times = pd.read_csv(os.path.join('data', 'volunteering_times.csv'))
     vol_times.loc[vol_times["username"] == username, "username"] = new_username
-    vol_times.to_csv('volunteering_times.csv', index=False)
+    vol_times.to_csv(os.path.join('data', 'volunteering_times.csv'), index=False)
     logging.debug("volunteering_times.csv updated")
 
     print("Volunteer's new username is:", new_username)
@@ -368,10 +368,10 @@ def edit_password(username, password):
             continue
         break
     # update csv file
-    users = pd.read_csv('users.csv', dtype={'password': str})
+    users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
     cur_user = (users['username'] == username)
     users.loc[cur_user, 'password'] = new_password
-    users.to_csv('users.csv', index=False)
+    users.to_csv(os.path.join('data', 'users.csv'), index=False)
     print("You have changed " + username + "'s password to:", new_password)
     logging.debug("Password updated successfully")
     return
@@ -401,10 +401,10 @@ def edit_first_name(username, first_name):
             continue
         break
     # update csv file
-    users = pd.read_csv('users.csv', dtype={'password': str})
+    users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
     cur_user = (users['username'] == username)
     users.loc[cur_user, 'first_name'] = new_fname
-    users.to_csv('users.csv', index=False)
+    users.to_csv(os.path.join('data', 'users.csv'), index=False)
     logging.debug("users.csv updated")
     print("You have changed " + username + "'s first name to:", new_fname)
     logging.debug("First name updated successfully")
@@ -435,10 +435,10 @@ def edit_last_name(username, last_name):
             continue
         break
     # update csv file
-    users = pd.read_csv('users.csv', dtype={'password': str})
+    users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
     cur_user = (users['username'] == username)
     users.loc[cur_user, 'last_name'] = new_lname
-    users.to_csv('users.csv', index=False)
+    users.to_csv(os.path.join('data', 'users.csv'), index=False)
     logging.debug("users.csv updated")
     print("You have changed " + username + "'s last name to:", new_lname)
     logging.debug("Last name updated successfully")
@@ -472,10 +472,10 @@ def edit_gender(username, gender):
             continue
         break
     # update csv file
-    users = pd.read_csv('users.csv', dtype={'password': str})
+    users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
     cur_user = (users['username'] == username)
     users.loc[cur_user, 'gender'] = new_gender
-    users.to_csv('users.csv', index=False)
+    users.to_csv(os.path.join('data', 'users.csv'), index=False)
     logging.debug("users.csv updated")
 
     new_gender_str = convert_gender(new_gender)
@@ -523,10 +523,10 @@ def edit_dob(username, date_of_birth):
             continue
         break
     # update csv file
-    users = pd.read_csv('users.csv', dtype={'password': str})
+    users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
     cur_user = (users['username'] == username)
     users.loc[cur_user, 'date_of_birth'] = new_dob
-    users.to_csv('users.csv', index=False)
+    users.to_csv(os.path.join('data', 'users.csv'), index=False)
     logging.debug("users.csv updated")
     print("You have corrected " + username + "'s date of birth to:", new_dob)
     logging.debug("Date of birth updated successfully")
@@ -557,10 +557,10 @@ def edit_email(username, email):
             continue
         break
     # update csv file
-    users = pd.read_csv('users.csv', dtype={'password': str})
+    users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
     cur_user = (users['username'] == username)
     users.loc[cur_user, 'email'] = new_email
-    users.to_csv('users.csv', index=False)
+    users.to_csv(os.path.join('data', 'users.csv'), index=False)
     logging.debug("users.csv updated")
     print("You have changed " + username + "'s email address to:", new_email)
     logging.debug("Email address updated successfully")
@@ -593,10 +593,10 @@ def edit_phone_num(username, phone_number):
             new_phone_num = "+" + new_phone_num
         break
     # update csv file
-    users = pd.read_csv('users.csv', dtype={'password': str})
+    users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
     cur_user = (users['username'] == username)
     users.loc[cur_user, 'phone_number'] = new_phone_num
-    users.to_csv('users.csv', index=False)
+    users.to_csv(os.path.join('data', 'users.csv'), index=False)
     logging.debug("users.csv updated")
     print("You have changed " + username + "'s phone number to:", new_phone_num)
     logging.debug("Phone number updated successfully")

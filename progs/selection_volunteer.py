@@ -1,11 +1,11 @@
-import pandas as pd, numpy as np
+import pandas as pd, numpy as np, os
 import logging
 
 # select plan allowing user to go back to direct username vs plan->camp->volunteer
 def select_plan():
     """Prompts the admin to select a humanitarian plan."""
     print("\nSelect a humanitarian plan.")
-    plans = pd.read_csv('humanitarian_plan.csv')
+    plans = pd.read_csv(os.path.join('data', 'humanitarian_plan.csv'))
     plans = plans[plans['end_date'].isna()]
     print("Number - Location - Start Date")
     for row in range(len(plans.index)):
@@ -36,7 +36,7 @@ def select_camp(plan_id, active):
     noting that volunteers must have a camp to be selected.
     The parameter active (1 or 0) specifies whether the volunteer's account must be active to be selected.
     """
-    users = pd.read_csv('users.csv', dtype={'password': str})
+    users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
     if active:
         users = users[(users['account_type'] == "volunteer") & (users['plan_id'] == plan_id) & (users['active'] == 1)
                       & (users['camp_name'].notna())]
@@ -52,7 +52,7 @@ def select_camp(plan_id, active):
         return "B"
 
     print("\nSelect a camp.")
-    camps = pd.read_csv(plan_id + ".csv")
+    camps = pd.read_csv(os.path.join('data', plan_id + '.csv'))
     print("Camp Name - # Volunteers - # Refugees - Refugee Capacity")
     for row in range(len(camps.index)):
         print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
@@ -83,7 +83,7 @@ def select_camp_none(plan_id, active):
     The function checks whether any volunteers can be selected at this plan and returns the admin to the previous step if not.
     The parameter active (1 or 0) specifies whether the volunteer's account must be active to be selected.
     """
-    users = pd.read_csv('users.csv', dtype={'password': str})
+    users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
     if active:
         users = users[(users['account_type'] == "volunteer") & (users['plan_id'] == plan_id) & (users['active'] == 1)]
     else:
@@ -97,7 +97,7 @@ def select_camp_none(plan_id, active):
         return "B"
 
     print("\nSelect a camp.")
-    camps = pd.read_csv(plan_id + ".csv")
+    camps = pd.read_csv(os.path.join('data', plan_id + '.csv'))
     print("Camp Name - # Volunteers - # Refugees - Refugee Capacity")
     for row in range(len(camps.index)):
         print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
@@ -132,7 +132,7 @@ def select_volunteer(plan_id, camp_name, active):
     The admin is given the option to list all volunteers at the camp before entering the username.
     The parameter active (1 or 0) specifies whether the volunteer's account must be active to be selected.
     """
-    users = pd.read_csv('users.csv', dtype={'password': str})
+    users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
     users = users[(users['account_type'] == "volunteer") & (users['plan_id'] == plan_id)]
     users = users.replace({np.nan: None})
     if active:
@@ -199,7 +199,7 @@ def initial_selection(active, none):
     The parameter none (1 or 0) specifies whether the volunteer must have a camp to be selected (none = 1 means volunteer need not have a camp).
     """
     while True:
-        users = pd.read_csv('users.csv', dtype={'password': str})
+        users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
         users = users[users['account_type'] == "volunteer"]
         if active:
             users = users[users['active'] == 1]

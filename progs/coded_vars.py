@@ -1,5 +1,3 @@
-import pandas as pd
-
 def convert_gender(gender):
     "Converts a volunteer or refugee's gender (coded as an integer from 1-3 in csv files) into a string to be displayed to the user."
     if gender == 1:

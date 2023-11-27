@@ -1,10 +1,10 @@
-import pandas as pd, numpy as np
+import pandas as pd, os
 import logging
 
 def select_plan():
     """Prompts the admin to select a humanitarian plan."""
     print("\nSelect a humanitarian plan.")
-    plans = pd.read_csv('humanitarian_plan.csv')
+    plans = pd.read_csv(os.path.join('data', 'humanitarian_plan.csv'))
     plans = plans[plans['end_date'].isna()]
     print("Number - Location - Start Date")
     for row in range(len(plans.index)):
@@ -33,7 +33,7 @@ def select_camp(plan_id):
     Prompts the admin to select a camp at this plan.
     The function checks whether any refugees can be selected at this plan and returns the admin to the previous step if not.
     """
-    refugees = pd.read_csv('refugees.csv')
+    refugees = pd.read_csv(os.path.join('data', 'refugees.csv'))
     refugees = refugees[refugees['plan_id'] == plan_id]
     if len(refugees.index) == 0:
         logging.warning("No refugees to select from.")
@@ -41,7 +41,7 @@ def select_camp(plan_id):
         return "B"
 
     print("\nSelect a camp.")
-    camps = pd.read_csv(plan_id + ".csv")
+    camps = pd.read_csv(os.path.join('data', plan_id + '.csv'))
     print("Camp Name - # Volunteers - # Refugees - Refugee Capacity")
     for row in range(len(camps.index)):
         print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
@@ -70,7 +70,7 @@ def select_refugee(plan_id, camp_name):
     The function checks whether any refugees can be selected at this camp and returns the admin to the previous step if not.
     The admin is given the option to list all refugees at the camp before entering the refugee ID.
     """
-    refugees = pd.read_csv('refugees.csv')
+    refugees = pd.read_csv(os.path.join('data', 'refugees.csv'))
     refugees = refugees[(refugees['plan_id'] == plan_id) & (refugees['camp_name'] == camp_name)]
     if len(refugees.index) == 0:
         print("There are no refugees at the selected camp. Please try again.")
@@ -112,7 +112,7 @@ def initial_selection():
     The function checks whether there are any refugees that can be selected and returns the admin to the previous menu if not.
     """
     while True:
-        refugees = pd.read_csv('refugees.csv')
+        refugees = pd.read_csv(os.path.join('data', 'refugees.csv'))
         if len(refugees.index) == 0:
             logging.warning("No refugees to select from.")
             print("There are currently no refugees at humanitarian plans.")

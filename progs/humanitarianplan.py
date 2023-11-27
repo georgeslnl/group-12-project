@@ -1,4 +1,4 @@
-import logging
+import logging, os
 
 class HumanitarianPlan:
     """
@@ -22,7 +22,7 @@ class HumanitarianPlan:
         self.end_date = None  # end_date will be redefined with end_event method from Admin class
 
         # When a Humanitarian Plan object is created, it also creates 2 .csv files for that HP
-        create = open(f"{self.name}.csv", "w") #this one for general info + CURRENT amount of resources in each camp (can be edited by volunteers/admin)
+        create = open(os.path.join('data', self.name + '.csv'), "w") #this one for general info + CURRENT amount of resources in each camp (can be edited by volunteers/admin)
         create.write("camp_name,volunteers,refugees,capacity,food,water,firstaid_kits")
         create.close()
         # resources = open(f"{self.name}_resources.csv", "w") #this one for resources specifically: how much in storage and how much ALLOCATED to each camp by admin
@@ -34,8 +34,9 @@ class HumanitarianPlan:
 
         # Adds the rows for each camp into the resources.csv file, based on how many camps exist
         # e.g. if nb_of_camps is 3, there will be a row added to the csv for Camp 1, Camp 2, and Camp 3
-        add_camps = open(f"{self.name}.csv", "a")
+        add_camps = open(os.path.join('data', self.name + '.csv'), "a")
         for i in range(1, self.nb_of_camps + 1):  # starts at 1 since default is 0 and doesn't make sense to have Camp 0
             add_camps.write(f"\nCamp {i},0,0,0,0,0,0")  # at the start, each camp has 0 of every resource type
+        add_camps.close()
 
-        logging.debug("Created for csv file for the humanitarian plan's camps.")
+        logging.debug("Created csv file for the humanitarian plan's camps.")

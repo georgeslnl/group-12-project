@@ -1,6 +1,6 @@
-import re, datetime, pandas as pd
+import re, datetime, pandas as pd, os
 import logging
-from coded_vars import convert_gender, convert_medical_condition
+from progs.coded_vars import convert_gender, convert_medical_condition
 
 def add_name():
     """Prompts the user to enter the refugee's name."""
@@ -202,10 +202,10 @@ def edit_refugee_name(refugee_id, refugee_name):
             new_name = f"{new_name[0].upper()}{new_name[1:]}"
             break
     # update csv file
-    refugees = pd.read_csv('refugees.csv')
+    refugees = pd.read_csv(os.path.join('data', 'refugees.csv'))
     cur = (refugees['refugee_id'] == refugee_id)
     refugees.loc[cur, 'refugee_name'] = new_name
-    refugees.to_csv('refugees.csv', index=False)
+    refugees.to_csv(os.path.join('data', 'refugees.csv'), index=False)
     logging.debug("refugees.csv updated")
     print("Refugee's name has been changed to:", new_name)
     logging.debug("Refugee name updated successfully")
@@ -239,10 +239,10 @@ def edit_gender(refugee_id, gender):
             continue
         break
     # update csv file
-    refugees = pd.read_csv('refugees.csv')
+    refugees = pd.read_csv(os.path.join('data', 'refugees.csv'))
     cur = (refugees['refugee_id'] == refugee_id)
     refugees.loc[cur, 'gender'] = new_gender
-    refugees.to_csv('refugees.csv', index=False)
+    refugees.to_csv(os.path.join('data', 'refugees.csv'), index=False)
     logging.debug("refugees.csv updated")
     new_gender_str = convert_gender(new_gender)
     print("Refugee's gender has been changed to:", new_gender_str)
@@ -301,10 +301,10 @@ def edit_dob(refugee_id, date_of_birth):
             logging.debug("Date of birth confirmed.")
         break
     # update csv file
-    refugees = pd.read_csv('refugees.csv')
+    refugees = pd.read_csv(os.path.join('data', 'refugees.csv'))
     cur = (refugees['refugee_id'] == refugee_id)
     refugees.loc[cur, 'date_of_birth'] = new_dob
-    refugees.to_csv('refugees.csv', index=False)
+    refugees.to_csv(os.path.join('data', 'refugees.csv'), index=False)
     logging.debug("refugees.csv updated")
     print("Refugee's date of birth has been changed to:", new_dob)
     logging.debug("Date of birth updated successfully")
@@ -342,10 +342,10 @@ def edit_medical_cond(refugee_id, medical_cond):
             continue
         break
     # update csv file
-    refugees = pd.read_csv('refugees.csv')
+    refugees = pd.read_csv(os.path.join('data', 'refugees.csv'))
     cur = (refugees['refugee_id'] == refugee_id)
     refugees.loc[cur, 'medical_condition'] = new_medical_cond
-    refugees.to_csv('refugees.csv', index=False)
+    refugees.to_csv(os.path.join('data', 'refugees.csv'), index=False)
     logging.debug("refugees.csv updated")
     new_medical_str = convert_medical_condition(new_medical_cond)
     print("Refugee's medical condition has been changed to:", new_medical_str)
@@ -358,7 +358,7 @@ def edit_family(plan_id, camp_name, refugee_id, family):
     If the family size exceeds 12, a warning is displayed and the user is asked to confirm the input.
     """
     print("\nCurrent no. of members in refugee's family:", family)
-    camps = pd.read_csv(plan_id + '.csv')
+    camps = pd.read_csv(os.path.join('data', plan_id + '.csv'))
     cur_camp = camps[camps['camp_name'] == camp_name]
     remaining_cap = cur_camp.iloc[0]['capacity'] - cur_camp.iloc[0]['refugees']
     print("Your camp's remaining capacity is " + str(remaining_cap) + ".")
@@ -410,16 +410,16 @@ def edit_family(plan_id, camp_name, refugee_id, family):
             logging.debug("Number of family members confirmed.")
         break
     # update csv files
-    refugees = pd.read_csv('refugees.csv')
+    refugees = pd.read_csv(os.path.join('data', 'refugees.csv'))
     cur = (refugees['refugee_id'] == refugee_id)
     refugees.loc[cur, 'family_members'] = new_family
-    refugees.to_csv('refugees.csv', index=False)
+    refugees.to_csv(os.path.join('data', 'refugees.csv'), index=False)
     logging.debug("refugees.csv updated")
     print("New no. of members in refugee's family:", new_family)
 
     chosen = (camps['camp_name'] == camp_name)
     camps.loc[chosen, 'refugees'] = camps.loc[chosen, 'refugees'] - family + new_family
-    camps.to_csv(plan_id + '.csv', index=False)
+    camps.to_csv(os.path.join('data', plan_id + '.csv'), index=False)
     logging.debug("camps csv file updated")
     logging.debug("Family size updated successfully")
     return
@@ -452,10 +452,10 @@ def edit_remarks(refugee_id, remarks):
             continue
         break
     # update csv file
-    refugees = pd.read_csv('refugees.csv')
+    refugees = pd.read_csv(os.path.join('data', 'refugees.csv'))
     cur = (refugees['refugee_id'] == refugee_id)
     refugees.loc[cur, 'remarks'] = new_remarks
-    refugees.to_csv('refugees.csv', index=False)
+    refugees.to_csv(os.path.join('data', 'refugees.csv'), index=False)
     logging.debug("refugees.csv updated")
     print("Remarks on refugee have been changed to:", new_remarks)
     logging.debug("Remarks updated successfully")
@@ -483,15 +483,15 @@ def remove_refugee(plan_id, camp_name, refugee_id, refugee_name, family):
 
     logging.debug("Removal of refugee profile confirmed.")
     # update csv files
-    refugees = pd.read_csv('refugees.csv')
+    refugees = pd.read_csv(os.path.join('data', 'refugees.csv'))
     refugees = refugees.drop(refugees[refugees['refugee_id'] == refugee_id].index)
-    refugees.to_csv('refugees.csv', index=False)
+    refugees.to_csv(os.path.join('data', 'refugees.csv'), index=False)
     logging.debug("refugees.csv updated")
 
-    camps = pd.read_csv(plan_id + '.csv')
+    camps = pd.read_csv(os.path.join('data', plan_id + '.csv'))
     chosen = (camps['camp_name'] == camp_name)
     camps.loc[chosen, 'refugees'] = camps.loc[chosen, 'refugees'] - family
-    camps.to_csv(plan_id + '.csv', index=False)
+    camps.to_csv(os.path.join('data', plan_id + '.csv'), index=False)
     logging.debug("camps csv file updated")
 
     print("Refugee's profile has been removed.")

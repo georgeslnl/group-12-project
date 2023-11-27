@@ -1,7 +1,6 @@
 # Default ignored files
 /.idea
 /__pycache__
+/progs/__pycache__
 output.log
 test.py
-# uncomment later
-/data

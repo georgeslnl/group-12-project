@@ -1,10 +1,10 @@
 # built-in modules
-import pandas as pd, numpy as np, re, datetime
+import pandas as pd, numpy as np, re, datetime, os
 import logging
 # custom modules and functions from other files
-from coded_vars import convert_gender, convert_medical_condition
-import refugee_profile_funcs, volunteering_session_funcs
-import verify as v
+from progs.coded_vars import convert_gender, convert_medical_condition
+from progs import refugee_profile_funcs, volunteering_session_funcs
+from progs import verify as v
 
 class Volunteer:
     """Class for Volunteer users. Initialised when a user successfully logs in as a volunteer."""
@@ -250,10 +250,10 @@ class Volunteer:
 
         logging.debug("Deactivation request confirmed.")
         # update csv files
-        users = pd.read_csv('users.csv', dtype={'password': str})
+        users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
         cur_user = (users['username'] == self.username)
         users.loc[cur_user, 'deactivation_requested'] = 1
-        users.to_csv('users.csv', index=False)
+        users.to_csv(os.path.join('data', 'users.csv'), index=False)
         logging.info("users.csv updated")
 
         print("Your request to deactivate your account has been registered.")
@@ -318,7 +318,7 @@ class Volunteer:
                     print("New username is the same as current username. Please enter a different username.")
                     logging.error("Invalid user input.")
                     continue
-                users = pd.read_csv('users.csv', dtype={'password': str})
+                users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
                 select_username = users[users['username'] == new_username]
                 if len(select_username.index) > 0:  # username already exists
                     print("Username is taken. Please choose another username.")
@@ -329,13 +329,13 @@ class Volunteer:
             cur_user = (users['username'] == self.username)
             users.loc[cur_user, 'username'] = new_username
             users = users.sort_values(by=['username'])  # sort by username before saving
-            users.to_csv('users.csv', index=False)
+            users.to_csv(os.path.join('data', 'users.csv'), index=False)
             logging.debug("users.csv updated")
 
             # also update for volunteering sessions
-            vol_times = pd.read_csv("volunteering_times.csv")
+            vol_times = pd.read_csv(os.path.join('data', 'volunteering_times.csv'))
             vol_times.loc[vol_times["username"] == self.username, "username"] = new_username
-            vol_times.to_csv('volunteering_times.csv', index=False)
+            vol_times.to_csv(os.path.join('data', 'volunteering_times.csv'), index=False)
             logging.debug("volunteering_times.csv updated")
 
             print("Your new username is:", new_username)
@@ -367,10 +367,10 @@ class Volunteer:
                     continue
                 break
             # update csv file
-            users = pd.read_csv('users.csv', dtype={'password': str})
+            users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
             cur_user = (users['username'] == self.username)
             users.loc[cur_user, 'password'] = new_password
-            users.to_csv('users.csv', index=False)
+            users.to_csv(os.path.join('data', 'users.csv'), index=False)
             logging.debug("users.csv updated")
             print("Your new password is:", new_password)
             self.password = new_password
@@ -394,10 +394,10 @@ class Volunteer:
                     new_fname = f"{new_fname[0].upper()}{new_fname[1:]}"
                     break
             # update csv file
-            users = pd.read_csv('users.csv', dtype={'password': str})
+            users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
             cur_user = (users['username'] == self.username)
             users.loc[cur_user, 'first_name'] = new_fname
-            users.to_csv('users.csv', index=False)
+            users.to_csv(os.path.join('data', 'users.csv'), index=False)
             logging.debug("users.csv updated")
             print("You have changed your first name to:", new_fname)
             self.first_name = new_fname
@@ -419,10 +419,10 @@ class Volunteer:
                 else:
                     break
             # update csv file
-            users = pd.read_csv('users.csv', dtype={'password': str})
+            users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
             cur_user = (users['username'] == self.username)
             users.loc[cur_user, 'last_name'] = new_lname
-            users.to_csv('users.csv', index=False)
+            users.to_csv(os.path.join('data', 'users.csv'), index=False)
             logging.debug("users.csv updated")
             print("You have changed your last name to:", new_lname)
             self.last_name = new_lname
@@ -457,10 +457,10 @@ class Volunteer:
                     continue
                 break
             # update csv file
-            users = pd.read_csv('users.csv', dtype={'password': str})
+            users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
             cur_user = (users['username'] == self.username)
             users.loc[cur_user, 'gender'] = new_gender
-            users.to_csv('users.csv', index=False)
+            users.to_csv(os.path.join('data', 'users.csv'), index=False)
             logging.debug("users.csv updated")
 
             new_gender_str = convert_gender(new_gender)
@@ -494,10 +494,10 @@ class Volunteer:
                     continue
                 break
             # update csv file
-            users = pd.read_csv('users.csv', dtype={'password': str})
+            users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
             cur_user = (users['username'] == self.username)
             users.loc[cur_user, 'email'] = new_email
-            users.to_csv('users.csv', index=False)
+            users.to_csv(os.path.join('data', 'users.csv'), index=False)
             logging.debug("users.csv updated")
             print("You have changed your email address to:", new_email)
             self.email = new_email
@@ -531,10 +531,10 @@ class Volunteer:
                     new_phone_num = "+" + new_phone_num
                 break
             # update csv file
-            users = pd.read_csv('users.csv', dtype={'password': str})
+            users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
             cur_user = (users['username'] == self.username)
             users.loc[cur_user, 'phone_number'] = new_phone_num
-            users.to_csv('users.csv', index=False)
+            users.to_csv(os.path.join('data', 'users.csv'), index=False)
             logging.debug("users.csv updated")
             print("You have changed your phone number to:", new_phone_num)
             self.phone_number = new_phone_num
@@ -593,7 +593,7 @@ class Volunteer:
         """
         def add_camp(plan_id):
             """Prompts the volunteer to select a camp if they currently do not have a camp."""
-            camps = pd.read_csv(plan_id + '.csv')
+            camps = pd.read_csv(os.path.join('data', plan_id + '.csv'))
             logging.debug(f"{self.username} currently has no camp and is prompted to select a camp.")
             while True:
                 print("\nEnter [X] to return to the previous menu.")
@@ -621,7 +621,7 @@ class Volunteer:
 
         def edit_camp(plan_id):
             """Prompts the volunteer to select a new camp if they currently have a camp."""
-            camps = pd.read_csv(plan_id + '.csv')
+            camps = pd.read_csv(os.path.join('data', plan_id + '.csv'))
             if len(camps.index) == 1:
                 print("There is currently only one camp. It is not possible to change camp identification.")
                 logging.warning(f"There is only one camp at {self.plan_id}. Not possible to change camps.")
@@ -705,31 +705,31 @@ class Volunteer:
 
         # update csv files
         if new_camp != self.camp_name:
-            users = pd.read_csv('users.csv', dtype={'password': str})
+            users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
             cur_user = (users['username'] == self.username)
             users.loc[cur_user, 'camp_name'] = new_camp
-            users.to_csv('users.csv', index=False)
+            users.to_csv(os.path.join('data', 'users.csv'), index=False)
             logging.debug("users.csv updated")
 
-            camps = pd.read_csv(self.plan_id + '.csv')
+            camps = pd.read_csv(os.path.join('data', self.plan_id + '.csv') + '.csv')
             if new_camp:
                 chosen = (camps['camp_name'] == new_camp)
                 camps.loc[chosen, 'volunteers'] = camps.loc[chosen, 'volunteers'] + 1
             if self.camp_name:
                 old = (camps['camp_name'] == self.camp_name)
                 camps.loc[old, 'volunteers'] = camps.loc[old, 'volunteers'] - 1
-            camps.to_csv(self.plan_id + '.csv', index=False)
+            camps.to_csv(os.path.join('data', self.plan_id + '.csv'), index=False)
             logging.debug("camps csv file updated")
 
             if self.camp_name and not new_camp: # remove volunteering sessions
-                vol_times = pd.read_csv("volunteering_times.csv")
+                vol_times = pd.read_csv(os.path.join('data', 'volunteering_times.csv'))
                 vol_times = vol_times.drop(vol_times[vol_times['username'] == self.username].index)
-                vol_times.to_csv('volunteering_times.csv', index=False)
+                vol_times.to_csv(os.path.join('data', 'volunteering_times.csv'), index=False)
                 logging.debug("volunteering_times.csv updated")
             if self.camp_name and new_camp: # change camp_name in volunteering_times.csv
-                vol_times = pd.read_csv("volunteering_times.csv")
+                vol_times = pd.read_csv(os.path.join('data', 'volunteering_times.csv'))
                 vol_times.loc[vol_times["username"] == self.username, "camp_name"] = new_camp
-                vol_times.to_csv('volunteering_times.csv', index=False)
+                vol_times.to_csv(os.path.join('data', 'volunteering_times.csv'), index=False)
                 logging.debug("volunteering_times.csv updated")
 
             print("Your new camp is:", new_camp)
@@ -763,7 +763,7 @@ class Volunteer:
                 return refugee_name
 
         print("\nAdd refugee profile")
-        camps = pd.read_csv(self.plan_id + '.csv')
+        camps = pd.read_csv(os.path.join('data', self.plan_id + '.csv'))
         cur_camp = camps[camps['camp_name'] == self.camp_name]
         remaining_cap = cur_camp.iloc[0]['capacity'] - cur_camp.iloc[0]['refugees']
 
@@ -842,7 +842,7 @@ class Volunteer:
 
         logging.debug(f"{self.username} has finished entering refugee details.")
         # Update csv tables
-        refugees = pd.read_csv('refugees.csv')
+        refugees = pd.read_csv(os.path.join('data', 'refugees.csv'))
         if len(refugees.index) == 0:
             refugee_id = 1
         else:
@@ -852,13 +852,13 @@ class Volunteer:
                    'medical_condition': [medical_cond], 'family_members': [family], 'remarks': [remarks]}
         new = pd.DataFrame(new_row)
         refugees = pd.concat([refugees, new], ignore_index=True)
-        refugees.to_csv('refugees.csv', index=False)
+        refugees.to_csv(os.path.join('data', 'refugees.csv'), index=False)
         logging.debug("refugees.csv updated")
 
-        camps = pd.read_csv(self.plan_id + '.csv')
+        camps = pd.read_csv(os.path.join('data', self.plan_id + '.csv'))
         chosen = (camps['camp_name'] == self.camp_name)
         camps.loc[chosen, 'refugees'] = camps.loc[chosen, 'refugees'] + family
-        camps.to_csv(self.plan_id + '.csv', index=False)
+        camps.to_csv(os.path.join('data', self.plan_id + '.csv'), index=False)
         logging.debug("camps csv file updated")
 
         # Print details provided
@@ -878,7 +878,7 @@ class Volunteer:
     def view_refugee_profile(self):
         """Enables the volunteer to view the profile of a selected refugee at their camp."""
         print("\nView refugee profile")
-        refugees = pd.read_csv('refugees.csv')
+        refugees = pd.read_csv(os.path.join('data', 'refugees.csv'))
         refugees = refugees[(refugees['plan_id'] == self.plan_id) & (refugees['camp_name'] == self.camp_name)]
         if len(refugees.index) == 0:
             print("There are no refugees at your current camp.")
@@ -958,7 +958,7 @@ class Volunteer:
         This includes an option to remove the refugee's profile.
         """
         print("\nEdit or remove refugee profile")
-        refugees = pd.read_csv('refugees.csv')
+        refugees = pd.read_csv(os.path.join('data', 'refugees.csv'))
         refugees = refugees[(refugees['plan_id'] == self.plan_id) & (refugees['camp_name'] == self.camp_name)]
         if len(refugees.index) == 0:
             print("There are no refugees at your current camp.")
@@ -1008,7 +1008,7 @@ class Volunteer:
 
         # outer loop to edit multiple attributes, exit if 0 is entered
         while True:
-            refugees = pd.read_csv('refugees.csv')
+            refugees = pd.read_csv(os.path.join('data', 'refugees.csv'))
             selected = refugees[refugees['refugee_id'] == refugee_id]
             selected = selected.replace({np.nan: None})
             refugee_name = selected.iloc[0]['refugee_name']
@@ -1065,7 +1065,7 @@ class Volunteer:
         """
         logging.debug(f"Printing details of {self.username}'s camp.")
         print("\nDisplay camp information")
-        camps = pd.read_csv(self.plan_id + '.csv')
+        camps = pd.read_csv(os.path.join('data', self.plan_id + '.csv'))
         my_camp = camps[camps['camp_name'] == self.camp_name]
         print("Your camp is " + self.camp_name + " for plan ID " + self.plan_id + ".")
         print("Number of volunteers: ", my_camp.iloc[0]['volunteers'])
@@ -1084,7 +1084,7 @@ class Volunteer:
         """
         def edit_capacity():
             """Prompts the volunteer to enter the new capacity of their camp."""
-            camps = pd.read_csv(self.plan_id + '.csv')
+            camps = pd.read_csv(os.path.join('data', self.plan_id + '.csv'))
             my_camp = camps[camps['camp_name'] == self.camp_name]
             print("\nCurrent capacity of " + self.camp_name + ": " + str(my_camp.iloc[0]['capacity']))
             print("The camp currently has " + str(my_camp.iloc[0]['refugees']) + " refugees.")
@@ -1116,7 +1116,7 @@ class Volunteer:
             # update csv file
             chosen = (camps['camp_name'] == self.camp_name)
             camps.loc[chosen, 'capacity'] = new_capacity
-            camps.to_csv(self.plan_id + '.csv', index=False)
+            camps.to_csv(os.path.join('data', self.plan_id + '.csv'), index=False)
             print("New refugee capacity:", new_capacity)
             logging.debug("updated camps csv file")
             return
@@ -1126,7 +1126,7 @@ class Volunteer:
             Prompts the volunteer to enter the number of food packets consumed at their camp.
             The volunteer is asked for confirmation before the update is applied.
             """
-            camps = pd.read_csv(self.plan_id + '.csv')
+            camps = pd.read_csv(os.path.join('data', self.plan_id + '.csv'))
             my_camp = camps[camps['camp_name'] == self.camp_name]
             cur_food = my_camp.iloc[0]['food']
             print("\nCurrent supply of food packets at " + self.camp_name + ": " + str(cur_food))
@@ -1174,7 +1174,7 @@ class Volunteer:
             # update csv file
             chosen = (camps['camp_name'] == self.camp_name)
             camps.loc[chosen, 'food'] = cur_food - food_consumed
-            camps.to_csv(self.plan_id + '.csv', index=False)
+            camps.to_csv(os.path.join('data', self.plan_id + '.csv'), index=False)
             logging.debug("updated camps csv file")
             print("Updated supply of food packets:", cur_food - food_consumed)
             return
@@ -1184,7 +1184,7 @@ class Volunteer:
             Prompts the volunteer to enter the number of water portions consumed at their camp.
             The volunteer is asked for confirmation before the update is applied.
             """
-            camps = pd.read_csv(self.plan_id + '.csv')
+            camps = pd.read_csv(os.path.join('data', self.plan_id + '.csv'))
             my_camp = camps[camps['camp_name'] == self.camp_name]
             cur_water = my_camp.iloc[0]['water']
             print("\nCurrent supply of water portions at " + self.camp_name + ": " + str(cur_water))
@@ -1232,7 +1232,7 @@ class Volunteer:
             # update csv file
             chosen = (camps['camp_name'] == self.camp_name)
             camps.loc[chosen, 'water'] = cur_water - water_consumed
-            camps.to_csv(self.plan_id + '.csv', index=False)
+            camps.to_csv(os.path.join('data', self.plan_id + '.csv'), index=False)
             logging.debug("updated camps csv file")
             print("Updated supply of water portions:", cur_water - water_consumed)
             return
@@ -1242,7 +1242,7 @@ class Volunteer:
             Prompts the volunteer to enter the number of first-aid kits used at their camp.
             The volunteer is asked for confirmation before the update is applied.
             """
-            camps = pd.read_csv(self.plan_id + '.csv')
+            camps = pd.read_csv(os.path.join('data', self.plan_id + '.csv'))
             my_camp = camps[camps['camp_name'] == self.camp_name]
             cur_medical = my_camp.iloc[0]['firstaid_kits']
             print("\nCurrent supply of first-aid kits at " + self.camp_name + ": " + str(cur_medical))
@@ -1290,7 +1290,7 @@ class Volunteer:
             # update csv file
             chosen = (camps['camp_name'] == self.camp_name)
             camps.loc[chosen, 'firstaid_kits'] = cur_medical - medical_used
-            camps.to_csv(self.plan_id + '.csv', index=False)
+            camps.to_csv(os.path.join('data', self.plan_id + '.csv'), index=False)
             logging.debug("updated camps csv file")
             print("Updated supply of first-aid kits:", cur_medical - medical_used)
             return
@@ -1335,7 +1335,7 @@ class Volunteer:
         The volunteer is prompted for the date, start time and end time of the session.
         """
         print("\nAdd a volunteering session")
-        vol_times = pd.read_csv("volunteering_times.csv")
+        vol_times = pd.read_csv(os.path.join('data', 'volunteering_times.csv'))
         cur_user_times = vol_times[vol_times['username'] == self.username]
         # sort existing times by ascending start time (need date in YYYY-MM-DD format)
         cur_user_times = cur_user_times.sort_values(by=['start_time'])
@@ -1386,7 +1386,7 @@ class Volunteer:
 
         logging.debug(f"{self.username} has finished entering details of new volunteering session.")
         # update csv file
-        vol_times = open("volunteering_times.csv", "a")
+        vol_times = open(os.path.join('data', 'volunteering_times.csv'), "a")
         vol_times.write(f'\n{self.username},{self.plan_id},{self.camp_name},{start_time},{end_time}')
         vol_times.close()
         logging.debug("volunteering_times.csv updated")
@@ -1396,7 +1396,7 @@ class Volunteer:
     def view_volunteering_sessions(self):
         """Enables the volunteer to view all volunteering sessions they have scheduled."""
         print("\nView volunteering sessions")
-        vol_times = pd.read_csv("volunteering_times.csv")
+        vol_times = pd.read_csv(os.path.join('data', 'volunteering_times.csv'))
         cur_user_times = vol_times[vol_times['username'] == self.username]
         if len(cur_user_times.index) == 0:
             print("You do not have any volunteering sessions.")
@@ -1415,7 +1415,7 @@ class Volunteer:
     def remove_volunteering_session(self):
         """Enables the volunteer to remove a volunteering sessions they have scheduled."""
         print("\nRemove a volunteering session")
-        vol_times = pd.read_csv("volunteering_times.csv")
+        vol_times = pd.read_csv(os.path.join('data', 'volunteering_times.csv'))
         cur_user_times = vol_times[vol_times['username'] == self.username]
         if len(cur_user_times.index) == 0:
             print("You do not have any volunteering sessions.")
@@ -1473,7 +1473,7 @@ class Volunteer:
             # update csv file
             vol_times = vol_times.drop(vol_times[(vol_times['username'] == self.username) &
                                                  (vol_times['start_time'] == cur_user_times['start_time'].iloc[remove-1])].index)
-            vol_times.to_csv('volunteering_times.csv', index=False)
+            vol_times.to_csv(os.path.join('data', 'volunteering_times.csv'), index=False)
             logging.debug("volunteering_times.csv updated")
             print("Volunteering session has been removed.")
             return
@@ -1485,7 +1485,7 @@ class Volunteer:
         """
         print("\nRequest resources for your camp.")
         print("You are requesting resources for", self.camp_name, "at plan", self.plan_id)
-        camps = pd.read_csv(self.plan_id + '.csv')
+        camps = pd.read_csv(os.path.join('data', self.plan_id + '.csv'))
         my_camp = camps[camps['camp_name'] == self.camp_name]
         print("\nYour camp's current resources:")
         print("Food packets:", my_camp.iloc[0]['food'])
@@ -1580,16 +1580,16 @@ class Volunteer:
         df = pd.DataFrame(data)
 
         try:
-            existing_df = pd.read_csv('resource_requests.csv')
+            existing_df = pd.read_csv(os.path.join('data', 'resource_requests.csv'))
         except FileNotFoundError:
-            df.to_csv('resource_requests.csv', index=False)
+            df.to_csv(os.path.join('data', 'resource_requests.csv'), index=False)
             logging.info(f"{self.username} requests for more resources while no file found.\nNew csv file is created.")
             print("\nYour request is recorded successfully.\n"
                   "An administrator will respond to your request shortly.")
             return
         # Append the new data
         updated_df = pd.concat([existing_df, df], ignore_index=True)
-        updated_df.to_csv('resource_requests.csv', index=False)
+        updated_df.to_csv(os.path.join('data', 'resource_requests.csv'), index=False)
         logging.debug("Resource request complete.")
         logging.debug("resource_requests.csv updated")
 

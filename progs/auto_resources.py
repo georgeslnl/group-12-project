@@ -1,8 +1,6 @@
-import pandas as pd, numpy as np
-from datetime import datetime
-import admin
-import verify as v
+import pandas as pd, os
 import logging
+from progs import verify as v
 
 
 # By entering the plan_id and camp_name, we will get how many supplies we need exactly
@@ -13,7 +11,7 @@ def med_needed(plan_id, camp_name):
     :param camp_name: 'Camp 4' for example
     :return:
     """
-    refugees = pd.read_csv("refugees.csv")
+    refugees = pd.read_csv(os.path.join('data', 'refugees.csv'))
     filtered_refugees = refugees[(refugees['plan_id'] == plan_id) & (refugees['camp_name'] == camp_name)]
     total_med_needed = 0
 
@@ -41,8 +39,8 @@ def auto_all(hum_plan, location):
     :param location: 'London' for example
     :return:
     """
-    resources = pd.read_csv(hum_plan) # hum_plan == London_2023.csv for example
-    humani_plan = pd.read_csv("humanitarian_plan.csv")
+    resources = pd.read_csv(os.path.join('data', hum_plan)) # hum_plan == London_2023.csv for example
+    humani_plan = pd.read_csv(os.path.join('data', 'humanitarian_plan.csv'))
 
     logging.debug("Calculating the amount of each resource needed to top up all camps to 7 days of supplies.")
     # first we count how many resources we need
@@ -106,8 +104,8 @@ def auto_all(hum_plan, location):
                     humani_plan['location'] == location, 'firstaid_kits_storage'] -= firstaid_needed
                 resources.loc[i, "firstaid_kits"] += firstaid_needed
                 # write each iterate into two .csv
-                resources.to_csv(hum_plan, index=False)
-                humani_plan.to_csv("humanitarian_plan.csv", index=False)
+                resources.to_csv(os.path.join('data', hum_plan), index=False)
+                humani_plan.to_csv(os.path.join('data', 'humanitarian_plan.csv'), index=False)
             logging.debug("Auto-allocation complete. humanitarian_plan.csv and camps csv file updated.")
             print(f"\nAllocation complete. Currently, the resources in {hum_plan[:-4]} are as follows:"
                   f"\n{resources}")
@@ -130,8 +128,8 @@ def auto_one(hum_plan, location):
     :param location: 'London' for example
     :return:
     """
-    resources = pd.read_csv(hum_plan)
-    humani_plan = pd.read_csv("humanitarian_plan.csv")
+    resources = pd.read_csv(os.path.join('data', hum_plan))
+    humani_plan = pd.read_csv(os.path.join('data', 'humanitarian_plan.csv'))
     print(resources.to_string(index=False))
     logging.debug("Admin prompted to select camp.")
     while True:
@@ -199,8 +197,8 @@ def auto_one(hum_plan, location):
                     humani_plan['location'] == location, 'firstaid_kits_storage'] -= firstaid_needed
                 resources.loc[resources['camp_name'] == camp_name, "firstaid_kits"] += firstaid_needed
                 # write each iterate into two .csv
-                resources.to_csv(hum_plan, index=False)
-                humani_plan.to_csv("humanitarian_plan.csv", index=False)
+                resources.to_csv(os.path.join('data', hum_plan), index=False)
+                humani_plan.to_csv(os.path.join('data', 'humanitarian_plan.csv'), index=False)
 
                 logging.debug("Auto-allocation complete. humanitarian_plan.csv and camps csv file updated.")
                 print(f"\nAllocation complete. Currently, the resources in {hum_plan[:-4]} are as follows:"

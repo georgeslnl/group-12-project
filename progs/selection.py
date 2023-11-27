@@ -1,10 +1,10 @@
-import pandas as pd, numpy as np
+import pandas as pd, os
 import logging
 
 def select_plan():
     """Prompts the admin to select a humanitarian plan."""
     print("\nSelect a humanitarian plan.")
-    plans = pd.read_csv('humanitarian_plan.csv')
+    plans = pd.read_csv(os.path.join('data', 'humanitarian_plan.csv'))
     plans = plans[plans['end_date'].isna()]
     print("Number - Location - Start Date")
     for row in range(len(plans.index)):
@@ -32,7 +32,7 @@ def select_camp(plan_id):
     Prompts the admin to select a camp at this plan.
     """
     print("\nSelect a camp.")
-    camps = pd.read_csv(plan_id + ".csv")
+    camps = pd.read_csv(os.path.join('data', plan_id + '.csv'))
     print("Camp Name - # Volunteers - # Refugees - Refugee Capacity")
     for row in range(len(camps.index)):
         print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
