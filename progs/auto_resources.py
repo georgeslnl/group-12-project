@@ -84,7 +84,7 @@ def auto_all(hum_plan, location):
         print(f"\nA total of {sum_needed[0]} food packets, {sum_needed[1]} water portions "
             f"and {sum_needed[2]} first-aid kits will be added to camps from storage.")
         print("Would you like to proceed?")
-        confirm = input("Enter [Y] or [N]: ").capitalize()
+        confirm = input(">>Enter [Y] or [N]: ").capitalize()
         if confirm == "Y":
             logging.debug("Auto-allocation confirmed. Resources will be topped up to each camp in turn.")
             for i in resources.index:
@@ -113,11 +113,11 @@ def auto_all(hum_plan, location):
                   f"\n{humani_plan.loc[humani_plan.location == location, ['location', 'start_date', 'food_storage', 'water_storage', 'firstaid_kits_storage']]}\n")
             return
         elif confirm == "N":
-            print("Now returning to admin resources menu.")
+            print("\nNow returning to admin resources menu.")
             logging.debug("Admin did not confirm. Returning to resources menu.")
             return
         else:
-            print("Please enter the correct input (Y/N).")
+            print("\nPlease enter the correct input (Y/N).")
             logging.error("Invalid user input.")
 
 def auto_one(hum_plan, location):
@@ -134,13 +134,13 @@ def auto_one(hum_plan, location):
     logging.debug("Admin prompted to select camp.")
     while True:
         camp_no = v.integer("\nEnter [0] to return to the previous menu."
-                            "\nEnter the number of the camp to which you would like to allocate resources: ")
+                            "\n>>Enter the number of the camp to which you would like to allocate resources: ")
         if camp_no == 0:
             logging.debug("Returning to previous menu.")
             return
         camp_name = f"Camp {camp_no}"
         if not any(resources['camp_name'].str.contains(f"Camp {camp_no}")):
-            print('Please enter the number of an existing camp in this humanitarian plan.')
+            print('\nPlease enter the number of an existing camp in this humanitarian plan.')
             logging.error("Invalid user input.")
             continue
 
@@ -167,7 +167,7 @@ def auto_one(hum_plan, location):
             humani_plan.loc[humani_plan['location'] == location, 'firstaid_kits_storage'].iloc[0])
         # if storage resources insufficient
         if food_in_storage < food_needed or water_in_storage < water_needed or firstaid_in_storage < firstaid_needed:
-            print("Resources insufficient, please request new resources.\n"
+            print("\nResources insufficient, please request new resources.\n"
                   "Now returning to camp selection.")
             logging.warning("Insufficient resources in storage. Unable to auto-allocate.")
             continue
@@ -178,7 +178,7 @@ def auto_one(hum_plan, location):
             print(f"\n{food_needed} food packets, {water_needed} water portions "
                   f"and {firstaid_needed} first-aid kits will be added to {camp_name} from storage.")
             print("Would you like to proceed?")
-            confirm = input("Enter [Y] or [N]: ").capitalize()
+            confirm = input(">>Enter [Y] or [N]: ").capitalize()
             if confirm == "N":
                 print("Now returning to admin resources menu.")
                 logging.debug("Admin did not confirm. Returning to resources menu.")
@@ -207,5 +207,5 @@ def auto_one(hum_plan, location):
                       f"\n{humani_plan.loc[humani_plan.location == location, ['location', 'start_date', 'food_storage', 'water_storage', 'firstaid_kits_storage']]}\n")
                 return
             else:
-                print("Please enter the correct input (Y/N).")
+                print("\nPlease enter the correct input (Y/N).")
                 logging.error("Invalid user input.")

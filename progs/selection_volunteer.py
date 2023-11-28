@@ -14,7 +14,7 @@ def select_plan():
     logging.debug("Admin prompted to select humanitarian plan.")
     while True:
         print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
-        plan_num = input("Enter the number of your chosen plan: ")
+        plan_num = input(">>Enter the number of your chosen plan: ")
         if plan_num.upper() in ("X", "B"):
             return plan_num.upper()
         try:
@@ -22,7 +22,7 @@ def select_plan():
             if plan_num not in range(1, len(plans.index) + 1):
                 raise ValueError
         except ValueError:
-            print("Please enter a plan number corresponding to a humanitarian plan listed above.")
+            print("\nPlease enter a plan number corresponding to a humanitarian plan listed above.")
             logging.error("Invalid user input.")
             continue
         return plans['plan_id'].iloc[plan_num-1]
@@ -46,9 +46,9 @@ def select_camp(plan_id, active):
     if len(users.index) == 0:
         logging.warning("No volunteers to select from.")
         if active:
-            print("There are no camps with active volunteers at the selected plan. Please try again.")
+            print("\nThere are no camps with active volunteers at the selected plan. Please try again.")
         else:
-            print("There are no camps with volunteers at the selected plan. Please try again.")
+            print("\nThere are no camps with volunteers at the selected plan. Please try again.")
         return "B"
 
     print("\nSelect a camp.")
@@ -62,7 +62,7 @@ def select_camp(plan_id, active):
     logging.debug("Admin prompted to select camp.")
     while True:
         print("\nEnter [X] to return to the previous menu or [B] to go back to plan selection.")
-        camp_num = input("Enter the number of your chosen camp: ")
+        camp_num = input(">>Enter the number of your chosen camp: ")
         if camp_num.upper() in ("X", "B"):
             return camp_num.upper()
         try:
@@ -70,7 +70,7 @@ def select_camp(plan_id, active):
             if camp_num not in range(1, len(camps.index) + 1):
                 raise ValueError
         except ValueError:
-            print("Please enter a camp number corresponding to a camp listed above.")
+            print("\nPlease enter a camp number corresponding to a camp listed above.")
             logging.error("Invalid user input.")
             continue
         return camps['camp_name'].iloc[camp_num-1]
@@ -91,9 +91,9 @@ def select_camp_none(plan_id, active):
     if len(users.index) == 0:
         logging.warning("No volunteers to select from.")
         if active:
-            print("There are no active volunteers at the selected plan. Please try again.")
+            print("\nThere are no active volunteers at the selected plan. Please try again.")
         else:
-            print("There are no volunteers at the selected plan. Please try again.")
+            print("\nThere are no volunteers at the selected plan. Please try again.")
         return "B"
 
     print("\nSelect a camp.")
@@ -108,7 +108,7 @@ def select_camp_none(plan_id, active):
     while True:
         print("\nEnter [X] to return to the previous menu or [B] to go back to plan selection.")
         print("If the volunteer has no camp identification, enter [N].")
-        camp_num = input("Enter the number of your chosen camp: ")
+        camp_num = input(">>Enter the number of your chosen camp: ")
         if camp_num.upper() in ("X", "B"):
             return camp_num.upper()
         if camp_num.upper() == "N":
@@ -118,7 +118,7 @@ def select_camp_none(plan_id, active):
             if camp_num not in range(1, len(camps.index) + 1):
                 raise ValueError
         except ValueError:
-            print("Please enter a camp number corresponding to a camp listed above.")
+            print("\nPlease enter a camp number corresponding to a camp listed above.")
             logging.error("Invalid user input.")
             continue
         return camps['camp_name'].iloc[camp_num-1]
@@ -161,7 +161,7 @@ def select_volunteer(plan_id, camp_name, active):
             print("Enter [1] to list the usernames of all active volunteers at the selected camp.")
         else:
             print("Enter [1] to list the usernames of all volunteers at the selected camp.")
-        username = input("Enter the username of your chosen volunteer: ")
+        username = input(">>Enter the username of your chosen volunteer: ")
         if username in ("0", "9"):
             return username
         if username == "1":
@@ -222,13 +222,13 @@ def initial_selection(active, none):
         logging.debug("Admin prompted to choose between entering username directly and selecting plan and camp first.")
         print("\nEnter [1] to select a volunteer by entering the username directly")
         print("Enter [2] to filter by plan and camp before selecting a volunteer")
-        print("Enter [0] to return to the previous menu")
+        print("Enter [0] to return to the previous menu\n")
         try:
-            option = int(input("Select an option: "))
+            option = int(input(">>Select an option: "))
             if option not in range(3):
                 raise ValueError
         except:
-            print("Please enter a number from the options provided.")
+            print("\nPlease enter a number from the options provided.")
             logging.error("Invalid user input.")
             continue
         if option in (0, 2):
@@ -238,13 +238,13 @@ def initial_selection(active, none):
         logging.debug("Admin prompted to enter volunteer's username.")
         while True:
             print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-            username = input("Enter the username of your chosen volunteer: ")
+            username = input(">>Enter the username of your chosen volunteer: ")
             if username == "0":
                 return 0
             if username == "9":
                 break
             if username not in users['username'].values:
-                print("Username not found. Please try again.")
+                print("\nUsername not found. Please try again.")
                 logging.error("Username not found.")
                 continue
             break

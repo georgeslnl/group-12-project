@@ -7,18 +7,18 @@ def add_description():
     while True:
         print("\nEnter [0] to return to the previous menu.")
         try:
-            desc = input("Please enter a description of the event: ").strip()
+            desc = input(">>Please enter a description of the event: ").strip()
             if desc == "0":
                 return desc
             s = re.search("[a-zA-Z]", desc)
             if not s:
                 raise ValueError
         except ValueError:
-            print("Please ensure description contains text.")
+            print("\nPlease ensure description contains text.")
             logging.error("Invalid user input.")
             continue
         if len(desc) > 200:
-            print("Description cannot exceed 200 characters.")
+            print("\nDescription cannot exceed 200 characters.")
             logging.error("Description entered is too long.")
             continue
         return desc
@@ -32,18 +32,18 @@ def add_location():
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
         try:
-            loc = input("Please enter the location (city) of the event: ").strip()
+            loc = input(">>Please enter the location (city) of the event: ").strip()
             if loc in ("0", "9"):
                 return loc
             s = re.search("[a-zA-Z]", loc)
             if not s:
                 raise ValueError
         except ValueError:
-            print("Please ensure location contains text.")
+            print("\nPlease ensure location contains text.")
             logging.error("Invalid user input.")
             continue
         if loc.lower() not in v.valid_cities:
-            print("The city you have entered does not exist. Please try again.")
+            print("\nThe city you have entered does not exist. Please try again.")
             logging.error("Location entered is not a valid city name.")
             continue
         return loc
@@ -58,24 +58,24 @@ def add_start_date(location):
     logging.debug("Admin prompted to enter start date of plan.")
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-        start_date = input("Please enter the start date of the event (DD-MM-YYYY): ").strip()
+        start_date = input(">>Please enter the start date of the event (DD-MM-YYYY): ").strip()
         if start_date in ("0", "9"):
             return start_date
         try:
             start = datetime.datetime.strptime(start_date, "%d-%m-%Y").date()
         except ValueError:
-            print("Incorrect date format. Please use the format DD-MM-YYYY (e.g. 23-07-1999).")
+            print("\nIncorrect date format. Please use the format DD-MM-YYYY (e.g. 23-07-1999).")
             logging.error("Invalid user input.")
             continue
         t = datetime.date.today()
         if start > t:
-            print("Start date cannot be in the future. Please try again.")
+            print("\nStart date cannot be in the future. Please try again.")
             logging.error("Admin entered a start date in the future.")
             continue
         new_id = location + "_" + start_date[6:]
         plans = pd.read_csv(os.path.join('data', 'humanitarian_plan.csv'))
         if new_id in plans['plan_id'].values:
-            print("There is already a humanitarian plan with plan ID", new_id + ",",
+            print("\nThere is already a humanitarian plan with plan ID", new_id + ",",
                   "i.e. location in", location, "and start date in", start_date[6:] + ".",
                   "\nYou will be prompted to re-enter the location.")
             logging.error("plan_id (location and start year) already exists.")
@@ -87,9 +87,9 @@ def add_start_date(location):
                 print("\nWarning: More than 30 days have elapsed since the start date.")
                 print("Do you wish to proceed?")
                 print("Enter [1] to proceed")
-                print("Enter [9] to re-enter start date")
+                print("Enter [9] to re-enter start date\n")
                 try:
-                    option = int(input("Select an option: "))
+                    option = int(input(">>Select an option: "))
                     if option not in (1, 9):
                         raise ValueError
                 except ValueError:
@@ -111,7 +111,7 @@ def add_num_camps():
     while True:
         print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
         nb_of_camps = input("The maximum number of camps is 15."
-                            "\nPlease enter the number of camps to set up: ").strip()
+                            "\n>>Please enter the number of camps to set up: ").strip()
         if nb_of_camps.upper() in ("X", "B"):
             return nb_of_camps.upper()
         try:
@@ -119,11 +119,11 @@ def add_num_camps():
             if nb_of_camps <= 0:
                 raise ValueError
         except ValueError:
-            print("Please enter a positive integer.")
+            print("\nPlease enter a positive integer.")
             logging.error("Invalid user input.")
             continue
         if nb_of_camps > 15:
-            print("Number of camps cannot exceed 15.")
+            print("\nNumber of camps cannot exceed 15.")
             logging.error("Number of camps entered is more than 15.")
             continue
         return nb_of_camps
@@ -134,22 +134,22 @@ def edit_description(plan_id, cur_desc):
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
         try:
-            new_desc = input(f'Enter the new description of {plan_id}: ').strip()
+            new_desc = input(f'>>Enter the new description of {plan_id}: ').strip()
             if new_desc in ("0", "9"):
                 return new_desc
             s = re.search("[a-zA-Z]", new_desc)
             if not s:
                 raise ValueError
         except ValueError:
-            print("Please ensure description contains text.")
+            print("\nPlease ensure description contains text.")
             logging.error("Invalid user input.")
             continue
         if new_desc == cur_desc:
-            print("Description is unchanged. Please try again.")
+            print("\nDescription is unchanged. Please try again.")
             logging.error("Description is unchanged.")
             continue
         if len(new_desc) > 200:
-            print("Description cannot exceed 200 characters.")
+            print("\nDescription cannot exceed 200 characters.")
             logging.error("Description entered is too long.")
             continue
         break
@@ -175,8 +175,8 @@ def edit_no_camps(plan_id, num_camps):
     logging.debug("Admin prompted to enter new number of camps.")
     while True:
         print("\nEnter [X] to return to the previous menu or [B] to go back to the previous step.")
-        print("The maximum number of camps is 15.")
-        new_num = input(f'Enter the new number of camps for {plan_id}: ')
+        print("The maximum number of camps is 15.\n")
+        new_num = input(f'>>Enter the new number of camps for {plan_id}: ')
         if new_num in ("X", "B"):
             return new_num
         try:
@@ -184,12 +184,12 @@ def edit_no_camps(plan_id, num_camps):
             if new_num not in range(1, 16):
                 raise ValueError
         except ValueError:
-            print('Please enter an integer between 1 and 15.')
+            print('\nPlease enter an integer between 1 and 15.')
             logging.error("Invalid user input.")
             continue
         if new_num == num_camps:
-            print('Number entered is equal to the current number of camps. '
-                  'Please enter a different integer between 1 and 15.')
+            print('\nNumber entered is equal to the current number of camps. '
+                  '\nPlease enter a different integer between 1 and 15.')
             logging.error("Number of camps is unchanged.")
             continue
         break
@@ -219,15 +219,15 @@ def edit_no_camps(plan_id, num_camps):
                               f'deleted, \nvolunteers will be disaffiliated with any camps, and resources belonging to '
                               f'these camps will be lost.'
                               f'\n\n Please choose not to only if the area of this plan no longer needs assistance.'
-                              f'\nEnter [Y] for yes, [N] for no: ')
+                              f'\n>>Enter [Y] for yes, [N] for no: ')
             if choice != 'Y' and choice != 'N':
-                print('Please enter [Y] for reallocating refugees, volunteers and resources, [N] for no.')
+                print('\nPlease enter [Y] for reallocating refugees, volunteers and resources, [N] for no.')
                 logging.error("Invalid user input.")
             else:
                 if choice == 'N':
                     logging.debug("Admin chose not to reallocate.")
                     # all refugee profiles will be deleted and volunteers camps removed
-                    print('All refugee profiles belonging to those camps will be deleted.')
+                    print('\nAll refugee profiles belonging to those camps will be deleted.')
                     logging.debug("Removing refugee profiles.")
                     refugee_df = refugee_df.drop(refugee_df[(refugee_df['plan_id'] == plan_id)
                                                             & (refugee_df['camp_name'].isin(closed_camps))].index)

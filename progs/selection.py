@@ -14,13 +14,13 @@ def select_plan():
     while True:
         print("\nEnter [0] to return to the previous menu.")
         try:
-            plan_num = int(input("Enter the number of your chosen plan: "))
+            plan_num = int(input(">>Enter the number of your chosen plan: "))
             if plan_num == 0:
                 return plan_num
             if plan_num not in range(1, len(plans.index) + 1):
                 raise ValueError
         except ValueError:
-            print("Please enter a plan number corresponding to a humanitarian plan listed above.")
+            print("\nPlease enter a plan number corresponding to a humanitarian plan listed above.")
             logging.error("Invalid user input.")
             continue
         return plans['plan_id'].iloc[plan_num-1]
@@ -41,7 +41,7 @@ def select_camp(plan_id):
     logging.debug("Admin prompted to select camp.")
     while True:
         print("\nEnter [X] to return to the previous menu or [B] to go back to plan selection.")
-        camp_num = input("Enter the number of your chosen camp: ")
+        camp_num = input(">>Enter the number of your chosen camp: ")
         if camp_num.upper() in ("X", "B"):
             return camp_num.upper()
         try:
@@ -49,7 +49,7 @@ def select_camp(plan_id):
             if camp_num not in range(1, len(camps.index) + 1):
                 raise ValueError
         except ValueError:
-            print("Please enter a camp number corresponding to a camp listed above.")
+            print("\nPlease enter a camp number corresponding to a camp listed above.")
             logging.error("Invalid user input.")
             continue
         return camps['camp_name'].iloc[camp_num-1]
