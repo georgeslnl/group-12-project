@@ -28,7 +28,7 @@ def main_menu():
         print("Enter [2] for Volunteer")
         print("Enter [0] to exit the application\n")
         try:
-            login_option = int(input(">>Enter your option: "))
+            login_option = int(input(">>Select an option: "))
             if login_option not in (0, 1, 2):
                 raise ValueError
         except ValueError:
@@ -102,7 +102,7 @@ def main_menu_vol():
         print("Enter [2] to login as Volunteer")
         print("Enter [0] to return to main menu\n")
         try:
-            login_option_vol = int(input(">>Enter your option: "))
+            login_option_vol = int(input(">>Select an option: "))
             if login_option_vol not in (0, 1, 2):
                 raise ValueError
         except ValueError:

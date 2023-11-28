@@ -38,7 +38,7 @@ class Volunteer:
                 print("Enter [5] to add, view or remove volunteering sessions")
                 print("Enter [0] to logout\n")
                 try:
-                    option = int(input(">>Enter your option: "))
+                    option = int(input(">>Select an option: "))
                     if option not in range(6):
                         raise ValueError
                 except ValueError:
@@ -77,7 +77,7 @@ class Volunteer:
                 print("Enter [3] to update your camp identification")
                 print("Enter [0] to return to the volunteer menu\n")
                 try:
-                    option = int(input(">>Enter your option: "))
+                    option = int(input(">>Select an option: "))
                     if option not in range(4):
                         raise ValueError
                 except ValueError:
@@ -118,7 +118,7 @@ class Volunteer:
                 print("Enter [3] to edit or remove a refugee profile")
                 print("Enter [0] to return to the volunteer menu\n")
                 try:
-                    option = int(input(">>Enter your option: "))
+                    option = int(input(">>Select an option: "))
                     if option not in range(4):
                         raise ValueError
                 except ValueError:
@@ -201,7 +201,7 @@ class Volunteer:
                 print("Enter [3] to remove a volunteering session")
                 print("Enter [0] to return to the volunteer menu")
                 try:
-                    user_input = input(">>Enter your option: ")
+                    user_input = input(">>Select an option: ")
                     option = int(user_input)
                     if option not in range(4):
                         raise ValueError
@@ -244,7 +244,7 @@ class Volunteer:
             print("Enter [1] to proceed")
             print("Enter [0] to return to the volunteer menu\n")
             try:
-                option = int(input(">>Enter your option: "))
+                option = int(input(">>Select an option: "))
                 if option not in (0, 1):
                     raise ValueError
             except ValueError:
@@ -293,7 +293,7 @@ class Volunteer:
             print("\nEnter [1] if you would like to view your password. The password will appear in plain text.")
             print("Enter [0] to return to the previous menu")
             try:
-                option = int(input(">>Enter your option: "))
+                option = int(input(">>Select an option: "))
                 if option not in (0, 1):
                     raise ValueError
             except ValueError:
@@ -577,7 +577,7 @@ class Volunteer:
                 print("Enter [7] for phone number")
                 print("Enter [0] to return to the previous menu\n")
                 try:
-                    option = int(input(">>Enter your option: "))
+                    option = int(input(">>Select an option: "))
                     if option not in range(8):
                         raise ValueError
                 except ValueError:
@@ -693,7 +693,7 @@ class Volunteer:
                 print("Enter [2] to remove camp identification")
                 print("Enter [0] to return to the previous menu\n")
                 try:
-                    option = int(input(">>Enter your option: "))
+                    option = int(input(">>Select an option: "))
                     if option not in range(3):
                         raise ValueError
                 except ValueError:
