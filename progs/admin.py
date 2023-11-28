@@ -232,7 +232,7 @@ class Admin:
         The admin is prompted for the volunteer's details one by one.
         """
         print("\n--------------------------------------------")
-        print("\tCREATE VOLUNTEER ACCOUNTS")
+        print("\tCREATE VOLUNTEER ACCOUNT")
         print("You will be prompted to enter the volunteer's details.")
 
         progress = 0
@@ -1069,7 +1069,7 @@ class Admin:
                 logging.debug(f"Admin prompted to enter number of additional water portions needed for {plan_id}.")
                 while True:
                     print("\nEnter [B] to return to the previous step.")
-                    amount_requested = input(f'Enter the number of additional water portions you would like to request for {plan_id}: ')
+                    amount_requested = input(f'>>Enter the number of additional water portions you would like to request for {plan_id}: ')
                     if amount_requested.upper() == "B":
                         logging.debug("Returning to previous step.")
                         break
@@ -1754,7 +1754,7 @@ class Admin:
         If the volunteer currently has a camp, the admin can select whether to change the camp or remove the volunteer's camp identification.
         """
         print("\n--------------------------------------------")
-        print("  UPDATE VOLUNTEERS' CAMP IDENTIFICATIONS")
+        print("  UPDATE VOLUNTEER'S CAMP IDENTIFICATION")
         print("Select the volunteer whose camp identification you are updating.")
         selected = select_plan_camp_vol(active=1, none=1)  # returns (plan_id, camp_name, username)
         if selected == 0:
@@ -2161,7 +2161,7 @@ class Admin:
         The admin is prompted for the date, start time and end time of the session.
         """
         print("\n--------------------------------------------")
-        print("\tADD VOLUNTEERING SESSIONS")
+        print("\tADD VOLUNTEERING SESSION")
         print("Select the volunteer for whom you are adding a session.")
         selected = select_plan_camp_vol(active=1, none=0)
         if selected == 0:

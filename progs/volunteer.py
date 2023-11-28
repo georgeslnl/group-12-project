@@ -1329,7 +1329,7 @@ class Volunteer:
             camps.loc[chosen, 'firstaid_kits'] = cur_medical - medical_used
             camps.to_csv(os.path.join('data', self.plan_id + '.csv'), index=False)
             logging.debug("updated camps csv file")
-            print("\nFirst-aid kits supply updated successfully!")
+            print("\nSupply of first-aid kits updated successfully!")
             print("Updated supply of first-aid kits:", cur_medical - medical_used)
             return
 
@@ -1374,7 +1374,7 @@ class Volunteer:
         The volunteer is prompted for the date, start time and end time of the session.
         """
         print("\n--------------------------------------------")
-        print("\tADD VOLUNTEERING SESSIONS")
+        print("\tADD VOLUNTEERING SESSION")
         vol_times = pd.read_csv(os.path.join('data', 'volunteering_times.csv'))
         cur_user_times = vol_times[vol_times['username'] == self.username]
         # sort existing times by ascending start time (need date in YYYY-MM-DD format)
@@ -1456,7 +1456,7 @@ class Volunteer:
     def remove_volunteering_session(self):
         """Enables the volunteer to remove a volunteering sessions they have scheduled."""
         print("\n--------------------------------------------")
-        print("\tREMOVE VOLUNTEERING SESSIONS")
+        print("\tREMOVE VOLUNTEERING SESSION")
         vol_times = pd.read_csv(os.path.join('data', 'volunteering_times.csv'))
         cur_user_times = vol_times[vol_times['username'] == self.username]
         if len(cur_user_times.index) == 0:
@@ -1606,7 +1606,7 @@ class Volunteer:
                 if food == 0 and water == 0 and kits == 0:
                     print("\nYou cannot request 0 of all resources. Please enter your request again.")
                     logging.error(f"{self.username} requested 0 of all resources. "
-                                  f"They will be promoted to re-enter the request.")
+                                  f"They will be prompted to re-enter the request.")
                     progress = 0
                 else:
                     progress += 1

@@ -20,7 +20,7 @@ def add_plan():
             print(row + 1, plans['location'].iloc[row], plans['description'].iloc[row],
                   plans['start_date'].iloc[row], str(plans['number_of_camps'].iloc[row]) + " camps", sep=" - ")
         print("Enter [X] to return to the previous menu.\n")
-        plan_num = input(">>Enter the number corresponding to the plan you would like to join: ")
+        plan_num = input(">>Enter the number of the plan you would like to join: ")
         if plan_num.upper() == "X":
             return plan_num.upper()
         try:
@@ -56,7 +56,7 @@ def add_camp(plan_id):
         print("Enter [X] to return to the previous menu"
               "\nEnter [B] to go back to the previous step"
               "\nEnter [N] to proceed without camp identification\n")
-        camp_num = input(">>Enter the number corresponding to the camp you would like to join (e.g. [1] for Camp 1): ")
+        camp_num = input(">>Enter the number of the camp you would like to join (e.g. [1] for Camp 1): ")
         if camp_num.upper() in ("X", "B"):
             return camp_num.upper()
         elif camp_num.upper() == "N":
@@ -540,7 +540,7 @@ def edit_dob(username, date_of_birth):
     users.loc[cur_user, 'date_of_birth'] = new_dob
     users.to_csv(os.path.join('data', 'users.csv'), index=False)
     logging.debug("users.csv updated")
-    print("Date fo birth updated successfully!")
+    print("Date of birth updated successfully!")
     print("You have corrected " + username + "'s date of birth to:", new_dob)
     logging.debug("Date of birth updated successfully")
     return
