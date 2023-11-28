@@ -901,7 +901,7 @@ class Volunteer:
         print("Medical condition:", medical_str)
         print("No. of family members:", family)
         print("Additional remarks:", remarks)
-        print("The refugee and their family members have now been added to " + self.camp_name + ".")
+        print("The refugee and their family have been added to " + self.camp_name + ".")
         return
 
     def view_refugee_profile(self):
@@ -911,7 +911,7 @@ class Volunteer:
         refugees = pd.read_csv(os.path.join('data', 'refugees.csv'))
         refugees = refugees[(refugees['plan_id'] == self.plan_id) & (refugees['camp_name'] == self.camp_name)]
         if len(refugees.index) == 0:
-            print("There is no refugee at your camp now.")
+            print("There are no refugees at your current camp.")
             logging.warning(f"No refugees at {self.username}'s camp. Returning to previous menu.")
             return
 
@@ -991,7 +991,7 @@ class Volunteer:
         refugees = pd.read_csv(os.path.join('data', 'refugees.csv'))
         refugees = refugees[(refugees['plan_id'] == self.plan_id) & (refugees['camp_name'] == self.camp_name)]
         if len(refugees.index) == 0:
-            print("There is no refugee at your camp now.")
+            print("There are no refugees at your current camp.")
             logging.warning(f"No refugees at {self.username}'s camp. Returning to previous menu.")
             return
 
