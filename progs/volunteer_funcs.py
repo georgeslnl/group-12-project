@@ -14,13 +14,13 @@ def add_plan():
 
     logging.debug("User prompted to select humanitarian plan.")
     while True:
-        print("\nEnter [X] to return to the previous menu.")
-        print("Choose a plan.")
-        print("\nNumber - Location - Event Description - Start Date - # Camps")
+        print("\nChoose a plan.")
+        print("Number - Location - Event Description - Start Date - # Camps")
         for row in range(len(plans.index)):
             print(row + 1, plans['location'].iloc[row], plans['description'].iloc[row],
                   plans['start_date'].iloc[row], str(plans['number_of_camps'].iloc[row]) + " camps", sep=" - ")
-        plan_num = input("Enter the number of the plan you would like to join: ")
+        print("Enter [X] to return to the previous menu.\n")
+        plan_num = input(">>Enter the number corresponding to the plan you would like to join: ")
         if plan_num.upper() == "X":
             return plan_num.upper()
         try:
@@ -28,13 +28,13 @@ def add_plan():
             if plan_num not in range(1, len(plans.index) + 1):
                 raise ValueError
         except ValueError:
-            print("Please enter a number from the options provided.")
+            print("\nPlease enter a number from the options provided.")
             logging.error("Invalid user input.")
             continue
         break
 
     plan_id = plans['plan_id'].iloc[plan_num - 1]
-    print("Your plan ID is:", plan_id)
+    print("\nYour plan ID is:", plan_id)
     return plan_id  # e.g. London_2023
 
 
@@ -47,15 +47,16 @@ def add_camp(plan_id):
 
     logging.debug("User prompted to select camp.")
     while True:
-        print(
-            "\nEnter [X] to return to the previous menu, [B] to go back to the previous step or [N] to proceed without camp identification.")
-        print("Choose a camp.")
+        print("\nChoose a camp.")
         print("Camp Name - # Volunteers - # Refugees - Capacity")
         for row in range(len(camps.index)):
             print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
                   str(camps['refugees'].iloc[row]) + " refugees",
                   str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
-        camp_num = input("Enter the number of the camp you would like to join (e.g. [1] for Camp 1): ")
+        print("Enter [X] to return to the previous menu"
+              "\nEnter [B] to go back to the previous step"
+              "\nEnter [N] to proceed without camp identification\n")
+        camp_num = input(">>Enter the number corresponding to the camp you would like to join (e.g. [1] for Camp 1): ")
         if camp_num.upper() in ("X", "B"):
             return camp_num.upper()
         elif camp_num.upper() == "N":
@@ -65,12 +66,12 @@ def add_camp(plan_id):
             if camp_num not in range(1, len(camps.index) + 1):
                 raise ValueError
         except ValueError:
-            print("Please enter the number of a camp from the list displayed.")
+            print("\nPlease enter the number of a camp from the list displayed.")
             logging.error("Invalid user input.")
             continue
 
         camp_name = "Camp " + str(camp_num)
-        print("You have chosen", camp_name + ".")
+        print("\nYou have chosen", camp_name + ".")
         return camp_name
 
 
@@ -78,26 +79,26 @@ def add_username():
     """Prompts the user to enter the volunteer's username."""
     logging.debug("User prompted to enter username.")
     while True:
-        print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-        username = input("Enter username: ").strip()
+        print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.\n")
+        username = input(">>Enter username: ").strip()
         if username in ("0", "9"):
             return username
         # validation
         if username == "":
-            print("Please enter a username.")
+            print("\nPlease enter a username.")
             logging.error("User did not enter a username.")
             continue
         s = re.search("^[a-zA-Z]+[a-zA-Z0-9_]*$", username)
         if not s:
             print(
-                "Username can only contain letters, digits (0-9) and underscore (_), "
-                "and must start with a letter. Please choose another username.")
+                "\nUsername can only contain letters, digits (0-9) and underscore (_), "
+                "and must start with a letter. \nPlease choose another username.")
             logging.error("Invalid user input.")
             continue
         users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
         select_username = users[users['username'] == username]
         if len(select_username.index) > 0:  # username already exists
-            print("Username is taken. Please choose another username.")
+            print("\nUsername is taken. Please choose another username.")
             logging.error("User entered a username that already exists.")
             continue
         return username
@@ -107,18 +108,18 @@ def add_password():
     """Prompts the user to enter the volunteer's password."""
     logging.debug("User prompted to enter password.")
     while True:
-        print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-        password = input("Enter password: ")  # use 111 for demonstration
+        print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.\n")
+        password = input(">>Enter password: ")  # use 111 for demonstration
         if password in ("0", "9"):
             return password
         # validation
         if len(password) < 3:
-            print("Password should be at least 3 characters.")
+            print("\nPassword should be at least 3 characters.")
             logging.error("Invalid user input.")
             continue
         s = re.search("[, ]", password)
         if s:
-            print("Password cannot contain commas or spaces. Please choose another password.")
+            print("\nPassword cannot contain commas or spaces. Please choose another password.")
             logging.error("Invalid user input.")
             continue
         return password
@@ -128,19 +129,19 @@ def add_first_name():
     """Prompts the user to enter the volunteer's first name."""
     logging.debug("User prompted to enter first name.")
     while True:
-        print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-        first_name = input("Enter first name: ").strip()
+        print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.\n")
+        first_name = input(">>Enter first name: ").strip()
         if first_name in ("0", "9"):
             return first_name
         # validation
         if first_name == "":
-            print("Please enter a first name.")
+            print("\nPlease enter a first name.")
             logging.error("User did not enter a first name.")
             continue
         s = re.search("^[A-Z][a-zA-Z-' ]*$", first_name)
         if not s:
-            print(
-                "First name can only contain letters, hyphen (-) and apostrophe ('), and must start with a capital letter.")
+            print("\nFirst name can only contain letters, hyphen (-) and apostrophe ('), "
+                  "and must start with a capital letter.")
             logging.error("Invalid user input.")
             continue
         return first_name
@@ -150,18 +151,18 @@ def add_last_name():
     """Prompts the user to enter the volunteer's last name."""
     logging.debug("User prompted to enter last name.")
     while True:
-        print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-        last_name = input("Enter last name: ").strip()
+        print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.\n")
+        last_name = input(">>Enter last name: ").strip()
         if last_name in ("0", "9"):
             return last_name
         # validation
         if last_name == "":
-            print("Please enter a last name.")
+            print("\nPlease enter a last name.")
             logging.error("User did not enter a last name.")
             continue
         s = re.search("^[a-zA-Z-' ]+$", last_name)
         if not s:
-            print("Last name can only contain letters, hyphen (-) and apostrophe (').")
+            print("\nLast name can only contain letters, hyphen (-) and apostrophe (').")
             logging.error("Invalid user input.")
             continue
         return last_name
@@ -175,13 +176,13 @@ def add_gender():
         print("Gender:")
         print("Enter [1] for male")
         print("Enter [2] for female")
-        print("Enter [3] for non-binary")
+        print("Enter [3] for non-binary\n")
         try:
-            gender = int(input("Select an option: "))
+            gender = int(input(">>Select an option: "))
             if gender not in (0, 1, 2, 3, 9):
                 raise ValueError
         except ValueError:
-            print("Please enter a number from the options provided.")
+            print("\nPlease enter a number from the options provided.")
             logging.error("Invalid user input.")
             continue
         return gender
@@ -194,24 +195,24 @@ def add_dob():
     """
     logging.debug("User prompted to enter date of birth.")
     while True:
-        print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-        date_of_birth = input("Enter your date of birth in the format DD-MM-YYYY: ").strip()
+        print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.\n")
+        date_of_birth = input(">>Enter your date of birth in the format DD-MM-YYYY: ").strip()
         if date_of_birth in ("0", "9"):
             return date_of_birth
         try:
             dob = datetime.datetime.strptime(date_of_birth, "%d-%m-%Y").date()
         except ValueError:
-            print("Incorrect date format. Please use the format DD-MM-YYYY (e.g. 23-07-1999).")
+            print("\nIncorrect date format. Please use the format DD-MM-YYYY (e.g. 23-07-1999).")
             logging.error("Invalid user input.")
             continue
         t = datetime.date.today()
         if dob > t:
-            print("Date of birth cannot be in the future. Please try again.")
+            print("\nDate of birth cannot be in the future. Please try again.")
             logging.error("User entered a date of birth in the future.")
             continue
         if t.year - dob.year < 18 or (t.year - dob.year == 18 and t.month < dob.month) or (
                 t.year - dob.year == 18 and t.month == dob.month and t.day < dob.day):
-            print("Volunteers must be at least 18 years old.")
+            print("\nVolunteers must be at least 18 years old.")
             logging.warning("Volunteer is less than 18 years old based on date of birth.")
             opt = invalid_age_option()  # allows user to exit if they are ineligible
             if opt == 1:
@@ -220,7 +221,7 @@ def add_dob():
                 return "0"
         if t.year - dob.year > 100 or (t.year - dob.year == 100 and t.month > dob.month) or (
                 t.year - dob.year == 100 and t.month == dob.month and t.day >= dob.day):
-            print("Volunteers must be 18-99 years old (inclusive).")
+            print("\nVolunteers must be 18-99 years old (inclusive).")
             logging.warning("Volunteer is more than 99 years old based on date of birth.")
             opt = invalid_age_option()
             if opt == 1:
@@ -238,13 +239,13 @@ def invalid_age_option():
     logging.debug("User prompted to choose whether to re-enter date of birth or return to previous menu.")
     while True:
         print("Enter [1] to re-enter date of birth")
-        print("Enter [0] to return to the previous menu")
+        print("Enter [0] to return to the previous menu\n")
         try:
-            opt = int(input("Select an option: "))
+            opt = int(input(">>Select an option: "))
             if opt not in (0, 1):
                 raise ValueError
         except ValueError:
-            print("Please enter a number from the options provided.\n")
+            print("\nPlease enter a number from the options provided.\n")
             logging.error("Invalid user input.")
             continue
         return opt
@@ -254,18 +255,18 @@ def add_email():
     """Prompts the user to enter the volunteer's email address."""
     logging.debug("User prompted to enter email address.")
     while True:
-        print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
-        email = input("Enter email address: ").strip()
+        print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.\n")
+        email = input(">>Enter email address: ").strip()
         if email in ("0", "9"):
             return email
         # validation: email should be of the form "xxx@yyy.zzz"
         if email == "":
-            print("Please enter an email address.")
+            print("\nPlease enter an email address.")
             logging.error("User did not enter an email address.")
             continue
         s = re.search("^[A-Za-z0-9_]+@[A-Za-z0-9]+\.[A-Za-z.]+$", email)
         if not s:
-            print("Invalid email address. Please try again.")
+            print("\nInvalid email address. Please try again.")
             logging.error("Invalid user input.")
             continue
         return email
@@ -275,18 +276,18 @@ def add_phone_num():
     """Prompts the user to enter the volunteer's phone number."""
     logging.debug("User prompted to enter phone number.")
     while True:
-        print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.")
+        print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.\n")
         phone_num = input(
-            "Enter your phone number, including country code followed by a space (e.g. +44 07020123456): ").strip()
+            ">>Enter your phone number, including country code followed by a space (e.g. +44 07020123456): ").strip()
         if phone_num in ("0", "9"):
             return phone_num
         if phone_num == "":
-            print("Please enter a phone number.")
+            print("\nPlease enter a phone number.")
             logging.error("User did not enter a phone number.")
             continue
         s = re.search("^\+?\d{1,3} \d{8,11}$", phone_num)  # allow starting + to be omitted
         if not s:
-            print("Incorrect phone number format. Please try again.")
+            print("\nIncorrect phone number format. Please try again.")
             logging.error("Invalid user input.")
             continue
         if phone_num[0] != "+":
@@ -301,28 +302,30 @@ def edit_username(username):
     print("\nVolunteer's current username is:", username)
     logging.debug("Admin prompted to enter new username.")
     while True:
-        print("Enter [0] to return to the previous step.")
-        new_username = input("Enter new username: ").strip()
+        print("Enter [0] to return to the previous step.\n")
+        new_username = input(">>Enter new username: ").strip()
         if new_username == "0":
             logging.debug("Returning to previous step.")
             return
         if new_username == username:
-            print("New username is the same as current username. Please enter a different username.")
+            print("\nNew username is the same as current username. "
+                  "Please enter a different username.")
             logging.error("Username is unchanged.")
             continue
         if new_username == "":
-            print("Please enter a username.")
+            print("\nPlease enter a username.")
             logging.error("Admin did not enter a username.")
             continue
         s = re.search("^[a-zA-Z]+[a-zA-Z0-9_]*$", new_username)
         if not s:
-            print("Username can only contain letters, digits (0-9) and underscore (_), and must start with a letter. Please choose another username.")
+            print("\nUsername can only contain letters, digits (0-9) and underscore (_), and must start with a letter. "
+                  "\nPlease choose another username.")
             logging.error("Invalid user input.")
             continue
         users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
         select_username = users[users['username'] == new_username]
         if len(select_username.index) > 0:  # username already exists
-            print("Username is taken. Please choose another username.")
+            print("\nUsername is taken. Please choose another username.")
             logging.error("Admin entered a username that already exists.")
             continue
         break
@@ -339,6 +342,7 @@ def edit_username(username):
     vol_times.to_csv(os.path.join('data', 'volunteering_times.csv'), index=False)
     logging.debug("volunteering_times.csv updated")
 
+    print("Username updated successfully!")
     print("Volunteer's new username is:", new_username)
     logging.debug("Username updated successfully")
     return
