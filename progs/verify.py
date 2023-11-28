@@ -47,13 +47,13 @@ def string(line):
             _str[0]
             try:
                 float(_str)
-                print('\nPlease make sure data entered is of correct data type.\n')
+                print('\nPlease make sure data entered is of correct data type.')
             except ValueError:
                 logging.error('ValueError raised from user input')
                 break
         except IndexError:
             logging.error('IndexError raised from user input')
-            print('\nNo data was entered.\n')
+            print('\nNo data was entered.')
         except Exception as e:
             logging.error(f'Error raised from user input: {e}')
             print(e)
@@ -71,14 +71,14 @@ def date(line):
         if _date == "0":
             return _date
         if not _date:
-            print("\nNo data was entered.\nPlease enter a date.\n")
+            print("\nNo data was entered. Please enter a date.")
             continue
         try:
             _date = datetime.datetime.strptime(_date, "%d-%m-%Y")
             return _date.date()
         except ValueError:
             logging.error('ValueError raised from user input')
-            print("\nDate must be in (DD-MM-YYYY) format. Please try again.\n")
+            print("\nDate must be in (DD-MM-YYYY) format. Please try again.")
 
 
 def location(line):
@@ -92,7 +92,7 @@ def location(line):
                 return _location
             else:
                 logging.error(f'Location {_location} input by user is not a valid city in the database.')
-                print("\nLocation needs to be a valid city. Please try again.\n")
+                print("\nLocation needs to be a valid city. Please try again.")
 
 
 def name(line):
@@ -104,10 +104,10 @@ def name(line):
             return _name
         elif _name == "":
             logging.error('User did not enter a name.')
-            print("\nPlease enter a name.\n")
+            print("\nPlease enter a name.")
         if not s:
             logging.error(f'Name {_name} input by user is not in the correct format.')
-            print("\nName can only contain letters, hyphen (-) and apostrophe (').\n")
+            print("\nName can only contain letters, hyphen (-) and apostrophe (').")
         else:
             return _name
 
@@ -126,13 +126,13 @@ def username(line):
             return _username
         elif _username == "":
             logging.error("User did not enter a username.")
-            print("\nPlease enter a username.\n")
+            print("\nPlease enter a username.")
         elif not s:
             logging.error(f'Username {_username} input by user is not in the correct format.')
             print("\nUsername can only contain letters, digits (0-9) and underscore (_), and must start with a letter. "
-                  "\nPlease choose another username.\n")
+                  "\nPlease choose another username.")
         elif 0 < len(select_username.index):  # username already exists
-            print("\nUsername is taken.\nPlease choose another username.\n")
+            print("\nUsername is taken. Please choose another username.")
             logging.error("User entered a username that already exists.")
         else:
             return _username
@@ -146,10 +146,10 @@ def email(line):
             return _email
         elif _email == "":
             logging.error("User did not enter an email address.")
-            print("\nPlease enter an email address.\n")
+            print("\nPlease enter an email address.")
         elif not s:
             logging.error(f'Email {_email} input by user is not in the correct format.')
-            print("\nPlease make sure email is in this format: example@email.com.\n")
+            print("\nPlease make sure email is in this format: example@email.com.")
         else:
             return _email
 
@@ -166,13 +166,13 @@ def phone_number(line):
             return _number
         elif _number == "":
             logging.error("User did not enter a phone number.")
-            print("Please enter a phone number.")
+            print("\nPlease enter a phone number.")
         elif _number[0] != "+":
             _number = f"+{_number}"
             return _number
         elif not s:
             logging.error(f'Phone number {_number} input by user is not in the correct format.')
-            print("Incorrect phone number format. Please try again.")
+            print("\nIncorrect phone number format. Please try again.")
         else:
             return _number
 

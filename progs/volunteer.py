@@ -188,7 +188,7 @@ class Volunteer:
         while True:
             logging.debug(f"{self.username} has entered the volunteering sessions menu.")
             print("\n--------------------------------------------")
-            print("\t\tMANAGE VOLUNTEERING SESSIONS")
+            print("\tMANAGE VOLUNTEERING SESSIONS")
             print("Tell us when you are coming to volunteer.")
             if not self.camp_name:
                 print("\nYou are currently not assigned to a camp."
@@ -199,7 +199,7 @@ class Volunteer:
                 print("Enter [1] to add a volunteering session")
                 print("Enter [2] to view your volunteering sessions")
                 print("Enter [3] to remove a volunteering session")
-                print("Enter [0] to return to the volunteer menu")
+                print("Enter [0] to return to the volunteer menu\n")
                 try:
                     user_input = input(">>Select an option: ")
                     option = int(user_input)
@@ -1456,7 +1456,7 @@ class Volunteer:
     def remove_volunteering_session(self):
         """Enables the volunteer to remove a volunteering sessions they have scheduled."""
         print("\n--------------------------------------------")
-        print("\nREMOVE VOLUNTEERING SESSIONS")
+        print("\tREMOVE VOLUNTEERING SESSIONS")
         vol_times = pd.read_csv(os.path.join('data', 'volunteering_times.csv'))
         cur_user_times = vol_times[vol_times['username'] == self.username]
         if len(cur_user_times.index) == 0:

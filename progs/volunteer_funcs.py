@@ -352,22 +352,24 @@ def edit_password(username, password):
     print("\n" + username + "'s current password is:", password)
     logging.debug("Admin prompted to enter new password.")
     while True:
-        print("Enter [0] to return to the previous step.")
-        new_password = input("Enter new password: ")
+        print("Enter [0] to return to the previous step.\n")
+        new_password = input(">>Enter new password: ")
         if new_password == "0":
             logging.debug("Returning to previous step.")
             return
         if new_password == password:
-            print("New password is the same as current password. Please enter a different password.")
+            print("\nNew password is the same as current password. "
+                  "Please enter a different password.")
             logging.error("Password is unchanged.")
             continue
         if len(new_password) < 3:
-            print("Password should be at least 3 characters.")
+            print("\nPassword should be at least 3 characters.")
             logging.error("Invalid user input.")
             continue
         s = re.search("[, ]", new_password)
         if s:
-            print("Password cannot contain commas or spaces. Please choose another password.")
+            print("\nPassword cannot contain commas or spaces. "
+                  "Please choose another password.")
             logging.error("Invalid user input.")
             continue
         break
@@ -376,6 +378,7 @@ def edit_password(username, password):
     cur_user = (users['username'] == username)
     users.loc[cur_user, 'password'] = new_password
     users.to_csv(os.path.join('data', 'users.csv'), index=False)
+    print("Password updated successfully!")
     print("You have changed " + username + "'s password to:", new_password)
     logging.debug("Password updated successfully")
     return
@@ -385,22 +388,23 @@ def edit_first_name(username, first_name):
     print("\n" + username + "'s current first name is:", first_name)
     logging.debug("Admin prompted to enter new first name.")
     while True:
-        print("Enter [0] to return to the previous step.")
-        new_fname = input("Enter new first name: ").strip()
+        print("Enter [0] to return to the previous step.\n")
+        new_fname = input(">>Enter new first name: ").strip()
         if new_fname == "0":
             logging.debug("Returning to previous step.")
             return
         if new_fname == first_name:
-            print("New first name is the same as current first name. Please enter a different first name.")
+            print("\nNew first name is the same as current first name. Please enter a different first name.")
             logging.error("First name is unchanged.")
             continue
         if new_fname == "":
-            print("Please enter a first name.")
+            print("\nPlease enter a first name.")
             logging.error("Admin did not enter a first name.")
             continue
         s = re.search("^[A-Z][a-zA-Z-' ]*$", new_fname)
         if not s:
-            print("First name can only contain letters, hyphen (-) and apostrophe ('), and must start with a capital letter.")
+            print("\nFirst name can only contain letters, hyphen (-) and apostrophe ('), "
+                  "and must start with a capital letter.")
             logging.error("Invalid user input.")
             continue
         break
@@ -410,6 +414,7 @@ def edit_first_name(username, first_name):
     users.loc[cur_user, 'first_name'] = new_fname
     users.to_csv(os.path.join('data', 'users.csv'), index=False)
     logging.debug("users.csv updated")
+    print("First name updated successfully!")
     print("You have changed " + username + "'s first name to:", new_fname)
     logging.debug("First name updated successfully")
     return
@@ -419,22 +424,22 @@ def edit_last_name(username, last_name):
     print("\n" + username + "'s current last name is:", last_name)
     logging.debug("Admin prompted to enter new last name.")
     while True:
-        print("Enter [0] to return to the previous step.")
-        new_lname = input("Enter new last name: ").strip()
+        print("Enter [0] to return to the previous step.\n")
+        new_lname = input(">>Enter new last name: ").strip()
         if new_lname == "0":
             logging.debug("Returning to previous step.")
             return
         if new_lname == last_name:
-            print("New last name is the same as current last name. Please enter a different last name.")
+            print("\nNew last name is the same as current last name. Please enter a different last name.")
             logging.error("Last name is unchanged.")
             continue
         if new_lname == "":
-            print("Please enter a last name.")
+            print("\nPlease enter a last name.")
             logging.error("Admin did not enter a last name.")
             continue
         s = re.search("^[a-zA-Z-' ]+$", new_lname)
         if not s:
-            print("Last name can only contain letters, hyphen (-) and apostrophe (').")
+            print("\nLast name can only contain letters, hyphen (-) and apostrophe (').")
             logging.error("Invalid user input.")
             continue
         break
@@ -444,6 +449,7 @@ def edit_last_name(username, last_name):
     users.loc[cur_user, 'last_name'] = new_lname
     users.to_csv(os.path.join('data', 'users.csv'), index=False)
     logging.debug("users.csv updated")
+    print("Last name updated successfully!")
     print("You have changed " + username + "'s last name to:", new_lname)
     logging.debug("Last name updated successfully")
     return
@@ -458,20 +464,20 @@ def edit_gender(username, gender):
         print("New gender:")
         print("Enter [1] for male")
         print("Enter [2] for female")
-        print("Enter [3] for non-binary")
+        print("Enter [3] for non-binary\n")
         try:
-            new_gender = int(input("Select an option: "))
+            new_gender = int(input(">>Select an option: "))
             if new_gender not in range(4):
                 raise ValueError
         except ValueError:
-            print("Please enter a number from the options provided.")
+            print("\nPlease enter a number from the options provided.")
             logging.error("Invalid user input.")
             continue
         if new_gender == 0:
             logging.debug("Returning to previous step.")
             return
         if new_gender == gender:
-            print("New gender is the same as current gender. Please try again or return to the previous step.")
+            print("\nNew gender is the same as current gender. Please try again or return to the previous step.")
             logging.error("Gender is unchanged.")
             continue
         break
@@ -483,6 +489,7 @@ def edit_gender(username, gender):
     logging.debug("users.csv updated")
 
     new_gender_str = convert_gender(new_gender)
+    print("Gender updated successfully!")
     print("You have changed " + username + "'s gender to:", new_gender_str)
     logging.debug("Gender updated successfully")
     return
@@ -495,34 +502,35 @@ def edit_dob(username, date_of_birth):
     print("\n" + username + "'s current date of birth (DD-MM-YYYY) is:", date_of_birth)
     logging.debug("Admin prompted to enter corrected date of birth.")
     while True:
-        print("Enter [0] to return to the previous step.")
-        new_dob = input("Enter corrected date of birth: ").strip()
+        print("Enter [0] to return to the previous step.\n")
+        new_dob = input(">>Enter corrected date of birth: ").strip()
         if new_dob == "0":
             logging.debug("Returning to previous step.")
             return
         if new_dob == date_of_birth:
-            print("New date of birth is the same as current date of birth. Please try again or return to the previous step.")
+            print("\nNew date of birth is the same as current date of birth. "
+                  "\nPlease try again or return to the previous step.")
             logging.error("Date of birth is unchanged.")
             continue
         try:
             ndob = datetime.datetime.strptime(new_dob, "%d-%m-%Y").date()
         except ValueError:
-            print("Incorrect date format. Please use the format DD-MM-YYYY (e.g. 23-07-1999).")
+            print("\nIncorrect date format. Please use the format DD-MM-YYYY (e.g. 23-07-1999).")
             logging.error("Invalid user input.")
             continue
         t = datetime.date.today()
         if ndob > t:
-            print("Date of birth cannot be in the future. Please try again.")
+            print("\nDate of birth cannot be in the future. Please try again.")
             logging.error("Admin entered a date of birth in the future.")
             continue
         if t.year - ndob.year < 18 or (t.year - ndob.year == 18 and t.month < ndob.month) or (
                 t.year - ndob.year == 18 and t.month == ndob.month and t.day < ndob.day):
-            print("Volunteers must be at least 18 years old.")
+            print("\nVolunteers must be at least 18 years old.")
             logging.error("Volunteer is less than 18 years old based on date of birth.")
             continue
         if t.year - ndob.year > 100 or (t.year - ndob.year == 100 and t.month > ndob.month) or (
                 t.year - ndob.year == 100 and t.month == ndob.month and t.day >= ndob.day):
-            print("Volunteers must be 18-99 years old (inclusive).")
+            print("\nVolunteers must be 18-99 years old (inclusive).")
             logging.error("Volunteer is more than 99 years old based on date of birth.")
             continue
         break
@@ -532,6 +540,7 @@ def edit_dob(username, date_of_birth):
     users.loc[cur_user, 'date_of_birth'] = new_dob
     users.to_csv(os.path.join('data', 'users.csv'), index=False)
     logging.debug("users.csv updated")
+    print("Date fo birth updated successfully!")
     print("You have corrected " + username + "'s date of birth to:", new_dob)
     logging.debug("Date of birth updated successfully")
     return
@@ -541,22 +550,23 @@ def edit_email(username, email):
     print("\n" + username + "'s current email address is:", email)
     logging.debug("Admin prompted to enter new email address.")
     while True:
-        print("Enter [0] to return to the previous step.")
-        new_email = input("Enter new email address: ").strip()
+        print("Enter [0] to return to the previous step.\n")
+        new_email = input(">>Enter new email address: ").strip()
         if new_email == "0":
             logging.debug("Returning to previous step.")
             return
         if new_email == email:
-            print("New email is the same as current email. Please enter a different email address.")
+            print("\nNew email is the same as current email. "
+                  "Please enter a different email address.")
             logging.error("Email address is unchanged.")
             continue
         if new_email == "":
-            print("Please enter an email address.")
+            print("\nPlease enter an email address.")
             logging.error("Admin did not enter an email address.")
             continue
         s = re.search("^[A-Za-z0-9_]+@[A-Za-z0-9]+\.[A-Za-z.]+$", new_email)
         if not s:
-            print("Invalid email address. Please try again.")
+            print("\nInvalid email address. Please try again.")
             logging.error("Invalid user input.")
             continue
         break
@@ -566,6 +576,7 @@ def edit_email(username, email):
     users.loc[cur_user, 'email'] = new_email
     users.to_csv(os.path.join('data', 'users.csv'), index=False)
     logging.debug("users.csv updated")
+    print("Email address updated successfully!")
     print("You have changed " + username + "'s email address to:", new_email)
     logging.debug("Email address updated successfully")
     return
@@ -575,22 +586,22 @@ def edit_phone_num(username, phone_number):
     print("\n" + username + "'s current phone number is:", phone_number)
     logging.debug("Admin prompted to enter new phone number.")
     while True:
-        print("Enter [0] to return to the previous step.")
-        new_phone_num = input("Enter new phone number: ").strip()
+        print("Enter [0] to return to the previous step.\n")
+        new_phone_num = input(">>Enter new phone number: ").strip()
         if new_phone_num == "0":
             logging.debug("Returning to previous step.")
             return
         if new_phone_num == phone_number:
-            print("New phone number is the same as current phone number. Please enter a different phone number.")
+            print("\nNew phone number is the same as current phone number. Please enter a different phone number.")
             logging.error("Phone number is unchanged.")
             continue
         if new_phone_num == "":
-            print("Please enter a phone number.")
+            print("\nPlease enter a phone number.")
             logging.error("Admin did not enter a phone number.")
             continue
         s = re.search("^\+?\d{1,3} \d{8,11}$", new_phone_num)  # allow starting + to be omitted
         if not s:
-            print("Incorrect phone number format. Please try again.")
+            print("\nIncorrect phone number format. Please try again.")
             logging.error("Invalid user input.")
             continue
         if new_phone_num[0] != "+":
@@ -602,6 +613,7 @@ def edit_phone_num(username, phone_number):
     users.loc[cur_user, 'phone_number'] = new_phone_num
     users.to_csv(os.path.join('data', 'users.csv'), index=False)
     logging.debug("users.csv updated")
+    print("Phone number updated successfully!")
     print("You have changed " + username + "'s phone number to:", new_phone_num)
     logging.debug("Phone number updated successfully")
     return
