@@ -1093,7 +1093,8 @@ class Volunteer:
         This includes number of volunteers and refugees, capacity, and resources available.
         """
         logging.debug(f"Printing details of {self.username}'s camp.")
-        print("\nDisplay camp information")
+        print("\n--------------------------------------------")
+        print("\tDISPLAY CAMP INFORMATION")
         camps = pd.read_csv(os.path.join('data', self.plan_id + '.csv'))
         my_camp = camps[camps['camp_name'] == self.camp_name]
         print("Your camp is " + self.camp_name + " for plan ID " + self.plan_id + ".")
@@ -1120,8 +1121,8 @@ class Volunteer:
 
             logging.debug(f"{self.username} prompted to enter their camp's new capacity.")
             while True:
-                print("\nEnter [X] to return to the previous step.")
-                new_capacity = input("New capacity: ")
+                print("Enter [X] to return to the previous step.\n")
+                new_capacity = input(">>New capacity: ")
                 if new_capacity.upper() == "X":
                     logging.debug("Returning to previous step.")
                     return
@@ -1130,15 +1131,17 @@ class Volunteer:
                     if new_capacity < 1:
                         raise ValueError
                 except ValueError:
-                    print("Please enter a positive integer.")
+                    print("\nPlease enter a positive integer.")
                     logging.error("Invalid user input.")
                     continue
                 if new_capacity < my_camp.iloc[0]['refugees']:
-                    print("Invalid input: New capacity is less than refugee population. Please re-enter or return to the previous step.")
+                    print("\nInvalid input: New capacity is less than refugee population. "
+                          "\nPlease re-enter or return to the previous step.")
                     logging.error("Capacity entered is less than refugee population.")
                     continue
                 if new_capacity == my_camp.iloc[0]['capacity']:
-                    print("Capacity is unchanged. Please try again or return to the previous step.")
+                    print("\nCapacity is unchanged. "
+                          "Please try again or return to the previous step.")
                     logging.error("Capacity is unchanged.")
                     continue
                 break
@@ -1146,6 +1149,7 @@ class Volunteer:
             chosen = (camps['camp_name'] == self.camp_name)
             camps.loc[chosen, 'capacity'] = new_capacity
             camps.to_csv(os.path.join('data', self.plan_id + '.csv'), index=False)
+            print("\nRefugee capacity updated successfully!")
             print("New refugee capacity:", new_capacity)
             logging.debug("updated camps csv file")
             return
@@ -1162,8 +1166,8 @@ class Volunteer:
 
             logging.debug(f"{self.username} prompted to enter number of food packets consumed.")
             while True:
-                print("\nEnter [X] to return to the previous step.")
-                food_consumed = input("Enter the number of food packets consumed: ")
+                print("Enter [X] to return to the previous step.")
+                food_consumed = input(">>Enter the number of food packets consumed: ")
                 if food_consumed.upper() == "X":
                     logging.debug("Returning to previous step.")
                     return
@@ -1172,11 +1176,12 @@ class Volunteer:
                     if food_consumed <= 0:
                         raise ValueError
                 except ValueError:
-                    print("Please enter a positive integer.")
+                    print("\nPlease enter a positive integer.")
                     logging.error("Invalid user input.")
                     continue
                 if food_consumed > cur_food:
-                    print("Food consumed exceeds the current supply. Please try again or return to the previous step.")
+                    print("\nFood consumed exceeds the current supply. "
+                          "Please try again or return to the previous step.")
                     continue
 
                 # confirmation
@@ -1185,13 +1190,13 @@ class Volunteer:
                     print("\nConfirmation:", food_consumed, "out of", cur_food, "food packets have been consumed.")
                     print("Proceed to update camp information?")
                     print("Enter [1] to proceed")
-                    print("Enter [0] to return to the previous step")
+                    print("Enter [0] to return to the previous step\n")
                     try:
-                        confirm = int(input("Select an option: "))
+                        confirm = int(input(">>Select an option: "))
                         if confirm not in (0, 1):
                             raise ValueError
                     except ValueError:
-                        print("Please enter a number from the options provided.")
+                        print("\nPlease enter a number from the options provided.")
                         logging.error("Invalid user input.")
                         continue
                     break
@@ -1205,6 +1210,7 @@ class Volunteer:
             camps.loc[chosen, 'food'] = cur_food - food_consumed
             camps.to_csv(os.path.join('data', self.plan_id + '.csv'), index=False)
             logging.debug("updated camps csv file")
+            print("\nFood supply updated successfully!")
             print("Updated supply of food packets:", cur_food - food_consumed)
             return
 
@@ -1220,8 +1226,8 @@ class Volunteer:
 
             logging.debug(f"{self.username} prompted to enter number of water portions consumed.")
             while True:
-                print("\nEnter [X] to return to the previous step.")
-                water_consumed = input("Enter the number of water portions consumed: ")
+                print("Enter [X] to return to the previous step.\n")
+                water_consumed = input(">>Enter the number of water portions consumed: ")
                 if water_consumed.upper() == "X":
                     logging.debug("Returning to previous step.")
                     return
@@ -1230,11 +1236,11 @@ class Volunteer:
                     if water_consumed <= 0:
                         raise ValueError
                 except ValueError:
-                    print("Please enter a positive integer.")
+                    print("\nPlease enter a positive integer.")
                     logging.error("Invalid user input.")
                     continue
                 if water_consumed > cur_water:
-                    print("Water consumed exceeds the current supply. Please try again or return to the previous step.")
+                    print("\nWater consumed exceeds the current supply. Please try again or return to the previous step.")
                     continue
 
                 # confirmation
@@ -1243,13 +1249,13 @@ class Volunteer:
                     print("\nConfirmation:", water_consumed, "out of", cur_water, "water portions have been consumed.")
                     print("Proceed to update camp information?")
                     print("Enter [1] to proceed")
-                    print("Enter [0] to return to the previous step")
+                    print("Enter [0] to return to the previous step\n")
                     try:
-                        confirm = int(input("Select an option: "))
+                        confirm = int(input(">>Select an option: "))
                         if confirm not in (0, 1):
                             raise ValueError
                     except ValueError:
-                        print("Please enter a number from the options provided.")
+                        print("\nPlease enter a number from the options provided.")
                         logging.error("Invalid user input.")
                         continue
                     break
@@ -1263,6 +1269,7 @@ class Volunteer:
             camps.loc[chosen, 'water'] = cur_water - water_consumed
             camps.to_csv(os.path.join('data', self.plan_id + '.csv'), index=False)
             logging.debug("updated camps csv file")
+            print("\nWater supply updated successfully!")
             print("Updated supply of water portions:", cur_water - water_consumed)
             return
 
@@ -1278,8 +1285,8 @@ class Volunteer:
 
             logging.debug(f"{self.username} prompted to enter number of first-aid kits used.")
             while True:
-                print("\nEnter [X] to return to the previous step.")
-                medical_used = input("Enter the number of first-aid kits used: ")
+                print("Enter [X] to return to the previous step.\n")
+                medical_used = input(">>Enter the number of first-aid kits used: ")
                 if medical_used.upper() == "X":
                     logging.debug("Returning to previous step.")
                     return
@@ -1288,11 +1295,12 @@ class Volunteer:
                     if medical_used <= 0:
                         raise ValueError
                 except ValueError:
-                    print("Please enter a positive integer.")
+                    print("\nPlease enter a positive integer.")
                     logging.error("Invalid user input.")
                     continue
                 if medical_used > cur_medical:
-                    print("First-aid kits used exceed the current supply. Please try again or return to the previous step.")
+                    print("\nFirst-aid kits used exceed the current supply. "
+                          "\nPlease try again or return to the previous step.")
                     continue
 
                 # confirmation
@@ -1301,13 +1309,13 @@ class Volunteer:
                     print("\nConfirmation:", medical_used, "out of", cur_medical, "first-aid kits have been used.")
                     print("Proceed to update camp information?")
                     print("Enter [1] to proceed")
-                    print("Enter [0] to return to the previous step")
+                    print("Enter [0] to return to the previous step\n")
                     try:
-                        confirm = int(input("Select an option: "))
+                        confirm = int(input(">>Select an option: "))
                         if confirm not in (0, 1):
                             raise ValueError
                     except ValueError:
-                        print("Please enter a number from the options provided.")
+                        print("\nPlease enter a number from the options provided.")
                         logging.error("Invalid user input.")
                         continue
                     break
@@ -1321,27 +1329,29 @@ class Volunteer:
             camps.loc[chosen, 'firstaid_kits'] = cur_medical - medical_used
             camps.to_csv(os.path.join('data', self.plan_id + '.csv'), index=False)
             logging.debug("updated camps csv file")
+            print("\nFirst-aid kits supply updated successfully!")
             print("Updated supply of first-aid kits:", cur_medical - medical_used)
             return
 
-        print("\nUpdate camp information")
+        print("\n--------------------------------------------")
+        print("\tUPDATE CAMP INFORMATION")
         # outer loop to edit multiple attributes, exit if 0 is entered
         while True:
             # inner loop to catch invalid input
             logging.debug(f"{self.username} prompted to select which camp information to edit.")
             while True:
-                print("\nWhich details would you like to update?")
+                print("Which details would you like to update?")
                 print("Enter [1] for refugee capacity")
                 print("Enter [2] for consumption of food packets")
                 print("Enter [3] for consumption of water portions")
                 print("Enter [4] for use of first-aid kits")
-                print("Enter [0] to return to the previous menu")
+                print("Enter [0] to return to the previous menu\n")
                 try:
-                    option = int(input("Select an option: "))
+                    option = int(input(">>Select an option: "))
                     if option not in range(5):
                         raise ValueError
                 except ValueError:
-                    print("Please enter a number from the options provided.")
+                    print("\nPlease enter a number from the options provided.\n")
                     logging.error("Invalid user input.")
                     continue
                 break
@@ -1363,7 +1373,8 @@ class Volunteer:
         Enables the volunteer to add a volunteering session for themselves.
         The volunteer is prompted for the date, start time and end time of the session.
         """
-        print("\nAdd a volunteering session")
+        print("\n--------------------------------------------")
+        print("\tADD VOLUNTEERING SESSIONS")
         vol_times = pd.read_csv(os.path.join('data', 'volunteering_times.csv'))
         cur_user_times = vol_times[vol_times['username'] == self.username]
         # sort existing times by ascending start time (need date in YYYY-MM-DD format)
@@ -1419,12 +1430,13 @@ class Volunteer:
         vol_times.write(f'\n{self.username},{self.plan_id},{self.camp_name},{start_time},{end_time}')
         vol_times.close()
         logging.debug("volunteering_times.csv updated")
-        print("Volunteering session added successfully!")
+        print("\nVolunteering session added successfully!")
         return
 
     def view_volunteering_sessions(self):
         """Enables the volunteer to view all volunteering sessions they have scheduled."""
-        print("\nView volunteering sessions")
+        print("\n--------------------------------------------")
+        print("\tVIEW VOLUNTEERING SESSIONS")
         vol_times = pd.read_csv(os.path.join('data', 'volunteering_times.csv'))
         cur_user_times = vol_times[vol_times['username'] == self.username]
         if len(cur_user_times.index) == 0:
@@ -1443,7 +1455,8 @@ class Volunteer:
 
     def remove_volunteering_session(self):
         """Enables the volunteer to remove a volunteering sessions they have scheduled."""
-        print("\nRemove a volunteering session")
+        print("\n--------------------------------------------")
+        print("\nREMOVE VOLUNTEERING SESSIONS")
         vol_times = pd.read_csv(os.path.join('data', 'volunteering_times.csv'))
         cur_user_times = vol_times[vol_times['username'] == self.username]
         if len(cur_user_times.index) == 0:
@@ -1455,13 +1468,13 @@ class Volunteer:
 
         logging.debug(f"{self.username} prompted to select a volunteering session to remove.")
         while True:
-            print("Enter [X] to return to the previous menu.")
             print("Your volunteering sessions:")
             for row in range(len(cur_user_times.index)):
                 start = datetime.datetime.strptime(cur_user_times['start_time'].iloc[row], '%Y-%m-%d %H:%M').strftime('%d-%m-%Y %H:%M')
                 end = datetime.datetime.strptime(cur_user_times['end_time'].iloc[row], '%Y-%m-%d %H:%M').strftime('%d-%m-%Y %H:%M')
                 print("[" + str(row + 1) + "]", "Start:", start, "\t", "End:", end)
-            remove = input("Enter the number of the session you would like to remove: ").strip()
+            print("Enter [X] to return to the previous menu.\n")
+            remove = input(">>Enter the number of the session you would like to remove: ").strip()
             if remove.upper() == "X":
                 logging.debug("Returning to previous menu.")
                 return
@@ -1470,7 +1483,7 @@ class Volunteer:
                 if remove not in range(1, len(cur_user_times.index) + 1):
                     raise ValueError
             except ValueError:
-                print("Please enter a number corresponding to one of your volunteering sessions.")
+                print("\nPlease enter a number corresponding to one of your volunteering sessions.\n")
                 logging.error("Invalid user input.")
                 continue
 
@@ -1484,13 +1497,13 @@ class Volunteer:
                 print("\nAre you sure you would like to remove the following session?")
                 print("Start:", start, "\t", "End:", end)
                 print("Enter [1] to proceed")
-                print("Enter [0] to go back to the previous step")
+                print("Enter [0] to go back to the previous step\n")
                 try:
-                    remove_option = int(input("Select an option: "))
+                    remove_option = int(input(">>Select an option: "))
                     if remove_option not in (0, 1):
                         raise ValueError
                 except ValueError:
-                    print("Please enter a number from the options provided.")
+                    print("\nPlease enter a number from the options provided.")
                     logging.error("Invalid user input.")
                     continue
                 break
@@ -1504,7 +1517,7 @@ class Volunteer:
                                                  (vol_times['start_time'] == cur_user_times['start_time'].iloc[remove-1])].index)
             vol_times.to_csv(os.path.join('data', 'volunteering_times.csv'), index=False)
             logging.debug("volunteering_times.csv updated")
-            print("Volunteering session has been removed.")
+            print("Volunteering session has been removed successfully.")
             return
 
     def request_resources(self):
@@ -1512,11 +1525,12 @@ class Volunteer:
         Enables the volunteer to send a resource request to the admin.
         The volunteer is prompted to enter the number of food packets, water portions and first-aid kits requested in turn.
         """
-        print("\nRequest resources for your camp.")
+        print("\n--------------------------------------------")
+        print("\t\tREQUEST RESOURCES")
         print("You are requesting resources for", self.camp_name, "at plan", self.plan_id)
         camps = pd.read_csv(os.path.join('data', self.plan_id + '.csv'))
         my_camp = camps[camps['camp_name'] == self.camp_name]
-        print("\nYour camp's current resources:")
+        print("Your camp's current resources:")
         print("Food packets:", my_camp.iloc[0]['food'])
         print("Water portions:", my_camp.iloc[0]['water'])
         print("First-aid kits:", my_camp.iloc[0]['firstaid_kits'])
@@ -1526,8 +1540,8 @@ class Volunteer:
             if progress == 0:
                 logging.debug(f"{self.username} prompted to enter number of food packets requested.")
                 while True:
-                    print("\nEnter [X] to return to the previous menu.")
-                    food = input("Enter the number of food packets you are requesting: ")
+                    print("\nEnter [X] to return to the previous menu.\n")
+                    food = input(">>Enter the number of food packets you are requesting: ")
                     if food.upper() == "X":
                         logging.debug("Returning to previous menu.")
                         return
@@ -1536,7 +1550,7 @@ class Volunteer:
                         if food < 0:
                             raise ValueError
                     except ValueError:
-                        print("Please enter a non-negative integer.")
+                        print("\nPlease enter a non-negative integer.")
                         logging.error("Invalid user input.")
                         continue
                     progress += 1
@@ -1545,8 +1559,8 @@ class Volunteer:
             if progress == 1:
                 logging.debug(f"{self.username} prompted to enter number of water portions requested.")
                 while True:
-                    print("\nEnter [X] to return to the previous menu or [B] to return to the previous step.")
-                    water = input("Enter the number of water portions you are requesting: ")
+                    print("\nEnter [X] to return to the previous menu or [B] to return to the previous step.\n")
+                    water = input(">>Enter the number of water portions you are requesting: ")
                     if water.upper() == "X":
                         logging.debug("Returning to previous menu.")
                         return
@@ -1559,7 +1573,7 @@ class Volunteer:
                         if water < 0:
                             raise ValueError
                     except ValueError:
-                        print("Please enter a non-negative integer.")
+                        print("\nPlease enter a non-negative integer.")
                         logging.error("Invalid user input.")
                         continue
                     progress += 1
@@ -1568,8 +1582,8 @@ class Volunteer:
             if progress == 2:
                 logging.debug(f"{self.username} prompted to enter number of first-aid kits requested.")
                 while True:
-                    print("\nEnter [X] to return to the previous menu or [B] to return to the previous step.")
-                    kits = input("Enter the number of first-aid kits you are requesting: ")
+                    print("\nEnter [X] to return to the previous menu or [B] to return to the previous step.\n")
+                    kits = input(">>Enter the number of first-aid kits you are requesting: ")
                     if kits.upper() == "X":
                         logging.debug("Returning to previous menu.")
                         return
@@ -1582,7 +1596,7 @@ class Volunteer:
                         if kits < 0:
                             raise ValueError
                     except ValueError:
-                        print("Please enter a non-negative integer.")
+                        print("\nPlease enter a non-negative integer.")
                         logging.error("Invalid user input.")
                         continue
                     progress += 1
@@ -1590,8 +1604,9 @@ class Volunteer:
 
             if progress == 3: # check that not all requested resources are 0
                 if food == 0 and water == 0 and kits == 0:
-                    print("You cannot request 0 of all resources. Please enter your request again.")
-                    logging.error(f"{self.username} requested 0 of all resources. They will be promoted to re-enter the request.")
+                    print("\nYou cannot request 0 of all resources. Please enter your request again.")
+                    logging.error(f"{self.username} requested 0 of all resources. "
+                                  f"They will be promoted to re-enter the request.")
                     progress = 0
                 else:
                     progress += 1

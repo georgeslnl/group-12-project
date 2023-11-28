@@ -190,13 +190,13 @@ def edit_refugee_name(refugee_id, refugee_name):
     logging.debug("User prompted to enter new refugee name.")
     print("\nRefugee's current name is:", refugee_name)
     while True:
-        print("Enter [0] to return to the previous step.")
-        new_name = input("Enter refugee's new name: ").strip()
+        print("Enter [0] to return to the previous step.\n")
+        new_name = input(">>Enter refugee's new name: ").strip()
         if new_name == "0":
             logging.debug("Returning to previous step.")
             return
         elif new_name == refugee_name:
-            print("New name is the same as current name. Please enter a different name.")
+            print("\nNew name is the same as current name. Please enter a different name.\n")
             logging.error("Refugee name is unchanged.")
             continue
         else:
@@ -208,6 +208,7 @@ def edit_refugee_name(refugee_id, refugee_name):
     refugees.loc[cur, 'refugee_name'] = new_name
     refugees.to_csv(os.path.join('data', 'refugees.csv'), index=False)
     logging.debug("refugees.csv updated")
+    print("\nRefugee name updated successfully!")
     print("Refugee's name has been changed to:", new_name)
     logging.debug("Refugee name updated successfully")
     return
@@ -222,20 +223,21 @@ def edit_gender(refugee_id, gender):
         print("New gender:")
         print("Enter [1] for male")
         print("Enter [2] for female")
-        print("Enter [3] for non-binary")
+        print("Enter [3] for non-binary\n")
         try:
-            new_gender = int(input("Select an option: "))
+            new_gender = int(input(">>Select an option: "))
             if new_gender not in range(4):
                 raise ValueError
         except ValueError:
-            print("Please enter a number from the options provided.")
+            print("\nPlease enter a number from the options provided.\n")
             logging.error("Invalid user input.")
             continue
         if new_gender == 0:
             logging.debug("Returning to previous step.")
             return
         if new_gender == gender:
-            print("New gender is the same as current gender. Please try again or return to the previous step.")
+            print("\nNew gender is the same as current gender. "
+                  "Please try again or return to the previous step.\n")
             logging.error("Gender is unchanged.")
             continue
         break
@@ -246,6 +248,7 @@ def edit_gender(refugee_id, gender):
     refugees.to_csv(os.path.join('data', 'refugees.csv'), index=False)
     logging.debug("refugees.csv updated")
     new_gender_str = convert_gender(new_gender)
+    print("\nGender updated successfully!")
     print("Refugee's gender has been changed to:", new_gender_str)
     logging.debug("Gender updated successfully")
     return
@@ -258,24 +261,25 @@ def edit_dob(refugee_id, date_of_birth):
     print("\nRefugee's current date of birth (DD-MM-YYYY) is:", date_of_birth)
     logging.debug("User prompted to enter corrected date of birth.")
     while True:
-        print("Enter [0] to return to the previous step.")
-        new_dob = input("Enter refugee's corrected date of birth: ").strip()
+        print("Enter [0] to return to the previous step.\n")
+        new_dob = input(">>Enter refugee's corrected date of birth: ").strip()
         if new_dob == "0":
             logging.debug("Returning to previous step.")
             return
         if new_dob == date_of_birth:
-            print("New date of birth is the same as current date of birth. Please try again or return to the previous step.")
+            print("\nNew date of birth is the same as current date of birth. "
+                  "Please try again or return to the previous step.\n")
             logging.error("Date of birth is unchanged.")
             continue
         try:
             ndob = datetime.datetime.strptime(new_dob, "%d-%m-%Y").date()
         except ValueError:
-            print("Incorrect date format. Please use the format DD-MM-YYYY (e.g. 23-07-1999).")
+            print("\nIncorrect date format. Please use the format DD-MM-YYYY (e.g. 23-07-1999).\n")
             logging.error("Invalid user input.")
             continue
         t = datetime.date.today()
         if ndob > t:
-            print("Date of birth cannot be in the future. Please try again.")
+            print("\nDate of birth cannot be in the future. Please try again.\n")
             logging.error("User entered a date of birth in the future.")
             continue
         if t.year - ndob.year > 121 or (t.year - ndob.year == 121 and t.month > ndob.month) or (
@@ -286,13 +290,13 @@ def edit_dob(refugee_id, date_of_birth):
                 print("\nWarning: Refugee is over 120 years old based on date of birth.")
                 print("Do you wish to proceed?")
                 print("Enter [1] to proceed")
-                print("Enter [9] to re-enter date of birth")
+                print("Enter [9] to re-enter date of birth\n")
                 try:
-                    overage_option = int(input("Select an option: "))
+                    overage_option = int(input(">>Select an option: "))
                     if overage_option not in (1, 9):
                         raise ValueError
                 except ValueError:
-                    print("Please enter a number from the options provided.")
+                    print("\nPlease enter a number from the options provided.")
                     logging.error("Invalid user input.")
                     continue
                 break
@@ -307,6 +311,7 @@ def edit_dob(refugee_id, date_of_birth):
     refugees.loc[cur, 'date_of_birth'] = new_dob
     refugees.to_csv(os.path.join('data', 'refugees.csv'), index=False)
     logging.debug("refugees.csv updated")
+    print("\nDate of birth updated successfully!")
     print("Refugee's date of birth has been changed to:", new_dob)
     logging.debug("Date of birth updated successfully")
     return
@@ -325,20 +330,21 @@ def edit_medical_cond(refugee_id, medical_cond):
         print("Enter [4] for Minor injury with no illness")
         print("Enter [5] for Major injury with no illness")
         print("Enter [6] for Illness and injury (non-critical)")
-        print("Enter [7] for Critical condition (illness and/or injury)")
+        print("Enter [7] for Critical condition (illness and/or injury)\n")
         try:
-            new_medical_cond = int(input("Select an option: "))
+            new_medical_cond = int(input(">>Select an option: "))
             if new_medical_cond not in range(8):
                 raise ValueError
         except ValueError:
-            print("Please enter a number from the options provided.")
+            print("\nPlease enter a number from the options provided.\n")
             logging.error("Invalid user input.")
             continue
         if new_medical_cond == 0:
             logging.debug("Returning to previous step.")
             return
         if new_medical_cond == medical_cond:
-            print("Medical condition is unchanged. Please try again or return to the previous step.")
+            print("\nMedical condition is unchanged. "
+                  "Please try again or return to the previous step.\n")
             logging.error("Medical condition is unchanged.")
             continue
         break
@@ -349,6 +355,7 @@ def edit_medical_cond(refugee_id, medical_cond):
     refugees.to_csv(os.path.join('data', 'refugees.csv'), index=False)
     logging.debug("refugees.csv updated")
     new_medical_str = convert_medical_condition(new_medical_cond)
+    print("\nMedical condition updated successfully!")
     print("Refugee's medical condition has been changed to:", new_medical_str)
     logging.debug("Medical condition updated successfully")
     return
@@ -367,8 +374,8 @@ def edit_family(plan_id, camp_name, refugee_id, family):
 
     logging.debug("User prompted to enter new family size.")
     while True:
-        print("\nEnter [X] to return to the previous step.")
-        new_family = input("New number of family members: ")
+        print("Enter [X] to return to the previous step.\n")
+        new_family = input(">>New number of family members: ")
         if new_family.upper() == "X":
             logging.debug("Returning to previous step.")
             return
@@ -377,15 +384,17 @@ def edit_family(plan_id, camp_name, refugee_id, family):
             if new_family < 1:
                 raise ValueError
         except ValueError:
-            print("Please enter a positive integer.")
+            print("\nPlease enter a positive integer.\n")
             logging.error("Invalid user input.")
             continue
         if new_family - family > remaining_cap:
-            print("Addition of family members causes camp's capacity to be exceeded. Please re-enter or return to the previous step.")
+            print("\nAddition of family members causes camp's capacity to be exceeded. "
+                  "\nPlease re-enter or return to the previous step.\n")
             logging.error("Camp has insufficient capacity for the number of family members entered.")
             continue
         if new_family == family:
-            print("Number of family members is unchanged. Please try again or return to the previous step.")
+            print("\nNumber of family members is unchanged. "
+                  "Please try again or return to the previous step.\n")
             logging.error("Family size is unchanged.")
             continue
         if new_family > 12:
@@ -395,13 +404,13 @@ def edit_family(plan_id, camp_name, refugee_id, family):
                 print("\nWarning: Refugee's family has more than 12 members based on input.")
                 print("Do you wish to proceed?")
                 print("Enter [1] to proceed")
-                print("Enter [9] to re-enter number of family members")
+                print("Enter [9] to re-enter number of family members\n")
                 try:
-                    largefam_option = int(input("Select an option: "))
+                    largefam_option = int(input(">>Select an option: "))
                     if largefam_option not in (1, 9):
                         raise ValueError
                 except ValueError:
-                    print("Please enter a number from the options provided.")
+                    print("\nPlease enter a number from the options provided.\n")
                     logging.error("Invalid user input.")
                     continue
                 break
@@ -416,6 +425,7 @@ def edit_family(plan_id, camp_name, refugee_id, family):
     refugees.loc[cur, 'family_members'] = new_family
     refugees.to_csv(os.path.join('data', 'refugees.csv'), index=False)
     logging.debug("refugees.csv updated")
+    print("\nFamily members updated successfully!")
     print("New no. of members in refugee's family:", new_family)
 
     chosen = (camps['camp_name'] == camp_name)
@@ -430,9 +440,9 @@ def edit_remarks(refugee_id, remarks):
     print("\nCurrent remarks on refugee:", remarks)
     logging.debug("User prompted to enter new remarks.")
     while True:
-        print("Enter [0] to return to the previous step.")
+        print("Enter [0] to return to the previous step.\n")
         try:
-            new_remarks = input("Enter updated remarks (optional, max 200 characters): ").strip()
+            new_remarks = input(">>Enter updated remarks (optional, max 200 characters): ").strip()
             if new_remarks == "0":
                 logging.debug("Returning to previous step.")
                 return
@@ -440,15 +450,15 @@ def edit_remarks(refugee_id, remarks):
             if new_remarks != "" and not s:
                 raise ValueError
         except ValueError:
-            print("Please ensure remarks contain text.")
+            print("\nPlease ensure remarks contain text.\n")
             logging.error("Invalid user input.")
             continue
         if len(new_remarks) > 200:
-            print("Remarks cannot exceed 200 characters.")
+            print("\nRemarks cannot exceed 200 characters.\n")
             logging.error("Remarks entered are too long.")
             continue
         if new_remarks == remarks or (not new_remarks and not remarks):
-            print("Remarks are unchanged. Please try again or return to the previous step.")
+            print("\nRemarks are unchanged. Please try again or return to the previous step.\n")
             logging.error("Remarks are unchanged.")
             continue
         break
@@ -458,6 +468,7 @@ def edit_remarks(refugee_id, remarks):
     refugees.loc[cur, 'remarks'] = new_remarks
     refugees.to_csv(os.path.join('data', 'refugees.csv'), index=False)
     logging.debug("refugees.csv updated")
+    print("\nRemarks updated successfully!")
     print("Remarks on refugee have been changed to:", new_remarks)
     logging.debug("Remarks updated successfully")
     return
@@ -468,13 +479,13 @@ def remove_refugee(plan_id, camp_name, refugee_id, refugee_name, family):
     while True:
         print("\nAre you sure you would like to remove the profile of " + refugee_name + "?")
         print("Enter [1] to proceed")
-        print("Enter [0] to return to the previous menu")
+        print("Enter [0] to return to the previous menu\n")
         try:
-            remove_option = int(input("Select an option: "))
+            remove_option = int(input(">>Select an option: "))
             if remove_option not in (0, 1):
                 raise ValueError
         except ValueError:
-            print("Please enter a number from the options provided.")
+            print("\nPlease enter a number from the options provided.\n")
             logging.error("Invalid user input.")
             continue
         break
@@ -495,6 +506,6 @@ def remove_refugee(plan_id, camp_name, refugee_id, refugee_name, family):
     camps.to_csv(os.path.join('data', plan_id + '.csv'), index=False)
     logging.debug("camps csv file updated")
 
-    print("Refugee's profile has been removed.")
+    print("\nRefugee's profile has been removed.")
     logging.debug(f"Refugee ID {refugee_id} has been removed.")
     return
