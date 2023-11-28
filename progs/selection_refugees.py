@@ -141,6 +141,7 @@ def initial_selection():
             if refugee_id.upper() == "X":
                 return 0
             if refugee_id.upper() == "B":
+                refugee_id = "B"  # in case not upper; so that refugee_id == "B" comparison can be done below
                 break
             try:
                 refugee_id = int(refugee_id)
@@ -152,7 +153,7 @@ def initial_selection():
                 continue
             break
 
-        if refugee_id.upper() == "B":
+        if refugee_id == "B":
             logging.debug("Returning to previous step.")
             continue
         selected = refugees[refugees['refugee_id'] == refugee_id]

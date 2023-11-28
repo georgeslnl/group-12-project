@@ -125,6 +125,7 @@ def add_num_camps():
         if nb_of_camps > 15:
             print("Number of camps cannot exceed 15.")
             logging.error("Number of camps entered is more than 15.")
+            continue
         return nb_of_camps
 
 def edit_description(plan_id, cur_desc):
