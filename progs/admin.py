@@ -114,30 +114,11 @@ class Admin:
         edit_choice = None  # remove red underline under progress == 2
         while progress < 4:
             if progress == 0:
-                logging.debug("Admin prompted to select humanitarian plan.")
-                while True:
-                    print(f"Currently, the details of humanitarian plans are as follows:"
-                          f"\n {hum_plan_df[['plan_id', 'description', 'location', 'start_date', 'number_of_camps']]}")
-                    print("\nEnter [X] to return to the previous menu.")
-                    print("Please note only the description or number of camps of a humanitarian plan can be changed.\n")
-                    plan_index = input('>>Please enter the index of the humanitarian plan you wish to edit: ')
-                    if plan_index.upper() == "X":
-                        logging.debug("Returning to previous menu.")
-                        return
-                    try:
-                        plan_index = int(plan_index)
-                        plan_id = hum_plan_df['plan_id'].iloc[plan_index]
-                        # plan_id = str(hum_plan_df.loc[hum_plan_df.index == plan_index, 'plan_id'])
-                        # plan_id = plan_id.split('\n')[0]
-                        # plan_id = plan_id[5:]
-                        if plan_index not in range(0, len(hum_plan_df.plan_id)):
-                            raise ValueError
-                        progress += 1
-                    except ValueError:
-                        print('\nThe index you entered is outside the range of humanitarian plans.')
-                        logging.error("Invalid user input.")
-                        continue
-                    break
+                plan_id = select_plan()
+                if plan_id == 0:
+                    logging.debug("Returning to resources menu.")
+                    return
+                progress += 1
 
             elif progress == 1:
                 logging.debug("Admin prompted to select what to edit.")
@@ -163,7 +144,8 @@ class Admin:
 
             elif progress == 2:
                 if edit_choice == 1:
-                    cur_desc = hum_plan_df['description'].iloc[plan_index]
+                    selected = hum_plan_df[hum_plan_df['plan_id'] == plan_id]
+                    cur_desc = selected['description'].iloc[0]
                     # cur_desc = str(hum_plan_df.loc[hum_plan_df.index == plan_index, "description"])
                     # cur_desc = cur_desc.split('\n')[0]
                     # cur_desc = cur_desc[5:]
@@ -185,7 +167,8 @@ class Admin:
                         progress += 1
 
                 elif edit_choice == 2:
-                    num_camps = hum_plan_df['number_of_camps'].iloc[plan_index]
+                    selected = hum_plan_df[hum_plan_df['plan_id'] == plan_id]
+                    num_camps = selected['number_of_camps'].iloc[0]
                     # num_camps = hum_plan_df.loc[hum_plan_df.index == plan_index, "number_of_camps"]
                     # num_camps = num_camps[5:]
                     print(f'\nYou have chosen to edit the number of camps of {plan_id}.'
