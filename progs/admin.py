@@ -8,7 +8,7 @@ from progs.coded_vars import convert_gender, convert_medical_condition
 from progs.selection import select_plan, select_camp
 from progs.selection_volunteer import select_plan_camp_vol
 from progs.selection_refugees import select_plan_camp_refugee
-from progs import auto_resources, hum_plan_funcs, volunteer_funcs, refugee_profile_funcs, volunteering_session_funcs
+from progs import auto_resources, hum_plan_funcs, volunteer_funcs, refugee_profile_funcs, volunteering_session_funcs, resource_consumption
 from progs import verify as v
 
 
@@ -1274,6 +1274,70 @@ class Admin:
                         logging.debug(f"Allocated {amount} first-aid kits.")
                         break
 
+    def record_resource_consumption(self):
+        """
+        Enables the admin to record consumption of resources at a selected camp.
+        A menu enables the admin to update multiple resources before leaving the method.
+        """
+        print("\n--------------------------------------------")
+        print("\tRECORD RESOURCE CONSUMPTION")
+        print("Select the camp at which resources have been consumed.")
+        progress = 0
+        while progress < 3:
+            if progress == 0:
+                plan_id = select_plan()
+                if plan_id == 0:
+                    logging.debug("Returning to previous menu.")
+                    return
+                else:
+                    progress += 1
+
+            if progress == 1:
+                camp_name = select_camp(plan_id)
+                if camp_name == "X":
+                    logging.debug("Returning to previous menu.")
+                    return
+                elif camp_name == "B":
+                    logging.debug("Returning to previous step.")
+                    progress -= 1
+                else:
+                    progress += 1
+
+            if progress == 2:
+                # outer loop to edit multiple attributes, exit if 0 is entered
+                while True:
+                    # inner loop to catch invalid input
+                    logging.debug("Admin prompted to select which resource to update.")
+                    while True:
+                        print("Which resource would you like to update?")
+                        print("Enter [1] for consumption of food packets")
+                        print("Enter [2] for consumption of water portions")
+                        print("Enter [3] for use of first-aid kits")
+                        print("Enter [9] to go back to camp selection")
+                        print("Enter [0] to return to the previous menu\n")
+                        try:
+                            option = int(input(">>Select an option: "))
+                            if option not in (0, 1, 2, 3, 9):
+                                raise ValueError
+                        except ValueError:
+                            print("\nPlease enter a number from the options provided.\n")
+                            logging.error("Invalid user input.")
+                            continue
+                        break
+
+                    if option == 0:
+                        logging.debug("Finished recording resource consumption. Returning to the resources menu.")
+                        return
+                    if option == 9:
+                        logging.debug("Returning to previous step.")
+                        progress -= 1
+                        break
+                    if option == 1:
+                        resource_consumption.edit_food(plan_id, camp_name)
+                    if option == 2:
+                        resource_consumption.edit_water(plan_id, camp_name)
+                    if option == 3:
+                        resource_consumption.edit_medical_supplies(plan_id, camp_name)
 
     def admin_menu(self):
         """Main menu when the admin logs in, providing options to access sub-menus categorising the various admin functionalities."""
@@ -1425,12 +1489,13 @@ class Admin:
                 print("Enter [3] to use auto-allocating feature")
                 print("Enter [4] to respond to resource requests from volunteers")
                 print("Enter [5] to request additional resources be added to storage")
+                print("Enter [6] to record consumption of resources at a camp")
                 print("Enter [0] to return to the admin menu\n")
                 try:
                     user_input = input(">>Select an option: ")
                     option = int(user_input)
                     logging.debug(f'Admin has entered {user_input}.')
-                    if option not in range(6):
+                    if option not in range(7):
                         raise ValueError
                 except ValueError:
                     print("\nPlease enter a number from the options provided.\n")
@@ -1503,6 +1568,9 @@ class Admin:
             if option == 5:
                 logging.debug("Admin has chosen to request more resources for a humanitarian plan.")
                 self.update_resources_in_storage()
+            if option == 6:
+                logging.debug("Admin has chosen to record consumption of resources at a camp.")
+                self.record_resource_consumption()
 
     def refugee_menu(self):
         """Sub-menu enabling the admin to access functionalities relating to refugee profiles."""

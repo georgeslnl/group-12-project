@@ -3,7 +3,7 @@ import pandas as pd, numpy as np, re, datetime, os
 import logging
 # custom modules and functions from other files
 from progs.coded_vars import convert_gender, convert_medical_condition
-from progs import refugee_profile_funcs, volunteering_session_funcs
+from progs import refugee_profile_funcs, volunteering_session_funcs, resource_consumption
 from progs import verify as v
 
 class Volunteer:
@@ -1154,185 +1154,6 @@ class Volunteer:
             logging.debug("updated camps csv file")
             return
 
-        def edit_food():
-            """
-            Prompts the volunteer to enter the number of food packets consumed at their camp.
-            The volunteer is asked for confirmation before the update is applied.
-            """
-            camps = pd.read_csv(os.path.join('data', self.plan_id + '.csv'))
-            my_camp = camps[camps['camp_name'] == self.camp_name]
-            cur_food = my_camp.iloc[0]['food']
-            print("\nCurrent supply of food packets at " + self.camp_name + ": " + str(cur_food))
-
-            logging.debug(f"{self.username} prompted to enter number of food packets consumed.")
-            while True:
-                print("Enter [X] to return to the previous step.")
-                food_consumed = input(">>Enter the number of food packets consumed: ")
-                if food_consumed.upper() == "X":
-                    logging.debug("Returning to previous step.")
-                    return
-                try:
-                    food_consumed = int(food_consumed)
-                    if food_consumed <= 0:
-                        raise ValueError
-                except ValueError:
-                    print("\nPlease enter a positive integer.")
-                    logging.error("Invalid user input.")
-                    continue
-                if food_consumed > cur_food:
-                    print("\nFood consumed exceeds the current supply. "
-                          "Please try again or return to the previous step.")
-                    continue
-
-                # confirmation
-                logging.debug(f"{self.username} prompted for confirmation.")
-                while True:
-                    print("\nConfirmation:", food_consumed, "out of", cur_food, "food packets have been consumed.")
-                    print("Proceed to update camp information?")
-                    print("Enter [1] to proceed")
-                    print("Enter [0] to return to the previous step\n")
-                    try:
-                        confirm = int(input(">>Select an option: "))
-                        if confirm not in (0, 1):
-                            raise ValueError
-                    except ValueError:
-                        print("\nPlease enter a number from the options provided.")
-                        logging.error("Invalid user input.")
-                        continue
-                    break
-                if confirm == 0:
-                    logging.debug("Returning to previous step.")
-                    continue
-                break
-            logging.debug("Consumption of food confirmed.")
-            # update csv file
-            chosen = (camps['camp_name'] == self.camp_name)
-            camps.loc[chosen, 'food'] = cur_food - food_consumed
-            camps.to_csv(os.path.join('data', self.plan_id + '.csv'), index=False)
-            logging.debug("updated camps csv file")
-            print("\nFood supply updated successfully!")
-            print("Updated supply of food packets:", cur_food - food_consumed)
-            return
-
-        def edit_water():
-            """
-            Prompts the volunteer to enter the number of water portions consumed at their camp.
-            The volunteer is asked for confirmation before the update is applied.
-            """
-            camps = pd.read_csv(os.path.join('data', self.plan_id + '.csv'))
-            my_camp = camps[camps['camp_name'] == self.camp_name]
-            cur_water = my_camp.iloc[0]['water']
-            print("\nCurrent supply of water portions at " + self.camp_name + ": " + str(cur_water))
-
-            logging.debug(f"{self.username} prompted to enter number of water portions consumed.")
-            while True:
-                print("Enter [X] to return to the previous step.\n")
-                water_consumed = input(">>Enter the number of water portions consumed: ")
-                if water_consumed.upper() == "X":
-                    logging.debug("Returning to previous step.")
-                    return
-                try:
-                    water_consumed = int(water_consumed)
-                    if water_consumed <= 0:
-                        raise ValueError
-                except ValueError:
-                    print("\nPlease enter a positive integer.")
-                    logging.error("Invalid user input.")
-                    continue
-                if water_consumed > cur_water:
-                    print("\nWater consumed exceeds the current supply. Please try again or return to the previous step.")
-                    continue
-
-                # confirmation
-                logging.debug(f"{self.username} prompted for confirmation.")
-                while True:
-                    print("\nConfirmation:", water_consumed, "out of", cur_water, "water portions have been consumed.")
-                    print("Proceed to update camp information?")
-                    print("Enter [1] to proceed")
-                    print("Enter [0] to return to the previous step\n")
-                    try:
-                        confirm = int(input(">>Select an option: "))
-                        if confirm not in (0, 1):
-                            raise ValueError
-                    except ValueError:
-                        print("\nPlease enter a number from the options provided.")
-                        logging.error("Invalid user input.")
-                        continue
-                    break
-                if confirm == 0:
-                    logging.debug("Returning to previous step.")
-                    continue
-                break
-            logging.debug("Consumption of water confirmed.")
-            # update csv file
-            chosen = (camps['camp_name'] == self.camp_name)
-            camps.loc[chosen, 'water'] = cur_water - water_consumed
-            camps.to_csv(os.path.join('data', self.plan_id + '.csv'), index=False)
-            logging.debug("updated camps csv file")
-            print("\nWater supply updated successfully!")
-            print("Updated supply of water portions:", cur_water - water_consumed)
-            return
-
-        def edit_medical_supplies():
-            """
-            Prompts the volunteer to enter the number of first-aid kits used at their camp.
-            The volunteer is asked for confirmation before the update is applied.
-            """
-            camps = pd.read_csv(os.path.join('data', self.plan_id + '.csv'))
-            my_camp = camps[camps['camp_name'] == self.camp_name]
-            cur_medical = my_camp.iloc[0]['firstaid_kits']
-            print("\nCurrent supply of first-aid kits at " + self.camp_name + ": " + str(cur_medical))
-
-            logging.debug(f"{self.username} prompted to enter number of first-aid kits used.")
-            while True:
-                print("Enter [X] to return to the previous step.\n")
-                medical_used = input(">>Enter the number of first-aid kits used: ")
-                if medical_used.upper() == "X":
-                    logging.debug("Returning to previous step.")
-                    return
-                try:
-                    medical_used = int(medical_used)
-                    if medical_used <= 0:
-                        raise ValueError
-                except ValueError:
-                    print("\nPlease enter a positive integer.")
-                    logging.error("Invalid user input.")
-                    continue
-                if medical_used > cur_medical:
-                    print("\nFirst-aid kits used exceed the current supply. "
-                          "\nPlease try again or return to the previous step.")
-                    continue
-
-                # confirmation
-                logging.debug(f"{self.username} prompted for confirmation.")
-                while True:
-                    print("\nConfirmation:", medical_used, "out of", cur_medical, "first-aid kits have been used.")
-                    print("Proceed to update camp information?")
-                    print("Enter [1] to proceed")
-                    print("Enter [0] to return to the previous step\n")
-                    try:
-                        confirm = int(input(">>Select an option: "))
-                        if confirm not in (0, 1):
-                            raise ValueError
-                    except ValueError:
-                        print("\nPlease enter a number from the options provided.")
-                        logging.error("Invalid user input.")
-                        continue
-                    break
-                if confirm == 0:
-                    logging.debug("Returning to previous step.")
-                    continue
-                break
-            logging.debug("Consumption of first-aid kits confirmed.")
-            # update csv file
-            chosen = (camps['camp_name'] == self.camp_name)
-            camps.loc[chosen, 'firstaid_kits'] = cur_medical - medical_used
-            camps.to_csv(os.path.join('data', self.plan_id + '.csv'), index=False)
-            logging.debug("updated camps csv file")
-            print("\nSupply of first-aid kits updated successfully!")
-            print("Updated supply of first-aid kits:", cur_medical - medical_used)
-            return
-
         print("\n--------------------------------------------")
         print("\tUPDATE CAMP INFORMATION")
         # outer loop to edit multiple attributes, exit if 0 is entered
@@ -1340,7 +1161,7 @@ class Volunteer:
             # inner loop to catch invalid input
             logging.debug(f"{self.username} prompted to select which camp information to edit.")
             while True:
-                print("Which details would you like to update?")
+                print("\nWhich details would you like to update?")
                 print("Enter [1] for refugee capacity")
                 print("Enter [2] for consumption of food packets")
                 print("Enter [3] for consumption of water portions")
@@ -1362,11 +1183,11 @@ class Volunteer:
             if option == 1:
                 edit_capacity()
             if option == 2:
-                edit_food()
+                resource_consumption.edit_food(self.plan_id, self.camp_name)
             if option == 3:
-                edit_water()
+                resource_consumption.edit_water(self.plan_id, self.camp_name)
             if option == 4:
-                edit_medical_supplies()
+                resource_consumption.edit_medical_supplies(self.plan_id, self.camp_name)
 
     def add_volunteering_session(self):
         """
