@@ -30,9 +30,10 @@ class Volunteer:
             print("\t\tVOLUNTEER MENU")
             print("Welcome,", self.first_name, self.last_name)
             if self.camp_name is None:
-                print("\n* You are not currently assigned to camp. Please update your camp identification *\n")
+                print("\n* You are not currently assigned to a camp. Please update your camp identification. *")
+                logging.info(f"{self.username} is not assigned to a camp. A notification has been displayed.")
             while True:
-                print("What would you like to do?")
+                print("\nWhat would you like to do?")
                 print("Enter [1] for personal information and camp identification")
                 print("Enter [2] to create, view, edit or remove a refugee profile")
                 print("Enter [3] to display or update your camp's information (including resource requests)")
@@ -52,7 +53,7 @@ class Volunteer:
                 logging.info(f'{self.username} has logged out of their session.')
                 self.logout()
             if option == 1:
-                logging.debug(f"{self.first_name} {self.last_name} has selected the personal information menu.")
+                logging.debug(f"{self.username} has selected the personal information menu.")
                 self.personal_menu()
             if option == 2:
                 logging.debug(f"{self.username} has selected the refugee profile menu.")
