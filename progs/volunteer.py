@@ -29,6 +29,8 @@ class Volunteer:
             print("\n--------------------------------------------")
             print("\t\tVOLUNTEER MENU")
             print("Welcome,", self.first_name, self.last_name)
+            if self.camp_name is None:
+                print("\n* You are not currently assigned to camp. Please update your camp identification *\n")
             while True:
                 print("What would you like to do?")
                 print("Enter [1] for personal information and camp identification")
