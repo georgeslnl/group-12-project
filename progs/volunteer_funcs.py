@@ -131,6 +131,7 @@ def add_first_name():
     while True:
         print("\nEnter [0] to return to the previous menu or [9] to go back to the previous step.\n")
         first_name = input(">>Enter first name: ").strip()
+        first_name = f"{first_name[0].upper()}{first_name[1:]}"
         if first_name in ("0", "9"):
             return first_name
         # validation
@@ -345,7 +346,7 @@ def edit_username(username):
     print("Username updated successfully!")
     print("Volunteer's new username is:", new_username)
     logging.debug("Username updated successfully")
-    return
+    return new_username
 
 def edit_password(username, password):
     """Prompts the admin to enter the volunteer's new password."""

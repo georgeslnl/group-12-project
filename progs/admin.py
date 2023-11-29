@@ -415,7 +415,7 @@ class Admin:
                 logging.debug("Finished editing volunteer details. Returning to volunteer accounts menu.")
                 return
             if option == 1:
-                volunteer_funcs.edit_username(username)
+                username = volunteer_funcs.edit_username(username)
             if option == 2:
                 volunteer_funcs.edit_password(username, password)
             if option == 3:
