@@ -1172,7 +1172,7 @@ class Volunteer:
                     if option not in range(5):
                         raise ValueError
                 except ValueError:
-                    print("\nPlease enter a number from the options provided.\n")
+                    print("\nPlease enter a number from the options provided.")
                     logging.error("Invalid user input.")
                     continue
                 break

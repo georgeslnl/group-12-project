@@ -1309,7 +1309,7 @@ class Admin:
                     # inner loop to catch invalid input
                     logging.debug("Admin prompted to select which resource to update.")
                     while True:
-                        print("Which resource would you like to update?")
+                        print("\nWhich resource would you like to update?")
                         print("Enter [1] for consumption of food packets")
                         print("Enter [2] for consumption of water portions")
                         print("Enter [3] for use of first-aid kits")
@@ -1320,7 +1320,7 @@ class Admin:
                             if option not in (0, 1, 2, 3, 9):
                                 raise ValueError
                         except ValueError:
-                            print("\nPlease enter a number from the options provided.\n")
+                            print("\nPlease enter a number from the options provided.")
                             logging.error("Invalid user input.")
                             continue
                         break
