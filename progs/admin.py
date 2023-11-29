@@ -1416,7 +1416,8 @@ class Admin:
         """Sub-menu enabling the admin to access functionalities relating to volunteer accounts."""
         while True:
             logging.debug("Admin has entered the volunteer accounts menu.")
-            print("\nManage Volunteer Accounts")
+            print("\n--------------------------------------------")
+            print("\tMANAGE VOLUNTEER ACCOUNTS")
             while True:
                 print("Enter [1] to create a volunteer account")
                 print("Enter [2] to view a volunteer's details")
