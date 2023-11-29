@@ -116,7 +116,7 @@ class Admin:
             if progress == 0:
                 plan_id = select_plan()
                 if plan_id == 0:
-                    logging.debug("Returning to resources menu.")
+                    logging.debug("Returning to previous menu.")
                     return
                 progress += 1
 
