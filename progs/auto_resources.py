@@ -81,6 +81,9 @@ def auto_all(hum_plan, location):
     # now we add and write one by one, if resources sufficient
     logging.debug("Admin prompted to confirm auto-allocation.")
     while True:
+        print("The remaining resources as below:")
+        print(f"\n{humani_plan.loc[humani_plan.location == location, ['location', 'start_date', 'food_storage', 'water_storage', 'firstaid_kits_storage']]}\n")
+        print(f"\n{resources.to_string(index=False)}")
         print(f"\nA total of {sum_needed[0]} food packets, {sum_needed[1]} water portions "
             f"and {sum_needed[2]} first-aid kits will be added to camps from storage.")
         print("Would you like to proceed?")
@@ -130,6 +133,7 @@ def auto_one(hum_plan, location):
     """
     resources = pd.read_csv(os.path.join('data', hum_plan))
     humani_plan = pd.read_csv(os.path.join('data', 'humanitarian_plan.csv'))
+    print(f"\n{humani_plan.loc[humani_plan.location == location, ['location', 'start_date', 'food_storage', 'water_storage', 'firstaid_kits_storage']]}\n")
     print(resources.to_string(index=False))
     logging.debug("Admin prompted to select camp.")
     while True:
