@@ -74,7 +74,7 @@ class Admin:
                     progress += 1
 
         # Creating humanitarian plan object
-        logging.debug("Finished entering details of humanitrian plan."
+        logging.debug("Finished entering details of humanitarian plan."
                       "Creating humanitarian plan object, which will create a csv file for the plan's camps.")
         hu_pl = HumanitarianPlan(desc, loc, start_date, nb_of_camps)
         name = f'{loc}_{start_date[6:]}'
@@ -1338,7 +1338,7 @@ class Admin:
             logging.debug("Checking if any camps are low on resources.")
             self.low_resources_notification()
             while True:
-                print("\nChoose would you would like to do.")
+                print("\nChoose what you would like to do.")
                 print("Enter [1] to create, display, edit or end a humanitarian plan")
                 print("Enter [2] to manage volunteer accounts (including camp identification)")
                 print("Enter [3] to manage resources at humanitarian plans")
@@ -1659,7 +1659,7 @@ class Admin:
         while True:
             print("\nEnter [0] to return to the previous menu.")
             try:
-                plan_num = int(input(">Enter the number of the plan you would like to display: "))
+                plan_num = int(input(">>Enter the number of the plan you would like to display: "))
                 if plan_num == 0:
                     logging.debug("Returning to previous menu.")
                     return
