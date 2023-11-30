@@ -75,11 +75,11 @@ def auto_all(hum_plan, location):
     # if storage resources insufficient
     if food_in_storage < sum_needed[0] or water_in_storage < sum_needed[1] or firstaid_in_storage < sum_needed[2]:
         print("\nResources insufficient, please enter manually or request new resources.")
-        logging.warning("Insufficient resources in storage. Unable to auto-allocate.")
+        logging.warning("Insufficient resources in storage. Unable to smart-allocate.")
         return
 
     # now we add and write one by one, if resources sufficient
-    logging.debug("Admin prompted to confirm auto-allocation.")
+    logging.debug("Admin prompted to confirm smart-allocation.")
     print("The remaining resources as below:")
     print(
         f"\n{humani_plan.loc[humani_plan.location == location, ['location', 'start_date', 'food_storage', 'water_storage', 'firstaid_kits_storage']]}\n")
@@ -90,7 +90,7 @@ def auto_all(hum_plan, location):
         print("Would you like to proceed?")
         confirm = input(">>Enter [Y] or [N]: ").capitalize()
         if confirm == "Y":
-            logging.debug("Auto-allocation confirmed. Resources will be topped up to each camp in turn.")
+            logging.debug("Smart-allocation confirmed. Resources will be topped up to each camp in turn.")
             for i in resources.index:
                 refugees = resources.loc[i, "refugees"]
                 # food
@@ -110,7 +110,7 @@ def auto_all(hum_plan, location):
                 # write each iterate into two .csv
                 resources.to_csv(os.path.join('data', hum_plan), index=False)
                 humani_plan.to_csv(os.path.join('data', 'humanitarian_plan.csv'), index=False)
-            logging.debug("Auto-allocation complete. humanitarian_plan.csv and camps csv file updated.")
+            logging.debug("Smart-allocation complete. humanitarian_plan.csv and camps csv file updated.")
             print(f"\nAllocation complete. Currently, the resources in {hum_plan[:-4]} are as follows:"
                   f"\n{resources}")
             print(f"\nAnd the remaining resources in storage: "
@@ -174,11 +174,11 @@ def auto_one(hum_plan, location):
         if food_in_storage < food_needed or water_in_storage < water_needed or firstaid_in_storage < firstaid_needed:
             print("\nResources insufficient, please request new resources.\n"
                   "Now returning to camp selection.")
-            logging.warning("Insufficient resources in storage. Unable to auto-allocate.")
+            logging.warning("Insufficient resources in storage. Unable to smart-allocate.")
             continue
 
         # now we add and write one by one, if resources sufficient
-        logging.debug(f"Admin prompted to confirm auto-allocation to {camp_name}.")
+        logging.debug(f"Admin prompted to confirm smart-allocation to {camp_name}.")
         while True:
             print(f"\n{food_needed} food packets, {water_needed} water portions "
                   f"and {firstaid_needed} first-aid kits will be added to {camp_name} from storage.")
@@ -189,7 +189,7 @@ def auto_one(hum_plan, location):
                 logging.debug("Admin did not confirm. Returning to resources menu.")
                 return
             elif confirm == "Y":
-                logging.debug(f"Auto-allocation confirmed. Resources will be topped up to {camp_name}.")
+                logging.debug(f"Smart-allocation confirmed. Resources will be topped up to {camp_name}.")
                 # food
                 humani_plan.loc[humani_plan['location'] == location, 'food_storage'] -= food_needed
                 resources.loc[resources['camp_name'] == camp_name, "food"] += food_needed
@@ -205,7 +205,7 @@ def auto_one(hum_plan, location):
                 resources.to_csv(os.path.join('data', hum_plan), index=False)
                 humani_plan.to_csv(os.path.join('data', 'humanitarian_plan.csv'), index=False)
 
-                logging.debug("Auto-allocation complete. humanitarian_plan.csv and camps csv file updated.")
+                logging.debug("Smart-allocation complete. humanitarian_plan.csv and camps csv file updated.")
                 print(f"\nAllocation complete. Currently, the resources in {hum_plan[:-4]} are as follows:"
                       f"\n{resources}")
                 print(f"\nAnd the remaining resources in storage: "

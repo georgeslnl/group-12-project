@@ -1472,7 +1472,7 @@ class Admin:
             while True:
                 print("Enter [1] to display resources for a humanitarian plan")
                 print("Enter [2] to manually allocate resources to camps in a humanitarian plan")
-                print("Enter [3] to use auto-allocating feature")
+                print("Enter [3] to use smart-allocating feature")
                 print("Enter [4] to respond to resource requests from volunteers")
                 print("Enter [5] to request additional resources be added to storage")
                 print("Enter [6] to record consumption of resources at a camp")
@@ -1515,10 +1515,10 @@ class Admin:
                 location = plan_id[:-5]
                 logging.debug(f"Allocating resources manually to {plan_id}.")
                 self.allocate_resources(hum_plan, location)
-            if option == 3:  # auto-allocate
-                logging.debug(f"Admin has chosen to auto-allocate resources.")
+            if option == 3:  # smart-allocate
+                logging.debug(f"Admin has chosen to smart-allocate resources.")
                 print("\n--------------------------------------------")
-                print("\tAUTO-ALLOCATE RESOURCES")
+                print("\tSMART-ALLOCATE RESOURCES")
                 plan_id = select_plan()
                 if plan_id == 0:
                     logging.debug("Returning to resources menu.")
@@ -1528,8 +1528,8 @@ class Admin:
                 print(f"\nYou have selected {plan_id}.\n")
 
                 logging.debug(f"Admin is prompted to select between allocating to all camps and allocating to a specific camp at {plan_id}.")
-                print("\nWould you like to auto-allocate resources to all camps or select a camp?")
-                print("Auto-allocating feature will top up resources to all camps for the following 7 days.")
+                print("\nWould you like to smart-allocate resources to all camps or select a camp?")
+                print("Smart-allocating feature will top up resources to all camps for the following 7 days.")
                 print("Enter [1] to allocate resources to all camps")
                 print("Enter [2] to allocate resources to a specific camp")
                 print("Enter [0] to return to the previous menu\n")
@@ -1541,10 +1541,10 @@ class Admin:
                         continue
                     break
                 if option == 1:
-                    logging.debug("Admin has chosen to auto-allocate to all camps.")
+                    logging.debug("Admin has chosen to smart-allocate to all camps.")
                     auto_resources.auto_all(hum_plan, location)
                 if option == 2:
-                    logging.debug("Admin has chosen to auto-allocate to a specific camp.")
+                    logging.debug("Admin has chosen to smart-allocate to a specific camp.")
                     auto_resources.auto_one(hum_plan, location)
                 if option == 0:
                     logging.debug("Returning to the resources menu.")
