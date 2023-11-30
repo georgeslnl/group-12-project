@@ -307,7 +307,7 @@ def edit_username(username):
         new_username = input(">>Enter new username: ").strip()
         if new_username == "0":
             logging.debug("Returning to previous step.")
-            return
+            return new_username
         if new_username == username:
             print("\nNew username is the same as current username. "
                   "Please enter a different username.")

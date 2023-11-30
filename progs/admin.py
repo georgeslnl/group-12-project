@@ -74,7 +74,7 @@ class Admin:
                     progress += 1
 
         # Creating humanitarian plan object
-        logging.debug("Finished entering details of humanitrian plan."
+        logging.debug("Finished entering details of humanitarian plan."
                       "Creating humanitarian plan object, which will create a csv file for the plan's camps.")
         hu_pl = HumanitarianPlan(desc, loc, start_date, nb_of_camps)
         name = f'{loc}_{start_date[6:]}'
@@ -376,18 +376,18 @@ class Admin:
         else:
             username = selected[2]
 
-        users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
-        select_user = users[users['username'] == username]
-        password = select_user.iloc[0]['password']
-        first_name = select_user.iloc[0]['first_name']
-        last_name = select_user.iloc[0]['last_name']
-        gender = select_user.iloc[0]['gender']
-        date_of_birth = select_user.iloc[0]['date_of_birth']
-        email = select_user.iloc[0]['email']
-        phone_number = select_user.iloc[0]['phone_number']
-
         # outer loop to edit multiple attributes, exit if 0 is entered
         while True:
+            users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
+            select_user = users[users['username'] == username]
+            password = select_user.iloc[0]['password']
+            first_name = select_user.iloc[0]['first_name']
+            last_name = select_user.iloc[0]['last_name']
+            gender = select_user.iloc[0]['gender']
+            date_of_birth = select_user.iloc[0]['date_of_birth']
+            email = select_user.iloc[0]['email']
+            phone_number = select_user.iloc[0]['phone_number']
+
             # inner loop to catch invalid input
             while True:
                 logging.debug("Admin prompted to select which detail to edit.")
@@ -415,7 +415,9 @@ class Admin:
                 logging.debug("Finished editing volunteer details. Returning to volunteer accounts menu.")
                 return
             if option == 1:
-                username = volunteer_funcs.edit_username(username)
+                edit_username_result = volunteer_funcs.edit_username(username)
+                if edit_username_result != "0":
+                    username = edit_username_result
             if option == 2:
                 volunteer_funcs.edit_password(username, password)
             if option == 3:
@@ -1336,7 +1338,7 @@ class Admin:
             logging.debug("Checking if any camps are low on resources.")
             self.low_resources_notification()
             while True:
-                print("\nChoose would you would like to do.")
+                print("\nChoose what you would like to do.")
                 print("Enter [1] to create, display, edit or end a humanitarian plan")
                 print("Enter [2] to manage volunteer accounts (including camp identification)")
                 print("Enter [3] to manage resources at humanitarian plans")
@@ -1657,7 +1659,7 @@ class Admin:
         while True:
             print("\nEnter [0] to return to the previous menu.")
             try:
-                plan_num = int(input(">Enter the number of the plan you would like to display: "))
+                plan_num = int(input(">>Enter the number of the plan you would like to display: "))
                 if plan_num == 0:
                     logging.debug("Returning to previous menu.")
                     return
