@@ -871,18 +871,20 @@ class Admin:
         The selected plan is then closed and can no longer be updated.
         """
         plans = pd.read_csv(os.path.join('data', 'humanitarian_plan.csv'))
-        plans = plans[plans['end_date'].isna()]
+        plans_ongoing = plans[plans['end_date'].isna()]
+        plans_ongoing = plans_ongoing.replace({np.nan: None})
+        plans_ongoing = plans_ongoing.reset_index(drop=True)
         print("\n--------------------------------------------")
         print("\tEND HUMANITARIAN PLAN")
-        if len(plans.index) == 0:
+        if len(plans_ongoing.index) == 0:
             print("There are no ongoing humanitarian plans.")
             logging.warning("No ongoing humanitarian plans. Returning to humanitarian plan menu.")
             return
 
         print("The following humanitarian plans are ongoing:")
         print("Number - Location - Start Date")
-        for row in range(len(plans.index)):
-            print(row + 1, plans['location'].iloc[row], plans['start_date'].iloc[row], sep=" - ")
+        for row in range(len(plans_ongoing.index)):
+            print(row + 1, plans_ongoing['location'].iloc[row], plans_ongoing['start_date'].iloc[row], sep=" - ")
 
         while True:
             logging.debug("Admin prompted to select humanitarian plan.")
@@ -892,15 +894,14 @@ class Admin:
                 if plan_num == 0:
                     logging.debug("Returning to previous menu.")
                     return
-                if plan_num not in range(1, len(plans.index) + 1):
+                if plan_num not in range(1, len(plans_ongoing.index) + 1):
                     raise ValueError
             except ValueError:
                 print("\nPlease enter a plan number corresponding to a humanitarian plan listed above.")
                 logging.error("Invalid user input.")
                 continue
 
-            plans = pd.read_csv(os.path.join('data', 'humanitarian_plan.csv'))
-            plans = plans.replace({np.nan: None})
+            plan_id = plans_ongoing['plan_id'].iloc[plan_num - 1]
             start = datetime.strptime(plans['start_date'].iloc[plan_num-1], "%d-%m-%Y").date()
 
             # enter end date
@@ -932,8 +933,7 @@ class Admin:
             break
 
         # update csv files: add end date; remove volunteer accounts and volunteering sessions for that plan
-        plans.loc[plan_num - 1, 'end_date'] = end_date
-        plan_id = plans['plan_id'].iloc[plan_num - 1]
+        plans.loc[plans["plan_id"] == plan_id, "end_date"] = end_date
         plans.to_csv(os.path.join('data', 'humanitarian_plan.csv'), index=False)
         logging.debug("humanitarian_plan.csv updated")
 
