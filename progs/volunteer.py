@@ -1155,7 +1155,7 @@ class Volunteer:
             camps.to_csv(os.path.join('data', self.plan_id + '.csv'), index=False)
             print("\nRefugee capacity updated successfully!")
             print("New refugee capacity:", new_capacity)
-            logging.debug("updated camps csv file")
+            logging.debug("camps csv file updated")
             return
 
         print("\n--------------------------------------------")

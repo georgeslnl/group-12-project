@@ -1828,8 +1828,8 @@ class Admin:
                     camps.loc[chosen, 'capacity'] = new_capacity
                     camps.to_csv(os.path.join('data', plan_id + '.csv'), index=False)
                     logging.debug("camps csv file updated")
-                    print("Capacity updated successfully! Returning to camp selection.")
                     print("You have updated the capacity of", plan_id + ",", camp_name, "to", str(new_capacity) + ".")
+                    print("Returning to camp selection.")
                     progress -= 1
                     break
 
