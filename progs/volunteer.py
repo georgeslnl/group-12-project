@@ -1052,7 +1052,8 @@ class Volunteer:
             # inner loop to catch invalid input
             while True:
                 logging.debug(f"{self.username} prompted to select which detail to edit.")
-                print("\nWhich details would you like to update?")
+                print("\nSelected refugee:", refugee_name)
+                print("Which details would you like to update?")
                 print("Enter [1] for refugee name")
                 print("Enter [2] for gender")
                 print("Enter [3] for date of birth")

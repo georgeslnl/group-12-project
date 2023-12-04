@@ -685,7 +685,7 @@ class Admin:
                         if kit_request == 0:
                             print('\nNo requests for first-aid kits.')
                             break
-                        self.resource_request_processing(kit_request, 'fofirstaid_kits', user, camp, plan)
+                        self.resource_request_processing(kit_request, 'firstaid_kits', user, camp, plan)
                         break
                     else:
                         print("\nPlease enter either [C] or [X]")
@@ -1822,13 +1822,13 @@ class Admin:
                         print("\nCapacity is unchanged. Please try again or return to the previous step.")
                         logging.error("Capacity is unchanged.")
                         continue
-                    logging.debug("Capacity updated successfully.")
+                    logging.debug("Capacity updated successfully. Returning to camp selection.")
                     # update csv file
                     chosen = (camps['camp_name'] == camp_name)
                     camps.loc[chosen, 'capacity'] = new_capacity
                     camps.to_csv(os.path.join('data', plan_id + '.csv'), index=False)
                     logging.debug("camps csv file updated")
-                    print("Capacity updated successfully!")
+                    print("Capacity updated successfully! Returning to camp selection.")
                     print("You have updated the capacity of", plan_id + ",", camp_name, "to", str(new_capacity) + ".")
                     progress -= 1
                     break
@@ -2243,7 +2243,8 @@ class Admin:
             # inner loop to catch invalid input
             while True:
                 logging.debug("Admin prompted to select which detail to edit.")
-                print("\nWhich details would you like to update?")
+                print("\nSelected refugee:", refugee_name)
+                print("Which details would you like to update?")
                 print("Enter [1] for refugee name")
                 print("Enter [2] for gender")
                 print("Enter [3] for date of birth")
