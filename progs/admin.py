@@ -823,9 +823,9 @@ class Admin:
         logging.debug(f"Admin prompted to confirm {user}'s deactivation request.")
         while True:
             print(f'\nUser {user} has requested to deactivate their account.\n')
-            print('Enter [1] to deactivate {user}')
-            print('Enter [2] to keep {user} active')
-            print('Enter [0] to ignore this request for now.\n')
+            print(f'Enter [1] to deactivate {user}')
+            print(f'Enter [2] to keep {user} active')
+            print(f'Enter [0] to ignore this request for now.\n')
             try:
                 option = int(input(">>Select an option: "))
                 if option not in (0, 1, 2):
@@ -1822,17 +1822,25 @@ class Admin:
                         print("\nCapacity is unchanged. Please try again or return to the previous step.")
                         logging.error("Capacity is unchanged.")
                         continue
-                    progress += 1
+                    logging.debug("Capacity updated successfully.")
+                    # update csv file
+                    chosen = (camps['camp_name'] == camp_name)
+                    camps.loc[chosen, 'capacity'] = new_capacity
+                    camps.to_csv(os.path.join('data', plan_id + '.csv'), index=False)
+                    logging.debug("camps csv file updated")
+                    print("Capacity updated successfully!")
+                    print("You have updated the capacity of", plan_id + ",", camp_name, "to", str(new_capacity) + ".")
+                    progress -= 1
                     break
 
-        logging.debug("Capacity updated successfully.")
-        # update csv file
-        chosen = (camps['camp_name'] == camp_name)
-        camps.loc[chosen, 'capacity'] = new_capacity
-        camps.to_csv(os.path.join('data', plan_id + '.csv'), index=False)
-        logging.debug("camps csv file updated")
-        print("Capacity updated successfully!")
-        print("You have updated the capacity of", plan_id + ",", camp_name, "to", str(new_capacity) + ".")
+        # logging.debug("Capacity updated successfully.")
+        # # update csv file
+        # chosen = (camps['camp_name'] == camp_name)
+        # camps.loc[chosen, 'capacity'] = new_capacity
+        # camps.to_csv(os.path.join('data', plan_id + '.csv'), index=False)
+        # logging.debug("camps csv file updated")
+        # print("Capacity updated successfully!")
+        # print("You have updated the capacity of", plan_id + ",", camp_name, "to", str(new_capacity) + ".")
 
     def view_volunteer(self):
         """Enables the admin to view the personal details and camp identification of a selected volunteer."""
