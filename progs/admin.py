@@ -1346,7 +1346,7 @@ class Admin:
                 print("Enter [1] to create, display, edit or end a humanitarian plan")
                 print("Enter [2] to manage volunteer accounts (including camp identification)")
                 print("Enter [3] to manage resources of humanitarian plans")
-                print("Enter [4] to ")
+                print("Enter [4] to manage refugee profiles")
                 print("Enter [5] to manage volunteering sessions")
                 print("Enter [0] to logout\n")
                 try:
