@@ -917,6 +917,8 @@ class Admin:
                     break
                 try:
                     end = datetime.strptime(end_date, "%d-%m-%Y").date()
+                    if len(end_date) != 10:
+                        raise ValueError
                 except ValueError:
                     print("\nIncorrect date format. Please use the format DD-MM-YYYY (e.g. 15-12-2023).")
                     logging.error("Invalid user input.")
@@ -1762,17 +1764,25 @@ class Admin:
                         print("\nCapacity is unchanged. Please try again or return to the previous step.")
                         logging.error("Capacity is unchanged.")
                         continue
-                    progress += 1
+                    logging.debug("Capacity updated successfully.")
+                    # update csv file
+                    chosen = (camps['camp_name'] == camp_name)
+                    camps.loc[chosen, 'capacity'] = new_capacity
+                    camps.to_csv(os.path.join('data', plan_id + '.csv'), index=False)
+                    logging.debug("camps csv file updated")
+                    print("Capacity updated successfully!")
+                    print("You have updated the capacity of", plan_id + ",", camp_name, "to", str(new_capacity) + ".")
+                    progress -= 1
                     break
 
-        logging.debug("Capacity updated successfully.")
-        # update csv file
-        chosen = (camps['camp_name'] == camp_name)
-        camps.loc[chosen, 'capacity'] = new_capacity
-        camps.to_csv(os.path.join('data', plan_id + '.csv'), index=False)
-        logging.debug("camps csv file updated")
-        print("Capacity updated successfully!")
-        print("You have updated the capacity of", plan_id + ",", camp_name, "to", str(new_capacity) + ".")
+        # logging.debug("Capacity updated successfully.")
+        # # update csv file
+        # chosen = (camps['camp_name'] == camp_name)
+        # camps.loc[chosen, 'capacity'] = new_capacity
+        # camps.to_csv(os.path.join('data', plan_id + '.csv'), index=False)
+        # logging.debug("camps csv file updated")
+        # print("Capacity updated successfully!")
+        # print("You have updated the capacity of", plan_id + ",", camp_name, "to", str(new_capacity) + ".")
 
     def view_volunteer(self):
         """Enables the admin to view the personal details and camp identification of a selected volunteer."""

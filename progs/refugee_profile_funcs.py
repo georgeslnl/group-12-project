@@ -57,6 +57,8 @@ def add_dob():
             return date_of_birth
         try:
             dob = datetime.datetime.strptime(date_of_birth, "%d-%m-%Y").date()
+            if len(date_of_birth) != 10:
+                raise ValueError
         except ValueError:
             print("\nIncorrect date format. Please use the format DD-MM-YYYY (e.g. 23-07-1999).")
             logging.error("Invalid user input.")
@@ -273,6 +275,8 @@ def edit_dob(refugee_id, date_of_birth):
             continue
         try:
             ndob = datetime.datetime.strptime(new_dob, "%d-%m-%Y").date()
+            if len(new_dob) != 10:
+                raise ValueError
         except ValueError:
             print("\nIncorrect date format. Please use the format DD-MM-YYYY (e.g. 23-07-1999).\n")
             logging.error("Invalid user input.")

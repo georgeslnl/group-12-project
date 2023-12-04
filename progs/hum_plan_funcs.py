@@ -63,6 +63,8 @@ def add_start_date(location):
             return start_date
         try:
             start = datetime.datetime.strptime(start_date, "%d-%m-%Y").date()
+            if len(start_date) != 10:
+                raise ValueError
         except ValueError:
             print("\nIncorrect date format. Please use the format DD-MM-YYYY (e.g. 23-07-1999).")
             logging.error("Invalid user input.")
@@ -219,7 +221,7 @@ def edit_no_camps(plan_id, num_camps):
                               f'deleted, \nvolunteers will be disaffiliated with any camps, and resources belonging to '
                               f'these camps will be lost.'
                               f'\n\n Please choose not to only if the area of this plan no longer needs assistance.'
-                              f'\n>>Enter [Y] for yes, [N] for no: ')
+                              f'\n>>Enter [Y] for yes, [N] for no: ').capitalize()
             if choice != 'Y' and choice != 'N':
                 print('\nPlease enter [Y] for reallocating refugees, volunteers and resources, [N] for no.')
                 logging.error("Invalid user input.")
