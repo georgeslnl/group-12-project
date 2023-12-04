@@ -628,6 +628,7 @@ class Admin:
         This method uses the resource_requests.csv file to check for requests and amount requested.
         """
         logging.debug("Checking for resource requests.")
+        print()
         requests = self.resource_request_notification()
         if requests is not False:  # if method above didn't return false
             new_requests = requests[requests["resolved"] == 'no']
@@ -640,77 +641,85 @@ class Admin:
                 water_request = row["water"]
                 kit_request = row["firstaid_kits"]
 
+                resources_df = pd.read_csv(os.path.join('data', plan + '.csv'))
+                humani_plan_df = pd.read_csv(os.path.join('data', 'humanitarian_plan.csv'))
+
+
+                print("\n-----------------------")
+                print(f'Requests by: {user}')
+
                 # Food requests
-                logging.debug("Admin prompted to continue to food portion of request.")
-                while True:
-                    option = v.string("\n>>Enter [C] to continue, or [X] to return to the previous menu: ")
-                    if option.upper() == "X":
-                        logging.debug("Returning to previous menu.")
-                        return
-                    elif option.upper() == "C":
-                        if food_request == 0:
-                            print('\nNo requests for food.')
+                if food_request == 0:
+                    print('No food requested.')
+                else:
+                    print(f'{user} has made a food request.')
+                    while True:
+                        option = v.string("\n>>Enter [C] to continue, or [X] to return to the previous menu: ")
+                        if option.upper() == "X":
+                            logging.debug("Returning to previous menu.")
+                            return
+                        elif option.upper() == "C":
+                            self.resource_request_processing(food_request, 'food', user, camp, plan, humani_plan_df, resources_df)
                             break
-                        self.resource_request_processing(food_request, 'food', user, camp, plan)
-                        break
-                    else:
-                        print("\nPlease enter either [C] or [X].")
-                        logging.error("Invalid user input.")
+                        else:
+                            print("\nPlease enter either [C] or [X].")
+                            logging.error("Invalid user input.")
 
                 # Water requests
-                logging.debug("Admin prompted to continue to water portion of request.")
-                while True:
-                    option = v.string("\n>>Enter [C] to continue, or [X] to return to the previous menu: ")
-                    if option.upper() == "X":
-                        logging.debug("Returning to previous menu.")
-                        return
-                    elif option.upper() == "C":
-                        if water_request == 0:
-                            print('\nNo requests for water.')
+                if water_request == 0:
+                    print('No water requested.')
+                else:
+                    print(f'{user} has made a water request.')
+                    while True:
+                        option = v.string("\n>>Enter [C] to continue, or [X] to return to the previous menu: ")
+                        if option.upper() == "X":
+                            logging.debug("Returning to previous menu.")
+                            return
+                        elif option.upper() == "C":
+                            self.resource_request_processing(water_request, 'water', user, camp, plan, humani_plan_df, resources_df)
                             break
-                        self.resource_request_processing(water_request, 'water', user, camp, plan)
-                        break
-                    else:
-                        print("\nPlease enter either [C] or [X].")
-                        logging.error("Invalid user input.")
+                        else:
+                            print("\nPlease enter either [C] or [X].")
+                            logging.error("Invalid user input.")
 
-                # First-aid kit requests
-                logging.debug("Admin prompted to continue to first-aid kit portion of request.")
-                while True:
-                    option = v.string("\n>>Enter [C] to continue, or [X] to return to the previous menu: ")
-                    if option.upper() == "X":
-                        logging.debug("Returning to previous menu.")
-                        return
-                    elif option.upper() == "C":
-                        if kit_request == 0:
-                            print('\nNo requests for first-aid kits.')
+                # First-Aid Kit requests
+                if kit_request == 0:
+                    print('No first-aid kit requested.')
+                else:
+                    print(f'{user} has made a first-aid kit request.')
+                    while True:
+                        option = v.string("\n>>Enter [C] to continue, or [X] to return to the previous menu: ")
+                        if option.upper() == "X":
+                            logging.debug("Returning to previous menu.")
+                            return
+                        elif option.upper() == "C":
+                            self.resource_request_processing(kit_request, 'firstaid_kits', user, camp, plan, humani_plan_df, resources_df)
                             break
-                        self.resource_request_processing(kit_request, 'fofirstaid_kits', user, camp, plan)
-                        break
-                    else:
-                        print("\nPlease enter either [C] or [X]")
-                        logging.error("Invalid user input.")
+                        else:
+                            print("\nPlease enter either [C] or [X]")
+                            logging.error("Invalid user input.")
 
-                # Marking that request as resolved
                 requests.loc[index, "resolved"] = 'yes'
-                logging.debug("Request marked as resolved.")
+                humani_plan_df.to_csv(os.path.join('data', 'humanitarian_plan.csv'), index=False)
+                resources_df.to_csv(os.path.join('data', plan + '.csv'), index=False)
+                requests.to_csv(os.path.join('data', 'resource_requests.csv'), index=False)
+                logging.debug(f"Request from {user} marked as resolved.")
+                print("-----------------------")
 
-            # Saves to csv after iterating through all the new requests and marking them as resolved.
             logging.debug("Finished processing resource requests.")
             requests.to_csv(os.path.join('data', 'resource_requests.csv'), index=False)
             logging.debug("resource_requests.csv saved")
 
 
-    def resource_request_processing(self, requested_nb, resource, user, camp, plan):
+    def resource_request_processing(self, requested_nb, resource, user, camp, plan, humani_plan_df, resources_df):
         """
         This method is called when a request for more resources has been made by a volunteer.
         The admin uses the method to either accept or decline the request, updating the storage and
         camp resources accordingly.
         """
-        resources_df = pd.read_csv(os.path.join('data', plan + '.csv'))
-        humani_plan_df = pd.read_csv(os.path.join('data', 'humanitarian_plan.csv'))
+
         if resource != 0:
-            print(f'\n{user} has requested {requested_nb} {resource} for {camp} of {plan}\n')
+            print(f'\n{user} has requested {requested_nb} {resource} units for {camp} of {plan}\n')
             storage_units = humani_plan_df.loc[humani_plan_df.plan_id == plan, f'{resource}_storage'].item()
             camp_units = resources_df.loc[resources_df.camp_name == camp, resource].item()
             print(f'{plan}\'s {resource} storage units: {storage_units}')
@@ -719,7 +728,6 @@ class Admin:
             if requested_nb > storage_units:
                 print('Amount requested is too high, storage units are too low!')
                 print('Please add more resources to the storage before proceeding')
-                # We could add a call to the add_storage_resource method here once we have it?
                 logging.warning(f"Amount of {resource} requested exceeds storage. Unable to approve request.")
                 return
 
@@ -737,17 +745,19 @@ class Admin:
                     continue
                 break
             if option == 1:
-                print('\nRequest accepted')
+                print(f'\nRequest accepted: {resource} has been allocated')
+
+                # Taking resources from storage
                 humani_plan_df.loc[humani_plan_df.plan_id == plan, f'{resource}_storage'] -= requested_nb
-                humani_plan_df.to_csv(os.path.join('data', 'humanitarian_plan.csv'), index=False)
+
+                # Adding resources to camp
                 resources_df.loc[resources_df.camp_name == camp, resource] += requested_nb
-                resources_df.to_csv(os.path.join('data', plan + '.csv'), index=False)
+
+
                 print(f'The {resource} units for {camp} have increased by: {requested_nb}')
-                print('This request has been marked as resolved.')
                 logging.debug("Request approved. humanitarian_plan.csv and camps csv file updated.")
             elif option == 2:
-                print('\nRequest declined: no resource has been reallocated.')
-                print('This request has been marked as resolved.')
+                print(f'\nRequest declined: no {resource} has been allocated.')
                 logging.debug("Request declined.")
 
     def deactivation_request_notification(self):
