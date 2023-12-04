@@ -100,6 +100,9 @@ class Admin:
         return
 
     def edit_hum_plan(self):
+        '''
+        This method allows admin to edit two attributes of a humanitarian plan - the description and the number of camps.
+        '''
         print("\n--------------------------------------------")
         print("\tEDIT HUMANITARIAN PLAN")
         hum_plan_df = pd.read_csv(os.path.join('data', 'humanitarian_plan.csv'))
@@ -953,8 +956,8 @@ class Admin:
 
     def display_resources(self, hum_plan):
         """
-        This method requires a HumanitarianPlan object as argument
-        and prints out the corresponding resources .csv file.
+        This method requires a HumanitarianPlan csv file as argument
+        and prints out the .csv file.
         """
         resources = pd.read_csv(os.path.join('data', hum_plan))
         print(resources)
@@ -1122,8 +1125,7 @@ class Admin:
 
     def allocate_resources(self, hum_plan, location):
         """
-        This method requires a HumanitarianPlan object as argument, retrieves the
-        corresponding resources .csv file and allows admin to allocate resources
+        This method requires a HumanitarianPlan .csv file as argument and allows admin to allocate resources
         (Food packs, Water or First-Aid Kits) to camps in that HumanitarianPlan from storage.
         """
         resources = pd.read_csv(os.path.join('data', hum_plan))
@@ -1325,7 +1327,9 @@ class Admin:
                         resource_consumption.edit_medical_supplies(plan_id, camp_name)
 
     def admin_menu(self):
-        """Main menu when the admin logs in, providing options to access sub-menus categorising the various admin functionalities."""
+        """
+        Main menu when the admin logs in, providing options to access sub-menus categorising the various admin functionalities.
+        """
         while self.logged_in:
             logging.debug("Admin has entered the admin menu.")
             print("\n--------------------------------------------")
@@ -1341,8 +1345,8 @@ class Admin:
                 print("\nChoose what you would like to do.")
                 print("Enter [1] to create, display, edit or end a humanitarian plan")
                 print("Enter [2] to manage volunteer accounts (including camp identification)")
-                print("Enter [3] to manage resources at humanitarian plans")
-                print("Enter [4] to manage refugee profiles")
+                print("Enter [3] to manage resources of humanitarian plans")
+                print("Enter [4] to ")
                 print("Enter [5] to manage volunteering sessions")
                 print("Enter [0] to logout\n")
                 try:
