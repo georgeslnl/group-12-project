@@ -823,9 +823,9 @@ class Admin:
         logging.debug(f"Admin prompted to confirm {user}'s deactivation request.")
         while True:
             print(f'\nUser {user} has requested to deactivate their account.\n')
-            print('Enter [1] to deactivate {user}')
-            print('Enter [2] to keep {user} active')
-            print('Enter [0] to ignore this request for now.\n')
+            print(f'Enter [1] to deactivate {user}')
+            print(f'Enter [2] to keep {user} active')
+            print(f'Enter [0] to ignore this request for now.\n')
             try:
                 option = int(input(">>Select an option: "))
                 if option not in (0, 1, 2):
