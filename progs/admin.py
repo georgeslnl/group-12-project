@@ -615,10 +615,10 @@ class Admin:
                 logging.debug("No resource requests.")
                 return False # returns nothing if no new requests
             elif nb_of_requests == 1:
-                print(f'\n* You have received {nb_of_requests} new request to allocate resources. *')
+                print(f'* You have received {nb_of_requests} new request to allocate resources. *')
                 return requests
             else:
-                print(f'\n* You have received {nb_of_requests} new requests to allocate resources. *')
+                print(f'* You have received {nb_of_requests} new requests to allocate resources. *')
                 return requests
 
     def resource_request_menu(self):
@@ -767,7 +767,7 @@ class Admin:
             print(f'\n* You have received {nb_of_requests} new deactivation request. *')
             return users
         else:
-            print(f'\n* You have received {nb_of_requests} new deactivation request. *')
+            print(f'\n* You have received {nb_of_requests} new deactivation requests. *')
             return users
 
     def check_deactivation_requests(self):
