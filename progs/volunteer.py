@@ -622,8 +622,10 @@ class Volunteer:
                 print("\nPlease choose a camp from the list below.")
                 print("Camp Name - # Volunteers - # Refugees - Capacity")
                 for row in range(len(camps.index)):
-                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
-                          str(camps['refugees'].iloc[row]) + " refugees",
+                    vol_str = " volunteer" if camps['volunteers'].iloc[row] == 1 else " volunteers"
+                    ref_str = " refugee" if camps['refugees'].iloc[row] == 1 else " refugees"
+                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + vol_str,
+                          str(camps['refugees'].iloc[row]) + ref_str,
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 print("Enter [X] to return to the previous menu.\n")
                 camp_num = input(">>Enter the number corresponding to the camp you would like to join "
@@ -657,8 +659,10 @@ class Volunteer:
                 print("\nPlease choose a new camp from the list below.")
                 print("Camp Name - # Volunteers - # Refugees - Capacity")
                 for row in range(len(camps.index)):
-                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
-                          str(camps['refugees'].iloc[row]) + " refugees",
+                    vol_str = " volunteer" if camps['volunteers'].iloc[row] == 1 else " volunteers"
+                    ref_str = " refugee" if camps['refugees'].iloc[row] == 1 else " refugees"
+                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + vol_str,
+                          str(camps['refugees'].iloc[row]) + ref_str,
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 print("Enter [X] to return to the previous menu.\n")
                 camp_num = input(">>Enter the number corresponding to the camp you would like to join "
@@ -1052,7 +1056,8 @@ class Volunteer:
             # inner loop to catch invalid input
             while True:
                 logging.debug(f"{self.username} prompted to select which detail to edit.")
-                print("\nWhich details would you like to update?")
+                print("\nSelected refugee:", refugee_name)
+                print("Which details would you like to update?")
                 print("Enter [1] for refugee name")
                 print("Enter [2] for gender")
                 print("Enter [3] for date of birth")
@@ -1154,7 +1159,7 @@ class Volunteer:
             camps.to_csv(os.path.join('data', self.plan_id + '.csv'), index=False)
             print("\nRefugee capacity updated successfully!")
             print("New refugee capacity:", new_capacity)
-            logging.debug("updated camps csv file")
+            logging.debug("camps csv file updated")
             return
 
         print("\n--------------------------------------------")

@@ -35,8 +35,10 @@ def select_camp(plan_id):
     camps = pd.read_csv(os.path.join('data', plan_id + '.csv'))
     print("Camp Name - # Volunteers - # Refugees - Refugee Capacity")
     for row in range(len(camps.index)):
-        print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
-              str(camps['refugees'].iloc[row]) + " refugees", str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
+        vol_str = " volunteer" if camps['volunteers'].iloc[row] == 1 else " volunteers"
+        ref_str = " refugee" if camps['refugees'].iloc[row] == 1 else " refugees"
+        print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + vol_str,
+              str(camps['refugees'].iloc[row]) + ref_str, str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
 
     logging.debug("Admin prompted to select camp.")
     while True:

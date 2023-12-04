@@ -1040,14 +1040,30 @@ class Admin:
                         logging.error("Invalid user input.")
                         print("\nPlease enter a positive integer.")
                         continue
+                    if amount > 50000:
+                        logging.warning("Admin requested over 50000 food packets for storage.")
+                        logging.debug("Admin prompted to confirm request.")
+                        while True:
+                            print("\nWarning: You are requesting more than 50000 food packets for storage.")
+                            print("Do you wish to proceed?")
+                            print("Enter [1] to proceed")
+                            print("Enter [9] to re-enter the request\n")
+                            try:
+                                amount_option = int(input(">>Select an option: "))
+                                if amount_option not in (1, 9):
+                                    raise ValueError
+                            except ValueError:
+                                print("\nPlease enter a number from the options provided.")
+                                logging.error("Invalid user input.")
+                                continue
+                            break
+                        if amount_option == 9:
+                            logging.debug("Returning to previous step.")
+                            continue
+                        logging.debug("Request for food confirmed.")
 
                     # checks the total food in storage is a positive value, tells user that request for more food has been processed
                     total_food = current_food_storage + amount
-                    #if total_food >10000:
-                        #print(f"\n{plan_id} has a capacity of 10,000 for food storage. Your request will bring the total to {total_food}, please reduce your request.")
-                        #logging.info(f"Admin has requested an amount of food packets that will exceed current storage capabilities. They have been asked to re-enter how many they would like.")
-                        #resource_choice = 1
-                        #continue
                     if total_food < 0:
                         print(f"\n{plan_id} still has insufficient food supplies. Please request more.")
                         continue
@@ -1081,6 +1097,27 @@ class Admin:
                         logging.error("Invalid user input.")
                         print("\nPlease enter a positive integer.")
                         continue
+                    if amount > 50000:
+                        logging.warning("Admin requested over 50000 water portions for storage.")
+                        logging.debug("Admin prompted to confirm request.")
+                        while True:
+                            print("\nWarning: You are requesting more than 50000 water portions for storage.")
+                            print("Do you wish to proceed?")
+                            print("Enter [1] to proceed")
+                            print("Enter [9] to re-enter the request\n")
+                            try:
+                                amount_option = int(input(">>Select an option: "))
+                                if amount_option not in (1, 9):
+                                    raise ValueError
+                            except ValueError:
+                                print("\nPlease enter a number from the options provided.")
+                                logging.error("Invalid user input.")
+                                continue
+                            break
+                        if amount_option == 9:
+                            logging.debug("Returning to previous step.")
+                            continue
+                        logging.debug("Request for water confirmed.")
 
                     # checks the total water in storage is a positive value, tells user that request for more food has been processed
                     total_water = current_water_storage + amount
@@ -1118,6 +1155,27 @@ class Admin:
                         logging.error("Invalid user input.")
                         print("\nPlease enter a positive integer.")
                         continue
+                    if amount > 10000:
+                        logging.warning("Admin requested over 10000 first-aid kits for storage.")
+                        logging.debug("Admin prompted to confirm request.")
+                        while True:
+                            print("\nWarning: You are requesting more than 10000 first-aid kits for storage.")
+                            print("Do you wish to proceed?")
+                            print("Enter [1] to proceed")
+                            print("Enter [9] to re-enter the request\n")
+                            try:
+                                amount_option = int(input(">>Select an option: "))
+                                if amount_option not in (1, 9):
+                                    raise ValueError
+                            except ValueError:
+                                print("\nPlease enter a number from the options provided.")
+                                logging.error("Invalid user input.")
+                                continue
+                            break
+                        if amount_option == 9:
+                            logging.debug("Returning to previous step.")
+                            continue
+                        logging.debug("Request for first-aid kits confirmed.")
 
                     # checks the total first aid kits in storage is a positive value, tells user that request for more first aid kits has been processed
                     total_aid = current_aid_storage + amount
@@ -1706,8 +1764,10 @@ class Admin:
             print("\nCamps in humanitarian plan:")
             print("Camp Name - # Volunteers - # Refugees - Refugee Capacity")
             for row in range(len(camps.index)):
-                print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
-                      str(camps['refugees'].iloc[row]) + " refugees", str(camps['capacity'].iloc[row]) + " capacity",
+                vol_str = " volunteer" if camps['volunteers'].iloc[row] == 1 else " volunteers"
+                ref_str = " refugee" if camps['refugees'].iloc[row] == 1 else " refugees"
+                print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + vol_str,
+                      str(camps['refugees'].iloc[row]) + ref_str, str(camps['capacity'].iloc[row]) + " capacity",
                       sep=" - ")
         else:
             print("This plan has been closed.")
@@ -1774,14 +1834,14 @@ class Admin:
                         print("\nCapacity is unchanged. Please try again or return to the previous step.")
                         logging.error("Capacity is unchanged.")
                         continue
-                    logging.debug("Capacity updated successfully.")
+                    logging.debug("Capacity updated successfully. Returning to camp selection.")
                     # update csv file
                     chosen = (camps['camp_name'] == camp_name)
                     camps.loc[chosen, 'capacity'] = new_capacity
                     camps.to_csv(os.path.join('data', plan_id + '.csv'), index=False)
                     logging.debug("camps csv file updated")
-                    print("Capacity updated successfully!")
                     print("You have updated the capacity of", plan_id + ",", camp_name, "to", str(new_capacity) + ".")
+                    print("Returning to camp selection.")
                     progress -= 1
                     break
 
@@ -1851,8 +1911,10 @@ class Admin:
                 print("Choose a camp.")
                 print("\nCamp Name - # Volunteers - # Refugees - Capacity")
                 for row in range(len(camps.index)):
-                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
-                          str(camps['refugees'].iloc[row]) + " refugees",
+                    vol_str = " volunteer" if camps['volunteers'].iloc[row] == 1 else " volunteers"
+                    ref_str = " refugee" if camps['refugees'].iloc[row] == 1 else " refugees"
+                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + vol_str,
+                          str(camps['refugees'].iloc[row]) + ref_str,
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 camp_num = input("\n>>Enter the number of the camp the volunteer will join (e.g. [1] for Camp 1): ")
                 if camp_num.upper() == "X":
@@ -1885,8 +1947,10 @@ class Admin:
                 print("Choose a new camp.")
                 print("Camp Name - # Volunteers - # Refugees - Capacity")
                 for row in range(len(camps.index)):
-                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
-                          str(camps['refugees'].iloc[row]) + " refugees",
+                    vol_str = " volunteer" if camps['volunteers'].iloc[row] == 1 else " volunteers"
+                    ref_str = " refugee" if camps['refugees'].iloc[row] == 1 else " refugees"
+                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + vol_str,
+                          str(camps['refugees'].iloc[row]) + ref_str,
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 camp_num = input(">>Enter the number of the camp the volunteer will join (e.g. [1] for Camp 1): ")
                 if camp_num.upper() == "X":
@@ -2195,7 +2259,8 @@ class Admin:
             # inner loop to catch invalid input
             while True:
                 logging.debug("Admin prompted to select which detail to edit.")
-                print("\nWhich details would you like to update?")
+                print("\nSelected refugee:", refugee_name)
+                print("Which details would you like to update?")
                 print("Enter [1] for refugee name")
                 print("Enter [2] for gender")
                 print("Enter [3] for date of birth")

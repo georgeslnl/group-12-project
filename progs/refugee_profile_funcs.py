@@ -89,7 +89,7 @@ def add_dob():
             if overage_option == 9:
                 logging.debug("Returning to previous step.")
                 continue
-            logging.error("Date of birth confirmed.")
+            logging.debug("Date of birth confirmed.")
         return date_of_birth
 
 
