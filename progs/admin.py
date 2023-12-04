@@ -1754,8 +1754,10 @@ class Admin:
             print("\nCamps in humanitarian plan:")
             print("Camp Name - # Volunteers - # Refugees - Refugee Capacity")
             for row in range(len(camps.index)):
-                print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
-                      str(camps['refugees'].iloc[row]) + " refugees", str(camps['capacity'].iloc[row]) + " capacity",
+                vol_str = " volunteer" if camps['volunteers'].iloc[row] == 1 else " volunteers"
+                ref_str = " refugee" if camps['refugees'].iloc[row] == 1 else " refugees"
+                print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + vol_str,
+                      str(camps['refugees'].iloc[row]) + ref_str, str(camps['capacity'].iloc[row]) + " capacity",
                       sep=" - ")
         else:
             print("This plan has been closed.")
@@ -1899,8 +1901,10 @@ class Admin:
                 print("Choose a camp.")
                 print("\nCamp Name - # Volunteers - # Refugees - Capacity")
                 for row in range(len(camps.index)):
-                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
-                          str(camps['refugees'].iloc[row]) + " refugees",
+                    vol_str = " volunteer" if camps['volunteers'].iloc[row] == 1 else " volunteers"
+                    ref_str = " refugee" if camps['refugees'].iloc[row] == 1 else " refugees"
+                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + vol_str,
+                          str(camps['refugees'].iloc[row]) + ref_str,
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 camp_num = input("\n>>Enter the number of the camp the volunteer will join (e.g. [1] for Camp 1): ")
                 if camp_num.upper() == "X":
@@ -1933,8 +1937,10 @@ class Admin:
                 print("Choose a new camp.")
                 print("Camp Name - # Volunteers - # Refugees - Capacity")
                 for row in range(len(camps.index)):
-                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
-                          str(camps['refugees'].iloc[row]) + " refugees",
+                    vol_str = " volunteer" if camps['volunteers'].iloc[row] == 1 else " volunteers"
+                    ref_str = " refugee" if camps['refugees'].iloc[row] == 1 else " refugees"
+                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + vol_str,
+                          str(camps['refugees'].iloc[row]) + ref_str,
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 camp_num = input(">>Enter the number of the camp the volunteer will join (e.g. [1] for Camp 1): ")
                 if camp_num.upper() == "X":

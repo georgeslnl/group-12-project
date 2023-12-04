@@ -622,8 +622,10 @@ class Volunteer:
                 print("\nPlease choose a camp from the list below.")
                 print("Camp Name - # Volunteers - # Refugees - Capacity")
                 for row in range(len(camps.index)):
-                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
-                          str(camps['refugees'].iloc[row]) + " refugees",
+                    vol_str = " volunteer" if camps['volunteers'].iloc[row] == 1 else " volunteers"
+                    ref_str = " refugee" if camps['refugees'].iloc[row] == 1 else " refugees"
+                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + vol_str,
+                          str(camps['refugees'].iloc[row]) + ref_str,
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 print("Enter [X] to return to the previous menu.\n")
                 camp_num = input(">>Enter the number corresponding to the camp you would like to join "
@@ -657,8 +659,10 @@ class Volunteer:
                 print("\nPlease choose a new camp from the list below.")
                 print("Camp Name - # Volunteers - # Refugees - Capacity")
                 for row in range(len(camps.index)):
-                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + " volunteers",
-                          str(camps['refugees'].iloc[row]) + " refugees",
+                    vol_str = " volunteer" if camps['volunteers'].iloc[row] == 1 else " volunteers"
+                    ref_str = " refugee" if camps['refugees'].iloc[row] == 1 else " refugees"
+                    print(camps['camp_name'].iloc[row], str(camps['volunteers'].iloc[row]) + vol_str,
+                          str(camps['refugees'].iloc[row]) + ref_str,
                           str(camps['capacity'].iloc[row]) + " capacity", sep=" - ")
                 print("Enter [X] to return to the previous menu.\n")
                 camp_num = input(">>Enter the number corresponding to the camp you would like to join "
