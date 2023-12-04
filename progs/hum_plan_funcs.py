@@ -350,14 +350,12 @@ def edit_no_camps(plan_id, num_camps):
                     print('Resources (food packs, water and first-aid kits) of camps being closed will be moved back to storage'
                           ' in the same plan.')
                     for camp in closed_camps:
-                        # hum_plan_df.iloc[plan_index, -3] += plan_df.loc[plan_df.camp_name == camp, 'food']
-                        hum_plan_df.loc[hum_plan_df["plan_id"] == plan_id, "food_storage"] += plan_df.loc[plan_df.camp_name == camp, 'food']
+                        select_camp = plan_df[plan_df['camp_name'] == camp]
+                        hum_plan_df.loc[hum_plan_df["plan_id"] == plan_id, "food_storage"] += select_camp.iloc[0]['food']
                         plan_df.loc[plan_df.camp_name == camp, 'food'] = 0
-                        # hum_plan_df.iloc[plan_index, -2] += plan_df.loc[plan_df.camp_name == camp, 'water']
-                        hum_plan_df.loc[hum_plan_df["plan_id"] == plan_id, "water_storage"] += plan_df.loc[plan_df.camp_name == camp, 'water']
+                        hum_plan_df.loc[hum_plan_df["plan_id"] == plan_id, "water_storage"] += select_camp.iloc[0]['water']
                         plan_df.loc[plan_df.camp_name == camp, 'water'] = 0
-                        # hum_plan_df.iloc[plan_index, -1] += plan_df.loc[plan_df.camp_name == camp, 'firstaid_kits']
-                        hum_plan_df.loc[hum_plan_df["plan_id"] == plan_id, "firstaid_kits_storage"] += plan_df.loc[plan_df.camp_name == camp, 'firstaid_kits']
+                        hum_plan_df.loc[hum_plan_df["plan_id"] == plan_id, "firstaid_kits_storage"] += select_camp.iloc[0]['firstaid_kits']
                         plan_df.loc[plan_df.camp_name == camp, 'firstaid_kits'] = 0
                     # remove camp rows for closed camps in plan.csv
                     plan_df = plan_df[~plan_df['camp_name'].isin(closed_camps)]
