@@ -917,6 +917,8 @@ class Admin:
                     break
                 try:
                     end = datetime.strptime(end_date, "%d-%m-%Y").date()
+                    if len(end_date) != 10:
+                        raise ValueError
                 except ValueError:
                     print("\nIncorrect date format. Please use the format DD-MM-YYYY (e.g. 15-12-2023).")
                     logging.error("Invalid user input.")

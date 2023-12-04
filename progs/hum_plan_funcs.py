@@ -63,6 +63,8 @@ def add_start_date(location):
             return start_date
         try:
             start = datetime.datetime.strptime(start_date, "%d-%m-%Y").date()
+            if len(start_date) != 10:
+                raise ValueError
         except ValueError:
             print("\nIncorrect date format. Please use the format DD-MM-YYYY (e.g. 23-07-1999).")
             logging.error("Invalid user input.")

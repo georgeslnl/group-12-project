@@ -17,6 +17,8 @@ def select_date():
             return vol_date
         try:
             vol_dt = datetime.datetime.strptime(vol_date, "%d-%m-%Y").date()
+            if len(vol_date) != 10:
+                raise ValueError
         except ValueError:
             print("\nIncorrect date format. Please use the format DD-MM-YYYY (e.g. 18-11-2023).")
             logging.error("Invalid user input.")
