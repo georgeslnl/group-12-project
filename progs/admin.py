@@ -630,7 +630,10 @@ class Admin:
         logging.debug("Checking for resource requests.")
         print()
         requests = self.resource_request_notification()
-        if requests is not False:  # if method above didn't return false
+        if requests is False:
+            print("\nYou have not received any resource requests.")
+            print("Returning to previous menu\n")
+        else:  # if method above didn't return false
             new_requests = requests[requests["resolved"] == 'no']
             for index, row in new_requests.iterrows():
                 logging.debug("Processing next request.")
