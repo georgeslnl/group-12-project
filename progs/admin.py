@@ -612,7 +612,6 @@ class Admin:
             # if no new requests have been made, the column 'resolved' should only contain 'yes' values
             nb_of_requests = len(requests[requests["resolved"] == 'no'])
             if nb_of_requests == 0:
-                logging.debug("No resource requests.")
                 return False # returns nothing if no new requests
             elif nb_of_requests == 1:
                 print(f'* You have received {nb_of_requests} new request to allocate resources. *')
@@ -633,6 +632,7 @@ class Admin:
         if requests is False:
             print("\nYou have not received any resource requests.")
             print("Returning to previous menu\n")
+            logging.debug("No resource requests. Returning to previous menu.")
         else:  # if method above didn't return false
             new_requests = requests[requests["resolved"] == 'no']
             for index, row in new_requests.iterrows():
@@ -689,7 +689,7 @@ class Admin:
 
                 # First-Aid Kit requests
                 if kit_request == 0:
-                    print('No first-aid kit requested.')
+                    print('No first-aid kits requested.')
                 else:
                     print(f'{user} has made a first-aid kit request.')
                     while True:
@@ -709,12 +709,12 @@ class Admin:
                 humani_plan_df.to_csv(os.path.join('data', 'humanitarian_plan.csv'), index=False)
                 resources_df.to_csv(os.path.join('data', plan + '.csv'), index=False)
                 requests.to_csv(os.path.join('data', 'resource_requests.csv'), index=False)
-                logging.debug(f"Request from {user} marked as resolved.")
+                logging.debug(f"Request from {user} marked as resolved. "
+                              f"resource_requests.csv, humanitarian_plan.csv and camps csv file updated.")
                 print("-----------------------")
 
             logging.debug("Finished processing resource requests.")
-            requests.to_csv(os.path.join('data', 'resource_requests.csv'), index=False)
-            logging.debug("resource_requests.csv saved")
+        return
 
 
     def resource_request_processing(self, requested_nb, resource, user, camp, plan, humani_plan_df, resources_df):
@@ -759,9 +759,8 @@ class Admin:
                 # Adding resources to camp
                 resources_df.loc[resources_df.camp_name == camp, resource] += requested_nb
 
-
                 print(f'The {resource} units for {camp} have increased by: {requested_nb}')
-                logging.debug("Request approved. humanitarian_plan.csv and camps csv file updated.")
+                logging.debug("Request approved.")
             elif option == 2:
                 print(f'\nRequest declined: no {resource} has been allocated.')
                 logging.debug("Request declined.")
@@ -777,7 +776,6 @@ class Admin:
         users = pd.read_csv(os.path.join('data', 'users.csv'), dtype={'password': str})
         nb_of_requests = len(users[users["deactivation_requested"] == 1])
         if nb_of_requests == 0:
-            logging.debug("No deactivation requests.")
             return False  # returns nothing if no new requests
         elif nb_of_requests == 1:
             print(f'\n* You have received {nb_of_requests} new deactivation request. *')
@@ -797,6 +795,7 @@ class Admin:
         if users is False:
             print("\nYou have not received any deactivation requests.")
             print("Returning to previous menu\n")
+            logging.debug("No deactivation requests. Returning to previous menu.")
             return
 
         print("\n--------------------------------------------")
