@@ -654,7 +654,8 @@ class Admin:
                 else:
                     print(f'{user} has made a food request.')
                     while True:
-                        option = v.string("\n>>Enter [C] to continue, or [X] to return to the previous menu: ")
+                        option = v.string("\n>>Enter [C] to continue, or [X] to return to the previous menu "
+                                          "(changes for this user's request will not be saved): ")
                         if option.upper() == "X":
                             logging.debug("Returning to previous menu.")
                             return
@@ -671,7 +672,8 @@ class Admin:
                 else:
                     print(f'{user} has made a water request.')
                     while True:
-                        option = v.string("\n>>Enter [C] to continue, or [X] to return to the previous menu: ")
+                        option = v.string("\n>>Enter [C] to continue, or [X] to return to the previous menu "
+                                          "(changes for this user's request will not be saved): ")
                         if option.upper() == "X":
                             logging.debug("Returning to previous menu.")
                             return
@@ -688,7 +690,8 @@ class Admin:
                 else:
                     print(f'{user} has made a first-aid kit request.')
                     while True:
-                        option = v.string("\n>>Enter [C] to continue, or [X] to return to the previous menu: ")
+                        option = v.string("\n>>Enter [C] to continue, or [X] to return to the previous menu "
+                                          "(changes for this user's request will not be saved): ")
                         if option.upper() == "X":
                             logging.debug("Returning to previous menu.")
                             return
