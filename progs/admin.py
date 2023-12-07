@@ -567,6 +567,7 @@ class Admin:
 
         # Getting the plan_id of all the plans created
         humani_plan = pd.read_csv(os.path.join('data', 'humanitarian_plan.csv'))
+        humani_plan = humani_plan[humani_plan["end_date"].isna()]
         plans = []
         for index, row in humani_plan.iterrows():
             plans.append(row["plan_id"])
