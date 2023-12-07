@@ -952,7 +952,7 @@ class Admin:
                 continue
             break
 
-        # update csv files: add end date; remove volunteer accounts and volunteering sessions for that plan
+        # update csv files: add end date; remove volunteer accounts, volunteering sessions and resource requests for that plan
         plans.loc[plans["plan_id"] == plan_id, "end_date"] = end_date
         plans.to_csv(os.path.join('data', 'humanitarian_plan.csv'), index=False)
         logging.debug("humanitarian_plan.csv updated")
@@ -966,6 +966,11 @@ class Admin:
         vol_times = vol_times.drop(vol_times[vol_times['plan_id'] == plan_id].index)
         vol_times.to_csv(os.path.join('data', 'volunteering_times.csv'), index=False)
         logging.debug("volunteering_times.csv updated")
+
+        resource_req = pd.read_csv(os.path.join('data', 'resource_requests.csv'))
+        resource_req = resource_req.drop(resource_req[resource_req['plan_id'] == plan_id].index)
+        resource_req.to_csv(os.path.join('data', 'resource_requests.csv'), index=False)
+        logging.debug("resource_requests.csv updated")
 
         logging.debug(f"End date added to {plan_id}. The plan has been closed.")
         print("\nThe humanitarian plan", plan_id, "has been closed, with end date", end_date + ".")
