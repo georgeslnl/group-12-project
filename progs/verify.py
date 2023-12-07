@@ -141,7 +141,7 @@ def email(line):
     while True:
         # first checks that email is a string
         _email = string(line)
-        s = re.search("^[A-Za-z0-9_]+@[A-Za-z0-9]+\.[A-Za-z.]+$", _email)
+        s = re.search("^[A-Za-z0-9_.]+@[A-Za-z0-9]+\.[A-Za-z.]+$", _email)
         if _email == "0":
             return _email
         elif _email == "":

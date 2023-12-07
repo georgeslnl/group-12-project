@@ -507,7 +507,7 @@ class Volunteer:
                     print("\nPlease enter an email address.\n")
                     logging.error(f"{self.username} did not enter an email address.")
                     continue
-                s = re.search("^[A-Za-z0-9_]+@[A-Za-z0-9]+\.[A-Za-z.]+$", new_email)
+                s = re.search("^[A-Za-z0-9_.]+@[A-Za-z0-9]+\.[A-Za-z.]+$", new_email)
                 if not s:
                     print("\nInvalid email address. Please try again.\n")
                     logging.error("Invalid user input.")
