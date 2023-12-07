@@ -1,6 +1,6 @@
 username,password,account_type,active,deactivation_requested,first_name,last_name,email,phone_number,gender,date_of_birth,plan_id,camp_name
 admin,111,admin,1,0,Umar,White,admin@example.com,+44 2099447101,3,23-09-1990,,
-volunteer1,111,volunteer,0,0,Hannah,Martinez,volunteer1@example.com,+44 5147330304,1,04-01-1988,London_2023,Camp 1
+volunteer1,111,volunteer,1,0,Hannah,Martinez,volunteer1@example.com,+44 5147330304,1,04-01-1988,London_2023,Camp 1
 volunteer10,111,volunteer,1,0,Bob,Lee,volunteer10@example.com,+44 6394637016,3,09-05-1996,London_2023,Camp 4
 volunteer100,111,volunteer,0,0,Rachel,Allen,volunteer100@example.com,+44 2579745221,3,15-03-1987,Barcelona_2022,Camp 2
 volunteer101,111,volunteer,1,0,Amelia,Robinson,volunteer101@example.com,+44 6573250116,1,10-11-1962,Barcelona_2022,Camp 2
@@ -38,7 +38,7 @@ volunteer15,111,volunteer,1,0,Quentin,Davis,volunteer15@example.com,+44 25451707
 volunteer16,111,volunteer,0,0,Nora,Smith,volunteer16@example.com,+44 5278621605,1,18-06-1951,London_2023,Camp 5
 volunteer17,111,volunteer,1,0,Amelia,Johnson,volunteer17@example.com,+44 5009868540,2,08-06-1996,Ukraine_2022,Camp 1
 volunteer18,111,volunteer,1,0,Yvonne,Anderson,volunteer18@example.com,+44 8382683264,1,13-07-1956,Ukraine_2022,Camp 1
-volunteer19,111,volunteer,0,0,Ian,White,volunteer19@example.com,+44 6727152375,3,12-07-1950,Ukraine_2022,Camp 2
+volunteer19,111,volunteer,1,0,Ian,White,volunteer19@example.com,+44 6727152375,3,12-07-1950,Ukraine_2022,Camp 2
 volunteer2,111,volunteer,1,0,Charlie,Clark,volunteer2@example.com,+44 5601891495,2,06-05-1982,London_2023,Camp 2
 volunteer20,111,volunteer,1,0,Hannah,Brown,volunteer20@example.com,+44 1424840275,1,07-10-1996,Ukraine_2022,Camp 3
 volunteer21,111,volunteer,0,0,Quentin,Lee,volunteer21@example.com,+44 7144286344,2,01-03-1992,Ukraine_2022,Camp 3
@@ -67,18 +67,7 @@ volunteer41,111,volunteer,1,0,Oscar,Johnson,volunteer41@example.com,+44 93609906
 volunteer42,111,volunteer,0,0,Charlie,Davis,volunteer42@example.com,+44 2779970118,2,05-11-1953,Ukraine_2022,Camp 7
 volunteer43,111,volunteer,1,0,Walter,Walker,volunteer43@example.com,+44 6945224219,3,04-02-1983,Ukraine_2022,Camp 7
 volunteer44,111,volunteer,0,0,Michael,Garcia,volunteer44@example.com,+44 9282367108,1,15-12-1957,Ukraine_2022,Camp 7
-volunteer45,111,volunteer,1,0,Diana,Garcia,volunteer45@example.com,+44 1808735783,3,15-07-1990,Osaka_2017,Camp 1
-volunteer46,111,volunteer,1,0,Brian,Harris,volunteer46@example.com,+44 8300496538,1,11-09-1951,Osaka_2017,Camp 2
-volunteer47,111,volunteer,1,0,George,Lee,volunteer47@example.com,+44 8389853439,1,21-03-1984,Osaka_2017,Camp 2
-volunteer48,111,volunteer,1,0,Hannah,Lee,volunteer48@example.com,+44 9452749403,3,11-12-1984,Osaka_2017,Camp 2
-volunteer49,111,volunteer,1,0,Brian,Johnson,volunteer49@example.com,+44 7559411997,3,18-04-1992,Osaka_2017,Camp 3
 volunteer5,111,volunteer,1,0,Quentin,Martinez,volunteer5@example.com,+44 1783823555,3,23-03-1994,London_2023,Camp 2
-volunteer50,111,volunteer,1,0,Diana,White,volunteer50@example.com,+44 6745603964,1,08-12-1959,Osaka_2017,Camp 3
-volunteer51,111,volunteer,1,0,Bob,Martinez,volunteer51@example.com,+44 9220316511,2,12-08-1974,Osaka_2017,Camp 3
-volunteer52,111,volunteer,1,0,Umar,Williams,volunteer52@example.com,+44 4623534598,3,22-01-1967,Osaka_2017,Camp 3
-volunteer53,111,volunteer,0,0,Laura,Martin,volunteer53@example.com,+44 8646786597,3,26-11-1959,Osaka_2017,Camp 4
-volunteer54,111,volunteer,1,0,Michael,Brown,volunteer54@example.com,+44 3657233614,1,01-03-1953,Osaka_2017,Camp 4
-volunteer55,111,volunteer,1,0,Yvonne,Young,volunteer55@example.com,+44 7642830466,3,19-07-1996,Osaka_2017,Camp 4
 volunteer56,111,volunteer,1,0,Tina,Smith,volunteer56@example.com,+44 7058837796,3,17-08-1981,Rio de Janeiro_2021,Camp 1
 volunteer57,111,volunteer,1,1,George,White,volunteer57@example.com,+44 6190138032,2,11-02-1957,Rio de Janeiro_2021,Camp 1
 volunteer58,111,volunteer,1,0,Daniel,Hernandez,volunteer58@example.com,+44 1794933046,2,02-07-1992,Rio de Janeiro_2021,Camp 1
@@ -105,7 +94,7 @@ volunteer76,111,volunteer,1,0,Nora,Jackson,volunteer76@example.com,+44 244921011
 volunteer77,111,volunteer,1,0,Walter,Garcia,volunteer77@example.com,+44 8057082399,2,03-03-1964,Rio de Janeiro_2021,Camp 6
 volunteer78,111,volunteer,1,0,Tina,Jackson,volunteer78@example.com,+44 3172618292,2,09-08-1997,Rio de Janeiro_2021,Camp 6
 volunteer79,111,volunteer,1,0,Nora,White,volunteer79@example.com,+44 2214411915,3,23-07-1974,Chicago_2022,Camp 1
-volunteer8,111,volunteer,0,0,Fiona,Johnson,volunteer8@example.com,+44 8100997095,2,27-04-1998,London_2023,Camp 3
+volunteer8,111,volunteer,1,0,Fiona,Johnson,volunteer8@example.com,+44 8100997095,2,27-04-1998,London_2023,Camp 3
 volunteer80,111,volunteer,1,0,Bob,Wilson,volunteer80@example.com,+44 2148319698,3,11-08-1994,Chicago_2022,Camp 1
 volunteer81,111,volunteer,1,0,Paula,Smith,volunteer81@example.com,+44 9535376855,1,06-03-1989,Chicago_2022,Camp 2
 volunteer82,111,volunteer,1,0,Xena,Hernandez,volunteer82@example.com,+44 1549064445,1,18-05-1983,Chicago_2022,Camp 2
