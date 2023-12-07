@@ -267,7 +267,7 @@ def add_email():
             print("\nPlease enter an email address.")
             logging.error("User did not enter an email address.")
             continue
-        s = re.search("^[A-Za-z0-9_]+@[A-Za-z0-9]+\.[A-Za-z.]+$", email)
+        s = re.search("^[A-Za-z0-9_.]+@[A-Za-z0-9]+\.[A-Za-z.]+$", email)
         if not s:
             print("\nInvalid email address. Please try again.")
             logging.error("Invalid user input.")
@@ -569,7 +569,7 @@ def edit_email(username, email):
             print("\nPlease enter an email address.")
             logging.error("Admin did not enter an email address.")
             continue
-        s = re.search("^[A-Za-z0-9_]+@[A-Za-z0-9]+\.[A-Za-z.]+$", new_email)
+        s = re.search("^[A-Za-z0-9_.]+@[A-Za-z0-9]+\.[A-Za-z.]+$", new_email)
         if not s:
             print("\nInvalid email address. Please try again.")
             logging.error("Invalid user input.")
