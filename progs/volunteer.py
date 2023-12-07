@@ -944,9 +944,10 @@ class Volunteer:
             logging.debug(f"{self.username} has chosen to list all refugees at their camp.")
             print("\nRefugee ID - Refugee Name - Date of Birth - # Family Members")
             for row in range(len(refugees.index)):
+                fam_str = " family member" if refugees['family_members'].iloc[row] == 1 else " family members"
                 print(refugees['refugee_id'].iloc[row], refugees['refugee_name'].iloc[row],
                       refugees['date_of_birth'].iloc[row],
-                      str(refugees['family_members'].iloc[row]) + " family members", sep=" - ")
+                      str(refugees['family_members'].iloc[row]) + fam_str, sep=" - ")
 
         # Obtain refugee ID
         while True:
@@ -1022,9 +1023,10 @@ class Volunteer:
         if option == 2: # list refugees at volunteer's camp
             print("\nRefugee ID - Refugee Name - Date of Birth - # Family Members")
             for row in range(len(refugees.index)):
+                fam_str = " family member" if refugees['family_members'].iloc[row] == 1 else " family members"
                 print(refugees['refugee_id'].iloc[row], refugees['refugee_name'].iloc[row],
                       refugees['date_of_birth'].iloc[row],
-                      str(refugees['family_members'].iloc[row]) + " family members", sep=" - ")
+                      str(refugees['family_members'].iloc[row]) + fam_str, sep=" - ")
 
         # Obtain refugee ID
         while True:

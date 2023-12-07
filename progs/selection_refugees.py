@@ -91,9 +91,10 @@ def select_refugee(plan_id, camp_name):
             print("Refugees at plan", plan_id + ",", camp_name + ":")
             print("Refugee ID - Refugee Name - Date of Birth - # Family Members")
             for row in range(len(refugees.index)):
+                fam_str = " family member" if refugees['family_members'].iloc[row] == 1 else " family members"
                 print(refugees['refugee_id'].iloc[row], refugees['refugee_name'].iloc[row],
                       refugees['date_of_birth'].iloc[row],
-                      str(refugees['family_members'].iloc[row]) + " family members", sep=" - ")
+                      str(refugees['family_members'].iloc[row]) + fam_str, sep=" - ")
             print("")
             continue
         try:
