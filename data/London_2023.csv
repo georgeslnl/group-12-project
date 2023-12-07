@@ -1,6 +1,6 @@
 camp_name,volunteers,refugees,capacity,food,water,firstaid_kits
-Camp 1,1,62,100,514,864,364
-Camp 2,6,82,100,896,880,208
+Camp 1,1,62,100,10,864,364
+Camp 2,6,82,100,20,880,208
 Camp 3,1,33,100,989,612,318
 Camp 4,4,84,100,788,816,250
 Camp 5,4,39,100,963,576,429
